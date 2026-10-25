@@ -850,6 +850,64 @@ input.input[type=date]::-webkit-date-and-time-value,input.input[type=time]::-web
 .h6-kpi .k-s .lnk{min-height:32px}
 .h6-alerts .h-alert + .h-alert{margin-top:6px}
 .h-basis .calc-note{word-break:keep-all}
+
+/* ── V3: 홈 정렬 · 탭 · 더치페이 · 대출 계산 ── */
+/* 홈: 들어온/나간 돈, 순자산/저축 목표를 같은 2열 그리드·같은 기준선으로 */
+.home6 .io,.h6-pos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:var(--sp-4);row-gap:0;align-items:start}
+.home6 .io-item,.h6-pos .p{display:grid;grid-template-columns:minmax(0,1fr);align-content:start;row-gap:6px;margin:0;padding:0}
+.home6 .io-l,.home6 .p-l{display:block;min-height:1.4em}
+.home6 .io-v,.home6 .p-v{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:2px;font-size:clamp(18px,5.4vw,var(--fs-xl));font-weight:600;line-height:1.2;letter-spacing:-0.02em}
+.home6 .p-v.muted-v{font-size:var(--fs-md);font-weight:500}
+.home6 .io-v small,.home6 .p-v small,.home6 .r-v small{margin-left:1px;font-size:var(--fs-sm);font-weight:500;line-height:1;color:var(--ink2)}
+.home6 .result{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,max-content);align-items:center;column-gap:var(--sp-4)}
+.home6 .r-l{flex:none;min-width:0;text-align:left}
+.home6 .r-v{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:baseline;column-gap:2px;margin:0;text-align:right}
+/* 상단 탭: 같은 규칙 — 넘치면 가로 스크롤, 남으면 균등하게 채움 */
+.tabs-scroll.ul-tabs{border-bottom:1px solid var(--line);scroll-behavior:smooth;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.tabs-scroll.ul-tabs .seg{display:flex;width:max-content;min-width:0;gap:0;padding:0;border-bottom:0;overflow:visible}
+.tabs-scroll.ul-tabs .seg button{position:relative;flex:1 0 auto;min-width:52px;padding:12px 14px 13px;text-align:center;box-shadow:none!important}
+.tabs-scroll.ul-tabs .seg button:first-child{margin-left:-14px}
+.tabs-scroll.ul-tabs .seg button.on::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;border-radius:2px;background:var(--ink)}
+@media (max-width:600px){
+  .tabs-scroll.ul-tabs .seg{min-width:100%}
+  .tabs-scroll.ul-tabs .seg button{padding-left:10px;padding-right:10px}
+  .tabs-scroll.ul-tabs .seg button:first-child{margin-left:0}
+  .tabs-scroll.ul-tabs .seg button.on::after{left:10px;right:10px}
+}
+/* 수입처 직접 추가 */
+.add-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
+.add-row .btn{height:46px}
+/* 더치페이 */
+.dutch-t{margin-top:2px}
+.dutch{display:flex;flex-direction:column;gap:10px}
+.stepper{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;height:46px;border:1px solid var(--line2);border-radius:var(--r-md);overflow:hidden}
+.stepper b{text-align:center;font-weight:600}
+.stepper .icon-btn{width:44px;height:44px;border-radius:0;font-size:20px}
+.dutch-list{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.dutch-list li{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px solid var(--line2);border-radius:var(--r-md);min-width:0}
+.dl-h{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px}
+.dl-st{font-size:var(--fs-xs);padding:3px 8px;border-radius:999px;background:var(--warn-soft);color:var(--warn);white-space:nowrap}
+.dl-st.part{background:var(--chip);color:var(--ink2)}
+.dl-st.done{background:var(--chip);color:var(--sage)}
+/* 대출 계산 */
+.loan-calc{display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--line2);border-radius:var(--r-md);background:var(--surface2);min-width:0}
+.loan-calc h4{margin:0;font-size:var(--fs-base);font-weight:600}
+.loan-calc .kv{display:flex;flex-direction:column;gap:6px}
+.loan-calc .kv > div{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:var(--fs-sm);min-width:0}
+.loan-calc .kv span{color:var(--ink2);min-width:0}
+.loan-calc .kv b{font-weight:600;text-align:right;overflow-wrap:anywhere}
+.loan-calc .kv .big b{font-size:var(--fs-lg)}
+.loan-calc .btn.small{align-self:flex-start}
+.loan-table{max-height:320px;overflow:auto;border:1px solid var(--line2);border-radius:var(--r-sm);-webkit-overflow-scrolling:touch}
+.loan-table table{width:100%;min-width:420px;border-collapse:collapse;font-size:var(--fs-xs);font-variant-numeric:tabular-nums}
+.loan-table th,.loan-table td{padding:6px 8px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line2)}
+.loan-table th:first-child,.loan-table td:first-child{text-align:left}
+.loan-table thead th{position:sticky;top:0;background:var(--surface);color:var(--ink2);font-weight:500}
+.loan-table tr.grace td{color:var(--ink2)}
+.loan-paid{display:flex;flex-direction:column;gap:4px;margin:0;padding:0;list-style:none}
+.loan-paid li{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:10px;font-size:var(--fs-sm);color:var(--ink2)}
+.loan-paid li b{text-align:right;color:var(--ink);font-weight:500}
+:root .tabs-scroll.ul-tabs .seg button,:root[data-theme] .tabs-scroll.ul-tabs .seg button.on{background:none;border-radius:0}
 </style>
 </head>
 <body>
@@ -18728,7 +18786,21 @@ const Money = ({ v, sign, className }) => (React.createElement("span", { classNa
     won(v),
     React.createElement("small", null, "\uC6D0")));
 function Seg({ value, onChange, options, small, full }) {
-    return (React.createElement("div", { className: cx('seg', small && 'seg-sm', full && 'seg-full'), role: "tablist" }, options.map(([v, l]) => (React.createElement("button", { key: v, type: "button", role: "tab", "aria-selected": value === v, className: value === v ? 'on' : '', onClick: () => onChange(v) }, l)))));
+    const ref = useRef(null);
+    // 가로 스크롤 탭: 선택한 탭이 화면 밖이면 보이도록 이동
+    useEffect(() => {
+        const el = ref.current;
+        const sc = el && el.closest('.tabs-scroll');
+        const on = el && el.querySelector('button.on');
+        if (!sc || !on || sc.scrollWidth <= sc.clientWidth)
+            return;
+        const sr = sc.getBoundingClientRect(), br = on.getBoundingClientRect(), padX = 20;
+        if (br.left < sr.left + padX)
+            sc.scrollLeft -= sr.left + padX - br.left;
+        else if (br.right > sr.right - padX)
+            sc.scrollLeft += br.right - (sr.right - padX);
+    }, [value]);
+    return (React.createElement("div", { ref, className: cx('seg', small && 'seg-sm', full && 'seg-full'), role: "tablist" }, options.map(([v, l]) => (React.createElement("button", { key: v, type: "button", role: "tab", "aria-selected": value === v, className: value === v ? 'on' : '', onClick: () => onChange(v) }, l)))));
 }
 const Field = ({ label, children, hint }) => (React.createElement("label", { className: "field" },
     React.createElement("span", { className: "field-l" }, label),
@@ -19916,10 +19988,19 @@ function flowParts(data, statsOf, m) {
     const expense = sum(exp, amt) - loanRepay;
     const tax = sum(all.filter((t) => t.type === 'tax'), amt);
     const labor = sum(inc.filter((t) => t.scope !== 'business' && (LABOR_KINDS.includes(kindOf(t)) || ['salary', 'job'].includes(t.incType))), amt);
-    const moved = sum(all.filter((t) => t.type === 'transfer' || t.type === 'cardpay' || t.type === 'draw' || t.type === 'saving'), amt);
+    const loanIds = new Set(live(data.account).filter((a) => a.kind === 'loan').map((a) => a.id));
+    const loanPrincipal = sum(all.filter((t) => t.type === 'transfer' && loanIds.has(t.toAccountId)), amt);
+    const moved = sum(all.filter((t) => (t.type === 'transfer' && !loanIds.has(t.toAccountId)) || t.type === 'cardpay' || t.type === 'draw' || t.type === 'saving'), amt);
+    const sp = exp.filter((t) => t.split);
+    const dGot = (t) => sum(t.split.parts || [], (p) => Math.min(p.settled || 0, p.share || 0));
+    const dutchOwn = sum(sp, amt);
+    const dutchCash = sum(sp, (t) => (t.split.payer === 'other' ? dGot(t) : (t.split.total || t.amount) - dGot(t)));
+    const dutchRecv = sum(sp.filter((t) => t.split.payer !== 'other'), (t) => sum(t.split.parts || [], (p) => p.share || 0) - dGot(t));
+    const dutchPay = sum(sp.filter((t) => t.split.payer === 'other'), (t) => (t.split.myShare || t.amount) - dGot(t));
     const W = s.work;
     return {
-        income, expense, tax, loanRepay, moved, net: income - expense - tax - loanRepay,
+        income, expense, tax, loanRepay: loanRepay + loanPrincipal, moved, net: income - expense - tax - loanRepay - loanPrincipal - (dutchCash - dutchOwn),
+        dutchN: sp.length, dutchOwn, dutchCash, dutchRecv, dutchPay,
         sales: s.biz.sales, costs: s.biz.costs, bizProfit: s.biz.profit, bizMinutes: W.minutes,
         labor, expected: W.jobNet, jobMinutes: W.jobMinutes,
         poker: W.poker.profit, pokerIn: W.poker.buyin + W.poker.fee, pokerPrize: W.poker.prize, pokerMinutes: W.pokerMinutes, pokerCount: W.poker.count,
@@ -19942,9 +20023,9 @@ function ProfitOverview() {
     const cfg = {
         all: { label: '순현금흐름', key: 'net', sign: true,
             chart: [{ name: '전체 수입', color: 'var(--sage)', values: pick((p) => p.income) }, { name: '전체 지출', color: 'var(--c-var)', values: pick((p) => p.expense) }, { name: '순현금흐름', color: 'var(--c-fixed)', values: pick((p) => p.net) }],
-            lines: [['전체 수입', '+', cur.income], ['전체 지출', '−', cur.expense], ['세금 납부', '−', cur.tax], ['대출 원금 상환', '−', cur.loanRepay]],
-            extra: [['사업 순수익 (세전)', `${signed(cur.bizProfit)}원`], ['근로 수입 (실제 입금)', `${won(cur.labor)}원`], ['포커 손익 (참고)', `${signed(cur.poker)}원`]],
-            note: `전체 수입·지출은 개인과 사업을 합친 금액이에요. 계좌 이체·저축·카드대금·사업 인출 ${won(cur.moved)}원은 돈의 위치만 바뀐 것이라 수입·지출에 넣지 않았어요. 예상 급여는 실제 입금이 아니라 더하지 않아요. 포커 손익은 ‘수입·지출에 자동 반영’한 기록만 포함돼요.` },
+            lines: [['전체 수입', '+', cur.income], ['전체 지출', '−', cur.expense], ['세금 납부', '−', cur.tax], ['대출 원금 상환', '−', cur.loanRepay], ...(cur.dutchN && cur.dutchCash !== cur.dutchOwn ? [[cur.dutchCash > cur.dutchOwn ? '더치페이 미정산 (먼저 낸 돈)' : '더치페이 미정산 (아직 안 보낸 돈)', cur.dutchCash > cur.dutchOwn ? '−' : '+', Math.abs(cur.dutchCash - cur.dutchOwn)]] : [])],
+            extra: [...(cur.dutchN ? [['더치페이 실제 현금 유출', `${won(cur.dutchCash)}원`], ['더치페이 최종 내 소비액', `${won(cur.dutchOwn)}원`], ['미정산 받을 돈 / 보낼 돈', `${won(cur.dutchRecv)} / ${won(cur.dutchPay)}원`]] : []), ['사업 순수익 (세전)', `${signed(cur.bizProfit)}원`], ['근로 수입 (실제 입금)', `${won(cur.labor)}원`], ['포커 손익 (참고)', `${signed(cur.poker)}원`]],
+            note: `전체 수입·지출은 개인과 사업을 합친 금액이에요. 계좌 이체·저축·카드대금·사업 인출 ${won(cur.moved)}원은 돈의 위치만 바뀐 것이라 수입·지출에 넣지 않았어요. 예상 급여는 실제 입금이 아니라 더하지 않아요. 지출은 더치페이 내 부담금 기준이고, 대출 원금 상환은 부채 감소, 이자는 지출로 따로 잡아요. 포커 손익은 ‘수입·지출에 자동 반영’한 기록만 포함돼요.` },
         biz: { label: '사업 순수익 (세전)', key: 'bizProfit', sign: true,
             chart: [{ name: '매출', color: 'var(--sage)', values: pick((p) => p.sales) }, { name: '경비', color: 'var(--c-var)', values: pick((p) => p.costs) }, { name: '순수익', color: 'var(--c-fixed)', values: pick((p) => p.bizProfit) }],
             lines: [['매출', '+', cur.sales], ['사업 경비', '−', cur.costs]],
@@ -22985,8 +23066,22 @@ function accountValuesAt(data, date) {
         bal[id] += v;
         (flows[id] = flows[id] || []).push({ d, v, ts });
     } };
-    live(data.tx).filter((t) => t.date <= date).forEach((t) => {
+    live(data.tx).forEach((t) => {
         const ts = t.createdAt || t.updatedAt || 0;
+        // 더치페이: 내가 결제하면 전체 금액이 나가고 받은 정산금이 들어와요. 상대방이 결제하면 내가 보낸 정산금만 나가요
+        if (t.type === 'expense' && t.split) {
+            const sp = t.split, sAcc = sp.settleAccountId || t.accountId;
+            if (sp.payer !== 'other' && t.date <= date)
+                add(t.accountId, -(sp.total || t.amount), t.date, ts);
+            (sp.parts || []).forEach((p) => {
+                const d = p.settledDate || t.date;
+                if (p.settled > 0 && d <= date)
+                    add(sAcc, sp.payer === 'other' ? -p.settled : p.settled, d, ts);
+            });
+            return;
+        }
+        if (t.date > date)
+            return;
         if (t.type === 'income')
             add(t.accountId, t.amount, t.date, ts);
         else if (t.type === 'expense')
@@ -23385,45 +23480,180 @@ function InvestFlowSheet({ accId, mode, onClose }) {
 /* ───────── 대출(부채): 일반 계좌와 분리된 전용 입력 ─────────
    저장은 기존처럼 kind 'loan' 계좌로 해요(남은 원금 = 음수 잔액) — 순자산·부채 비율 계산과 예전 대출 기록이 그대로 이어져요. */
 const LOAN_TYPES = ['학자금 대출', '신용대출', '전세자금 대출', '주택담보대출', '사업자 대출', '자동차 대출', '기타 대출'];
-const REPAY_METHODS = [['equal_pi', '원리금균등'], ['equal_p', '원금균등'], ['bullet', '만기일시'], ['other', '기타']];
-const repayLabel = (v) => (REPAY_METHODS.find((x) => x[0] === v) || [, ''])[1];
+const REPAY_METHODS = [['equal_pi', '원리금균등'], ['equal_p', '원금균등'], ['bullet', '만기일시']];
+const repayLabel = (v) => (REPAY_METHODS.find((x) => x[0] === v) || [, v === 'other' ? '기타' : ''])[1];
+/* ───────── 대출 상환 계산 ─────────
+   남은 원금은 실제 기록(최초 잔액 + 대출 계좌로 보낸 원금 상환 이체)에서 가져오고, 지난 납입일 수로 남은 거치·상환 개월을 구해
+   오늘 이후의 상환표를 만들어요. 중도상환을 기록하면 남은 원금이 줄어 만기는 그대로, 월 납입액이 다시 계산돼요. */
+const ymdL = (y, m, d) => `${y}-${pad(m)}-${pad(Math.min(d, dim(`${y}-${pad(m)}`)))}`;
+// 상환 시작일부터 매월 납입일 목록 (n개)
+function dueDates(startDate, payDay, n) {
+    const out = [];
+    if (!startDate)
+        return out;
+    let y = +startDate.slice(0, 4), m = +startDate.slice(5, 7);
+    const day = payDay || +startDate.slice(8, 10);
+    if (ymdL(y, m, day) < startDate) { m += 1; if (m > 12) { m = 1; y += 1; } }
+    for (let i = 0; i < n; i++) {
+        out.push(ymdL(y, m, day));
+        m += 1;
+        if (m > 12) { m = 1; y += 1; }
+    }
+    return out;
+}
+function loanPlan(L, balance, asOf) {
+    const B0 = Math.max(0, Math.round(balance || 0));
+    const rate = Number(L.rate) || 0, r = rate / 100 / 12;
+    const grace = Math.max(0, Math.round(Number(L.graceMonths) || 0));
+    const term = Math.max(0, Math.round(Number(L.termMonths) || 0));
+    const method = L.repayMethod === 'equal_p' || L.repayMethod === 'bullet' ? L.repayMethod : 'equal_pi';
+    const start = L.repayStart || (L.startDate ? addM(L.startDate.slice(0, 7), 1) + L.startDate.slice(7) : '');
+    const notes = [];
+    if (!term || !start)
+        return { ok: false, rows: [], notes: ['상환 기간과 상환 시작일을 입력하면 상환표를 계산해요.'] };
+    const all = dueDates(start, Number(L.payDay) || 0, grace + term);
+    const passed = all.filter((d) => d <= asOf).length;
+    let graceLeft = Math.max(0, grace - passed);
+    let payLeft = Math.max(0, term - Math.max(0, passed - grace));
+    const future = all.slice(passed);
+    const rows = [];
+    let B = B0;
+    if (B <= 0)
+        return { ok: true, rows, done: true, notes: ['남은 원금이 없어요. 완납된 대출이에요.'] };
+    if (!payLeft) {
+        notes.push('약정 상환 기간이 끝났는데 남은 원금이 있어요. 다음 납입일에 남은 원금을 한 번에 갚는 것으로 계산했어요.');
+        const d = dueDates(asOf, Number(L.payDay) || +start.slice(8, 10), 2).find((x) => x > asOf);
+        const it = Math.round(B * r);
+        rows.push({ date: d, pay: B + it, principal: B, interest: it, balance: 0 });
+        return { ok: true, rows, notes };
+    }
+    let k = 0;
+    for (; k < graceLeft; k++) {
+        const it = Math.round(B * r);
+        if (L.graceInterest === 'defer') {
+            B += it;
+            rows.push({ date: future[k], pay: 0, principal: 0, interest: 0, deferred: it, balance: B, grace: true });
+        }
+        else
+            rows.push({ date: future[k], pay: it, principal: 0, interest: it, balance: B, grace: true });
+    }
+    const n = payLeft;
+    const pmt = method === 'equal_pi' ? (r ? B * r / (1 - Math.pow(1 + r, -n)) : B / n) : 0;
+    const pp = method === 'equal_p' ? B / n : 0;
+    for (let i = 0; i < n; i++) {
+        const it = Math.round(B * r);
+        let pr = method === 'equal_pi' ? Math.round(pmt) - it : method === 'equal_p' ? Math.round(pp) : 0;
+        if (i === n - 1 || pr > B)
+            pr = B;
+        B -= pr;
+        rows.push({ date: future[k + i], pay: pr + it, principal: pr, interest: it, balance: B });
+    }
+    if (!rate)
+        notes.push('연이율 0%로 이자 없이 원금만 계산했어요.');
+    if (L.rateType === 'variable')
+        notes.push('변동금리는 현재 연이율이 끝까지 유지된다고 가정한 계산이에요. 금리가 바뀌면 연이율을 고쳐 주세요.');
+    if (graceLeft && L.graceInterest === 'defer')
+        notes.push('거치 기간 이자를 내지 않고 원금에 더하는 방식으로 계산했어요.');
+    if (L.repayMethod === 'other')
+        notes.push('‘기타’ 상환 방식은 원리금균등으로 가정해 계산했어요.');
+    return { ok: true, rows, notes, graceLeft, payLeft };
+}
+function loanSummary(rows, asOf) {
+    const reg = rows.find((x) => !x.grace) || null;
+    return {
+        next: rows[0] || null,
+        regular: reg ? reg.pay : 0,
+        interest: sum(rows, (x) => x.interest),
+        total: sum(rows, (x) => x.pay),
+        months: rows.length,
+        end: rows.length ? rows[rows.length - 1].date : null,
+    };
+}
+// 이 대출로 기록한 상환 (원금 = 대출 계좌로 보낸 이체, 이자 = '대출 이자' 지출)
+function loanPayments(data, id) {
+    return live(data.tx).filter((t) => (t.toAccountId === id && t.type !== 'income' && t.type !== 'expense') || (t.loanId === id && t.type === 'expense'));
+}
 function LoanSheet({ acc, onClose }) {
-    const { commit, toast, data } = useApp();
+    const { commit, toast, data, accounts } = useApp();
     const h = React.createElement;
-    const cur = acc ? accountValuesAt(data, today())[acc.id] : null;
+    const t0 = today();
+    const cur = acc ? accountValuesAt(data, t0)[acc.id] : null;
     const [f, setF] = useState(() => ({
         name: acc ? acc.name : '', loanType: (acc && acc.loanType) || '신용대출', lender: (acc && acc.lender) || '',
         principal: (acc && acc.principal) || (acc ? Math.abs(acc.initial || 0) : 0), remaining: acc ? Math.abs(acc.initial || 0) : 0,
-        rate: acc && acc.rate != null ? String(acc.rate) : '', grace: acc && acc.graceMonths != null ? String(acc.graceMonths) : '', term: acc && acc.termMonths != null ? String(acc.termMonths) : '',
+        rate: acc && acc.rate != null ? String(acc.rate) : '', rateType: (acc && acc.rateType) || 'fixed',
+        grace: acc && acc.graceMonths != null ? String(acc.graceMonths) : '', graceInterest: (acc && acc.graceInterest) || 'pay',
+        term: acc && acc.termMonths != null ? String(acc.termMonths) : '',
+        startDate: (acc && acc.startDate) || '', repayStart: (acc && acc.repayStart) || '', payDay: acc && acc.payDay ? String(acc.payDay) : '',
         repay: (acc && acc.repayMethod) || 'equal_pi', memo: (acc && acc.memo) || '',
     }));
     const [err, setErr] = useState('');
+    const [showTable, setShowTable] = useState(false);
+    const [pay, setPay] = useState(null); // 상환 기록 입력
     const set = (k) => (v) => { setF((x) => ({ ...x, [k]: v && v.target ? v.target.value : v })); setErr(''); };
     const num = (v) => (v === '' || v == null ? null : Number(v));
+    const L = { rate: num(f.rate), rateType: f.rateType, graceMonths: num(f.grace), graceInterest: f.graceInterest, termMonths: num(f.term), startDate: f.startDate, repayStart: f.repayStart, payDay: num(f.payDay), repayMethod: f.repay };
+    // 저장된 대출은 실제 기록 기준 남은 원금, 새 대출은 입력한 남은 원금으로 계산
+    const balance = acc ? Math.max(0, -(cur || 0)) + (Math.abs(acc.initial || 0) !== (Number(f.remaining) || 0) ? (Number(f.remaining) || 0) - Math.abs(acc.initial || 0) : 0) : Number(f.remaining) || 0;
+    const plan = loanPlan(L, balance, t0);
+    const S = loanSummary(plan.rows, t0);
+    const tm = thisMonth();
+    const paid = acc ? loanPayments(data, acc.id) : [];
+    const paidThis = paid.filter((t) => t.date.slice(0, 7) === tm);
+    const thisP = sum(paidThis.filter((t) => t.type !== 'expense'), (t) => t.amount), thisI = sum(paidThis.filter((t) => t.type === 'expense'), (t) => t.amount);
+    const dueThis = plan.rows.find((x) => x.date && x.date.slice(0, 7) === tm);
     const save = () => {
         const name = f.name.trim() || `${f.lender.trim() ? f.lender.trim() + ' ' : ''}${f.loanType}`;
         if (!(f.remaining > 0) && !acc)
-            return setErr('남은 원금을 입력해 주세요.');
+            return setErr('현재 남은 원금을 입력해 주세요.');
         if (f.principal && f.remaining > f.principal)
-            return setErr('남은 원금이 최초 대출금보다 클 수 없어요.');
+            return setErr('남은 원금이 대출 원금보다 클 수 없어요.');
         const r = num(f.rate);
         if (r != null && !(r >= 0 && r <= 100))
             return setErr('연이율은 0~100% 사이로 입력해 주세요.');
+        const pd = num(f.payDay);
+        if (pd != null && !(pd >= 1 && pd <= 31))
+            return setErr('매월 상환일은 1~31일 사이로 입력해 주세요.');
+        if (f.startDate && f.repayStart && f.repayStart < f.startDate)
+            return setErr('상환 시작일은 실행일 이후여야 해요.');
         commit([{ kind: 'account', rec: {
                     ...(acc || {}), id: acc ? acc.id : newId(), kind: 'loan', name, loanType: f.loanType, lender: f.lender.trim(),
-                    principal: Number(f.principal) || 0, initial: -(Number(f.remaining) || 0), rate: r, graceMonths: num(f.grace), termMonths: num(f.term), repayMethod: f.repay,
+                    principal: Number(f.principal) || 0, initial: -(Number(f.remaining) || 0), rate: r, rateType: f.rateType,
+                    graceMonths: num(f.grace), graceInterest: f.graceInterest, termMonths: num(f.term), repayMethod: f.repay,
+                    startDate: f.startDate || '', repayStart: f.repayStart || '', payDay: pd,
                     scope: f.loanType === '사업자 대출' ? 'business' : (acc && acc.scope) || 'personal', memo: f.memo.trim(), deleted: false,
                 } }]);
         toast(acc ? '대출 정보를 수정했어요' : '대출을 추가했어요');
         onClose();
     };
     const del = async () => {
-        const used = live(data.tx).some((t) => t.accountId === acc.id || t.toAccountId === acc.id);
-        if (!(await ask({ title: '이 대출을 삭제할까요?', body: used ? '이 대출로 기록한 상환 이체가 있어요. 삭제해도 거래는 남지만 대출 연결은 사라져요.' : undefined, confirmLabel: '대출 삭제', danger: true })))
+        const used = live(data.tx).some((t) => t.accountId === acc.id || t.toAccountId === acc.id || t.loanId === acc.id);
+        if (!(await ask({ title: '이 대출을 삭제할까요?', body: used ? '이 대출로 기록한 상환이 있어요. 삭제해도 거래는 남지만 대출 연결은 사라져요.' : undefined, confirmLabel: '대출 삭제', danger: true })))
             return;
         commit([{ kind: 'account', rec: { ...acc, deleted: true } }]);
         onClose();
     };
+    const fromAccs = accounts.filter((a) => a.kind !== 'loan' && a.kind !== 'card');
+    const openPay = () => {
+        const nx = plan.rows.find((x) => !x.grace || x.interest) || null;
+        setPay({ date: t0, from: (fromAccs[0] || {}).id || '', principal: nx ? nx.principal : 0, interest: nx ? nx.interest : 0 });
+    };
+    const savePay = () => {
+        if (!(pay.principal > 0) && !(pay.interest > 0))
+            return setErr('원금이나 이자 금액을 입력해 주세요.');
+        if (pay.principal > balance)
+            return setErr('원금 상환액이 남은 원금보다 커요.');
+        const ch = [];
+        const base = { scope: acc.scope || 'personal', date: pay.date, accountId: pay.from, loanId: acc.id, createdAt: Date.now(), deleted: false };
+        if (pay.principal > 0)
+            ch.push({ kind: 'tx', rec: { ...base, id: newId(), type: 'transfer', amount: pay.principal, category: '', toAccountId: acc.id, memo: `${acc.name} 원금 상환` } });
+        if (pay.interest > 0)
+            ch.push({ kind: 'tx', rec: { ...base, id: newId(), type: 'expense', scope: 'personal', amount: pay.interest, category: '대출 이자', group: '금융', sub: null, memo: `${acc.name} 이자`, toAccountId: '' } });
+        commit(ch);
+        toast(`상환을 기록했어요 · 원금 ${won(pay.principal)}원${pay.interest ? ` · 이자 ${won(pay.interest)}원` : ''}`);
+        setPay(null);
+    };
+    const kv = (l, v, cls) => h("div", { className: cls }, h("span", null, l), h("b", { className: "num" }, v));
     return (h(Sheet, { title: acc ? '대출 수정' : '대출 추가', onClose, footer: h(React.Fragment, null,
             acc && h("button", { className: "icon-btn", onClick: del, "aria-label": "삭제" }, h(Icon, { n: "trash" })),
             h("button", { className: "btn", onClick: onClose }, "취소"),
@@ -23435,17 +23665,60 @@ function LoanSheet({ acc, onClose }) {
                 h(Field, { label: "대출명" }, h("input", { className: "input", value: f.name, onChange: set('name'), placeholder: "예: 학자금 1차" })),
                 h(Field, { label: "금융기관" }, h("input", { className: "input", value: f.lender, onChange: set('lender'), placeholder: "예: 한국장학재단" }))),
             h("div", { className: "form-2" },
-                h(Field, { label: "최초 대출금" }, h(AmountInput, { value: f.principal, onChange: set('principal') })),
-                h(Field, { label: acc ? '등록 시점 남은 원금' : '남은 원금' }, h(AmountInput, { value: f.remaining, onChange: set('remaining') }))),
-            acc && cur != null && h("p", { className: "small muted num" }, "상환 이체를 반영한 현재 남은 원금 ", won(Math.max(0, -cur)), "원"),
-            h("div", { className: "form-3" },
+                h(Field, { label: "대출 원금" }, h(AmountInput, { value: f.principal, onChange: set('principal') })),
+                h(Field, { label: acc ? '등록 시점 남은 원금' : '현재 남은 원금' }, h(AmountInput, { value: f.remaining, onChange: set('remaining') }))),
+            acc && h("p", { className: "small muted num" }, "상환 기록을 반영한 현재 남은 원금 ", h("b", null, won(balance)), "원"),
+            h("div", { className: "form-2" },
                 h(Field, { label: "연이율 (%)" }, h("input", { className: "input num", type: "number", inputMode: "decimal", step: "0.01", min: "0", value: f.rate, onChange: set('rate'), placeholder: "예: 4.5" })),
-                h(Field, { label: "거치 (개월)" }, h("input", { className: "input num", type: "number", inputMode: "numeric", min: "0", value: f.grace, onChange: set('grace'), placeholder: "0" })),
-                h(Field, { label: "상환 (개월)" }, h("input", { className: "input num", type: "number", inputMode: "numeric", min: "0", value: f.term, onChange: set('term'), placeholder: "예: 60" }))),
+                h(Field, { label: "금리 유형" }, h(Seg, { small: true, full: true, value: f.rateType, onChange: set('rateType'), options: [['fixed', '고정'], ['variable', '변동']] }))),
+            h("div", { className: "form-2" },
+                h(Field, { label: "거치 기간 (개월)" }, h("input", { className: "input num", type: "number", inputMode: "numeric", min: "0", value: f.grace, onChange: set('grace'), placeholder: "0" })),
+                h(Field, { label: "상환 기간 (개월)", hint: num(f.term) ? `대출 기간 ${(num(f.grace) || 0) + num(f.term)}개월 (거치 포함)` : null }, h("input", { className: "input num", type: "number", inputMode: "numeric", min: "0", value: f.term, onChange: set('term'), placeholder: "예: 60" }))),
+            (num(f.grace) || 0) > 0 && h(Field, { label: "거치 기간 이자" }, h(Seg, { small: true, full: true, value: f.graceInterest, onChange: set('graceInterest'), options: [['pay', '이자만 매월 납부'], ['defer', '이자 유예 (원금에 가산)']] })),
+            h("div", { className: "form-2" },
+                h(Field, { label: "실행일" }, h("input", { className: "input", type: "date", value: f.startDate, onChange: set('startDate') })),
+                h(Field, { label: "상환 시작일", hint: !f.repayStart && f.startDate ? '비우면 실행일 한 달 뒤로 계산해요' : null }, h("input", { className: "input", type: "date", value: f.repayStart, onChange: set('repayStart') }))),
+            h(Field, { label: "매월 상환일" }, h("input", { className: "input num", type: "number", inputMode: "numeric", min: "1", max: "31", value: f.payDay, onChange: set('payDay'), placeholder: "비우면 상환 시작일과 같은 날" })),
             h(Field, { label: "상환 방식" },
-                h(Seg, { small: true, full: true, value: f.repay, onChange: set('repay'), options: REPAY_METHODS })),
+                h(Seg, { small: true, full: true, value: f.repay === 'other' ? 'equal_pi' : f.repay, onChange: set('repay'), options: REPAY_METHODS })),
+            h("section", { className: "loan-calc", "aria-label": "상환 계산" },
+                h("h4", null, "자동 상환 계산"),
+                plan.ok && plan.rows.length ? h(React.Fragment, null,
+                    h("div", { className: "kv" },
+                        kv(plan.graceLeft ? '거치 후 월 예상 납입액' : '월 예상 납입액', `${won(S.regular)}원`, 'big'),
+                        plan.graceLeft > 0 && kv('거치 기간 월 납입 (이자)', f.graceInterest === 'defer' ? '0원 (유예)' : `${won(plan.rows[0].pay)}원`),
+                        thisP || thisI ? kv('이번 달 납입 (기록)', `원금 ${won(thisP)} · 이자 ${won(thisI)}원`) : dueThis ? kv(`이번 달 ${+dueThis.date.slice(8)}일 납입 예정`, `원금 ${won(dueThis.principal)} · 이자 ${won(dueThis.interest)}원`) : kv('이번 달', `납입 예정 없음 (다음 ${S.next ? S.next.date.slice(5).replace('-', '/') : '—'})`),
+                        kv('총 예상 이자', `${won(S.interest)}원`),
+                        kv('총 예상 상환액', `${won(S.total)}원`),
+                        kv('남은 상환 기간', `${S.months}개월${plan.graceLeft ? ` (거치 ${plan.graceLeft}개월 포함)` : ''}`),
+                        kv('예상 완납일', S.end ? S.end.replace(/-/g, '.') : '—')),
+                    plan.notes.map((n) => h("p", { key: n, className: "small muted" }, n)),
+                    h("p", { className: "small muted" }, "원금 상환은 부채 감소, 이자는 비용으로 따로 집계해요. 중도상환을 기록하면 만기는 그대로 두고 월 납입액을 다시 계산해요."),
+                    h("button", { type: "button", className: "btn small", onClick: () => setShowTable(!showTable), "aria-expanded": showTable }, showTable ? '상환표 접기' : `월별 상환표 보기 (${S.months}회)`),
+                    showTable && h("div", { className: "loan-table" },
+                        h("table", null,
+                            h("thead", null, h("tr", null, h("th", null, "납입일"), h("th", null, "납입액"), h("th", null, "원금"), h("th", null, "이자"), h("th", null, "잔액"))),
+                            h("tbody", null, plan.rows.map((x, i) => h("tr", { key: i, className: cx(x.grace && 'grace') },
+                                h("td", null, x.date ? x.date.slice(2).replace(/-/g, '.') : '—'),
+                                h("td", null, won(x.pay)), h("td", null, won(x.principal)), h("td", null, x.deferred ? `+${won(x.deferred)}` : won(x.interest)), h("td", null, won(x.balance)))))))) : h("p", { className: "small muted" }, (plan.notes || [])[0] || '대출 정보를 입력하면 계산해요.')),
+            acc && h("section", { className: "loan-calc" },
+                h("h4", null, "상환 기록"),
+                paid.length ? h("ul", { className: "loan-paid" }, paid.sort((a, c) => c.date.localeCompare(a.date)).slice(0, 6).map((t) => h("li", { key: t.id },
+                    h("span", null, t.date.slice(2).replace(/-/g, '.')), h("span", null, t.type === 'expense' ? '이자' : '원금'), h("b", { className: "num" }, won(t.amount), "원"))))
+                    : h("p", { className: "small muted" }, "아직 기록한 상환이 없어요."),
+                pay ? h("div", { className: "form" },
+                    h("div", { className: "form-2" },
+                        h(Field, { label: "납입일" }, h("input", { className: "input", type: "date", value: pay.date, onChange: (e) => setPay({ ...pay, date: e.target.value }) })),
+                        h(Field, { label: "출금 계좌" }, h("select", { className: "input", value: pay.from, onChange: (e) => setPay({ ...pay, from: e.target.value }) },
+                            h("option", { value: "" }, "선택 안 함"), fromAccs.map((a) => h("option", { key: a.id, value: a.id }, a.name))))),
+                    h("div", { className: "form-2" },
+                        h(Field, { label: "원금 (중도상환 포함)" }, h(AmountInput, { value: pay.principal, onChange: (v) => setPay({ ...pay, principal: v }) })),
+                        h(Field, { label: "이자" }, h(AmountInput, { value: pay.interest, onChange: (v) => setPay({ ...pay, interest: v }) }))),
+                    h("div", { className: "dual-btns" },
+                        h("button", { type: "button", className: "btn", onClick: () => setPay(null) }, "취소"),
+                        h("button", { type: "button", className: "btn primary", onClick: savePay }, "상환 기록 저장")))
+                    : h("button", { type: "button", className: "btn small", onClick: openPay }, h(Icon, { n: "plus", s: 15 }), "상환 기록하기")),
             h(Field, { label: "메모 (선택)" }, h("input", { className: "input", value: f.memo, onChange: set('memo') })),
-            h("p", { className: "small muted" }, "부채는 은행 계좌와 따로 관리하고 순자산에서 빼요. 원금을 갚을 때 ‘이체 › 계좌 이체’로 이 대출에 보내면 남은 원금이 줄어요."),
             err && h("p", { className: "err", role: "alert" }, err))));
 }
 function DebtPanel() {
@@ -23646,6 +23919,11 @@ function TxRow({ t, showDate }) {
     const rule = t.ruleId && data.rule && data.rule[t.ruleId];
     if (acc && !acc.deleted)
         parts.push(acc.name + (toAcc && !toAcc.deleted ? ` → ${toAcc.name}` : ''));
+    if (t.split) {
+        const got = sum(t.split.parts || [], (p) => Math.min(p.settled || 0, p.share || 0));
+        const rem = t.split.payer === 'other' ? (t.split.myShare || t.amount) - got : sum(t.split.parts || [], (p) => p.share || 0) - got;
+        parts.push(`더치페이 ${won(t.split.total)}원 중 내 몫 · ${rem > 0 ? (t.split.payer === 'other' ? `보낼 돈 ${won(rem)}원` : `받을 돈 ${won(rem)}원`) : '정산 완료'}`);
+    }
     if (t.payMethod)
         parts.push(t.payMethod);
     else if (rule && !rule.deleted && rule.payMethod)
@@ -24332,7 +24610,18 @@ function EntrySheet({ tx, prefill, onClose }) {
     });
     const [custom, setCustom] = useState(false);
     const [customText, setCustomText] = useState('');
-    const [amt, setAmt] = useState(b.amount ? String(b.amount) : '');
+    const [amt, setAmt] = useState(b.split && b.split.total ? String(b.split.total) : b.amount ? String(b.amount) : '');
+    // 더치페이: tx.amount = 내 부담금(지출), tx.split에 전체 금액·참여자별 부담금·정산 상태를 함께 저장
+    const sp0 = b.type === 'expense' && b.split ? b.split : null;
+    const [dutch, setDutch] = useState(!!sp0);
+    const [payer, setPayer] = useState(sp0 ? sp0.payer || 'me' : 'me');
+    const [people, setPeople] = useState(sp0 ? Math.max(2, sp0.people || 2) : 2);
+    const [myShare, setMyShare] = useState(sp0 ? sp0.myShare || 0 : 0);
+    const [parts, setParts] = useState(sp0 ? (sp0.parts || []).map((p) => ({ ...p })) : []);
+    const [splitTouched, setSplitTouched] = useState(!!sp0);
+    const [settleAcc, setSettleAcc] = useState(sp0 ? sp0.settleAccountId || '' : '');
+    const [adding, setAdding] = useState(false);
+    const [newSrc, setNewSrc] = useState('');
     const [date, setDate] = useState(tx ? tx.date : today());
     const [memo, setMemo] = useState(b.memo || '');
     const [source, setSource] = useState(b.source || '');
@@ -24351,7 +24640,34 @@ function EntrySheet({ tx, prefill, onClose }) {
     const [more, setMore] = useState(isEdit || !!(b.memo || b.accountId || b.payMethod));
     const [err, setErr] = useState('');
     const touch = useMemo(() => window.matchMedia && window.matchMedia('(pointer: coarse)').matches, []);
+    const nTotal = Number(amt) || 0;
+    useEffect(() => {
+        if (!dutch)
+            return;
+        const k = Math.max(2, Number(people) || 2), each = Math.floor(nTotal / k), mine = nTotal - each * (k - 1);
+        if (!splitTouched)
+            setMyShare(mine);
+        setParts((prev) => {
+            const cnt = payer === 'me' ? k - 1 : 1;
+            return Array.from({ length: cnt }, (_, i) => {
+                const p = prev[i] || {};
+                return { id: p.id || newId(), name: p.name || '', share: payer === 'me' ? (splitTouched && p.share != null ? p.share : each) : 0, settled: p.settled || 0, settledDate: p.settledDate || '' };
+            });
+        });
+    }, [dutch, nTotal, people, payer, splitTouched]);
+    const updPart = (i, patch) => { setParts((ps) => ps.map((p, j) => (j === i ? { ...p, ...patch } : p))); setErr(''); };
+    const onMyShare = (v) => {
+        setMyShare(v);
+        setSplitTouched(true);
+        if (payer === 'me')
+            setParts((ps) => { const rest = Math.max(0, nTotal - v), c = ps.length || 1, each = Math.floor(rest / c); return ps.map((p, i) => ({ ...p, share: i === 0 ? rest - each * (c - 1) : each })); });
+    };
+    const othersShare = payer === 'me' ? sum(parts, (p) => p.share || 0) : Math.max(0, nTotal - myShare);
+    const settledSum = payer === 'me' ? sum(parts, (p) => Math.min(p.settled || 0, p.share || 0)) : Math.min((parts[0] || {}).settled || 0, myShare);
+    const unsettled = payer === 'me' ? Math.max(0, othersShare - settledSum) : Math.max(0, myShare - settledSum);
+    const cashOut = payer === 'me' ? nTotal - settledSum : settledSum;
     const isTax = tab === 'expense' && group === '세금 납부';
+    const useDutch = dutch && tab === 'expense' && group !== '세금 납부' && group !== '사업 경비';
     const isBiz = (tab === 'expense' && group === '사업 경비') || (tab === 'income' && group === 'biz');
     const sc = isBiz ? 'business' : 'personal';
     const subs = tab === 'transfer' ? [] : subsFor(data, tab, group, jobId);
@@ -24369,8 +24685,11 @@ function EntrySheet({ tx, prefill, onClose }) {
     const n = Number(amt) || 0;
     const split = vatSplit(n, vatType);
     const bizSources = sourcesOf(data).filter((x) => x.kind === 'business');
-    const pickList = group === 'biz' ? bizSources : group === 'salary' ? sourcesOf(data).filter((x) => x.kind === 'salary') : group === 'other' ? sourcesOf(data).filter((x) => x.kind === 'freelance' || x.kind === 'other') : [];
-    const incLabel = (k) => (k === 'biz' && bizSources.length === 1 ? `사업체 (${bizSources[0].name})` : k === 'job' && jobs.length === 1 ? `파트타이머 (${jobs[0].name})` : INC_LABEL[k]);
+    const pickList = group === 'salary' ? sourcesOf(data).filter((x) => x.kind === 'salary') : group === 'other' ? sourcesOf(data).filter((x) => x.kind === 'freelance' || x.kind === 'other') : [];
+    const incLabel = (k) => INC_LABEL[k];
+    const bizSel = group === 'biz' ? (sourceId && bizSources.some((x) => x.id === sourceId) ? sourceId : sourceId || (bizSources[0] ? bizSourceId(data) : '')) : '';
+    const jobSel = group === 'job' && jobById(data, jobId) ? jobId : '';
+    const srcReady = group === 'biz' ? !!bizSel : group === 'job' ? !!jobSel : true;
     // 최상위 탭을 바꾸면 금액·분류를 처음 상태로 (다른 종류의 금액이 그대로 저장되는 실수 방지)
     const switchTab = (v) => {
         if (v === tab)
@@ -24392,12 +24711,38 @@ function EntrySheet({ tx, prefill, onClose }) {
     const pickGroup = (g) => {
         setGroup(g);
         setCustom(false);
+        setAdding(false);
         setSourceId('');
         setErr('');
         const jid = g === 'job' ? jobId || (jobs[0] ? jobs[0].id : '') : jobId;
         if (g === 'job')
             setJobId(jid);
         setSel(subsFor(data, tab, g, jid)[0] || null);
+    };
+    const addSource = () => {
+        const name = newSrc.trim();
+        if (!name)
+            return setErr(group === 'biz' ? '사업체 이름을 입력해 주세요.' : '근무처 이름을 입력해 주세요.');
+        const s0 = data.settings.settings || { id: 'settings' };
+        if (group === 'biz') {
+            const ex = sourcesOf(data, true).find((x) => x.kind === 'business' && x.name === name);
+            if (ex) { setSourceId(ex.id); setAdding(false); return; }
+            const id = 'src_' + newId();
+            commit([{ kind: 'settings', rec: { ...s0, id: 'settings', sources: [...(s0.sources || SOURCE_SEED), { id, name, kind: 'business' }] } }]);
+            setSourceId(id);
+        }
+        else {
+            const ex = jobs.find((j) => j.name === name);
+            if (ex) { pickJob(ex.id); setAdding(false); return; }
+            const id = newId(), wk = s0.work || {};
+            commit([{ kind: 'settings', rec: { ...s0, id: 'settings', work: { ...wk, jobs: [...(wk.jobs || []), { id, name, wage: 0, payCat: '부업·프리랜서' }] } } }]);
+            setJobId(id);
+            setSel({ name: '근무 급여', cat: '부업·프리랜서' });
+        }
+        setAdding(false);
+        setNewSrc('');
+        setErr('');
+        toast(`‘${name}’을(를) ${group === 'biz' ? '사업체' : '근무처'}로 추가했어요`);
     };
     const pickJob = (id) => { setJobId(id); const first = subsFor(data, 'income', 'job', id)[0]; if (sel && first) setSel({ name: sel.name, cat: first.cat }); };
     const press = (k) => setAmt((a) => {
@@ -24413,6 +24758,8 @@ function EntrySheet({ tx, prefill, onClose }) {
         if (tab === 'expense' || tab === 'income') {
             if (!group)
                 return tab === 'income' ? '수입 유형을 골라 주세요.' : '분류를 골라 주세요.';
+            if (!srcReady)
+                return group === 'biz' ? '사업체를 골라 주세요.' : '근무처를 골라 주세요.';
             if (custom ? !customText.trim() : !sel)
                 return custom ? '항목 이름을 입력해 주세요.' : '세부 항목을 골라 주세요.';
         }
@@ -24424,6 +24771,16 @@ function EntrySheet({ tx, prefill, onClose }) {
         }
         if (accountId && toAccountId && accountId === toAccountId && tab === 'transfer')
             return '서로 다른 계좌를 골라 주세요.';
+        if (useDutch) {
+            if (!(myShare > 0) || myShare > n)
+                return '내 부담금은 0원보다 크고 전체 금액 이하여야 해요.';
+            if (payer === 'me' && myShare + othersShare !== n)
+                return `부담금 합계(${won(myShare + othersShare)}원)가 전체 금액(${won(n)}원)과 달라요.`;
+            if (payer === 'me' && parts.some((p) => (p.settled || 0) > (p.share || 0)))
+                return '받은 금액이 부담금보다 클 수 없어요.';
+            if (payer === 'other' && ((parts[0] || {}).settled || 0) > myShare)
+                return '보낸 금액이 내 부담금보다 클 수 없어요.';
+        }
         if (pmNew && !pmText.trim())
             return '결제수단 이름을 입력해 주세요.';
         if (!date)
@@ -24440,7 +24797,7 @@ function EntrySheet({ tx, prefill, onClose }) {
         const pm = tab === 'expense' ? (pmNew ? pmText.trim() : payMethod) : '';
         const incSource = tab !== 'income' ? null : group === 'job' ? (jobId ? 'job_' + jobId : null) : sourceId || null;
         const rec = {
-            ...(tx || {}), id: tx ? tx.id : newId(), type, scope: recScope, date, amount: n,
+            ...(tx || {}), id: tx ? tx.id : newId(), type, scope: recScope, date, amount: useDutch ? myShare : n,
             category: tab === 'transfer' ? (type === 'draw' ? '사업 인출' : '') : catVal,
             sub: (tab === 'expense' || tab === 'income') && subName && subName !== catVal ? subName : null,
             group: tab === 'expense' && !isTax && !isBiz ? group : null,
@@ -24451,6 +24808,13 @@ function EntrySheet({ tx, prefill, onClose }) {
             goalId: tab === 'saving' ? goalId : '',
             jobPay: tab === 'income' && group === 'job' ? b.jobPay || null : null,
             sourceId: tab === 'income' ? incSource : tab === 'expense' && !isTax ? sourceId || null : null,
+            split: useDutch ? {
+                payer, total: n, people, myShare, settleAccountId: settleAcc,
+                parts: (payer === 'me' ? parts : parts.slice(0, 1)).map((p, i) => {
+                    const share = payer === 'me' ? p.share || 0 : myShare, st = Math.min(p.settled || 0, share);
+                    return { id: p.id, name: (p.name || '').trim() || (payer === 'me' ? `참여자 ${i + 1}` : '상대방'), share, settled: st, settledDate: st ? p.settledDate || today() : '' };
+                }),
+            } : null,
             vatType: null, supply: null, vat: null, orderId: null, evidence: null, nonDeductible: null, vatDeductible: null,
             createdAt: tx ? tx.createdAt || Date.now() : Date.now(), deleted: false,
         };
@@ -24489,6 +24853,8 @@ function EntrySheet({ tx, prefill, onClose }) {
     };
     const copy = () => {
         const { id, ruleId, occMonth, createdAt, updatedAt, date: _d, ...rest } = tx;
+        if (rest.split)
+            rest.split = { ...rest.split, parts: (rest.split.parts || []).map((p) => ({ ...p, id: newId(), settled: 0, settledDate: '' })) };
         openSheet('entry', { prefill: rest });
     };
     const saveFav = () => {
@@ -24577,19 +24943,71 @@ function EntrySheet({ tx, prefill, onClose }) {
                         h("p", { className: "field-l" }, tab === 'income' ? '수입 유형' : '분류'),
                         h("div", { className: cx('cat-grid', tab === 'income' && 'wide'), role: "group", "aria-label": tab === 'income' ? '수입 유형' : '분류' },
                             (tab === 'income' ? INC_TYPES : EXP_GROUPS).map((g) => Chip(group === g, tab === 'income' ? incLabel(g) : g, () => pickGroup(g), g))),
-                        group === 'job' && (jobs.length ? (jobs.length > 1 && h(React.Fragment, null,
-                            h("p", { className: "field-l" }, "근무처"),
-                            h("div", { className: "cat-grid" }, jobs.map((j) => Chip(jobId === j.id, j.name, () => pickJob(j.id), j.id)))))
-                            : h("p", { className: "note" }, "등록된 근무처가 없어요. 내역 › 근무 › 아르바이트에서 근무처를 추가하면 여기서 바로 연결돼요.")),
+                        (group === 'biz' || group === 'job') && h(React.Fragment, null,
+                            h("p", { className: "field-l" }, group === 'biz' ? '사업체' : '근무처'),
+                            h("div", { className: "cat-grid", role: "group", "aria-label": group === 'biz' ? '사업체' : '근무처' },
+                                (group === 'biz' ? bizSources : jobs).map((x) => Chip(group === 'biz' ? bizSel === x.id : jobSel === x.id, x.name, () => { setErr(''); setAdding(false); if (group === 'biz') setSourceId(x.id); else pickJob(x.id); }, x.id)),
+                                Chip(adding, '직접 추가', () => { setAdding(true); setNewSrc(''); setErr(''); }, '__addsrc', 'add')),
+                            adding && h("div", { className: "add-row" },
+                                h("input", { className: "input", autoFocus: !touch, value: newSrc, onChange: (e) => setNewSrc(e.target.value), placeholder: group === 'biz' ? '새 사업체 이름' : '새 근무처 이름', maxLength: 30, "aria-label": group === 'biz' ? '새 사업체 이름' : '새 근무처 이름', onKeyDown: (e) => { if (e.key === 'Enter') { e.preventDefault(); addSource(); } } }),
+                                h("button", { type: "button", className: "btn", onClick: addSource }, "추가")),
+                            !srcReady && !adding && h("p", { className: "small muted" }, group === 'biz' ? '사업체를 고르면 세부 항목이 나와요.' : '근무처를 고르면 세부 항목이 나와요.')),
                         pickList.length > (group === 'other' ? 2 : 1) && h(React.Fragment, null,
                             h("p", { className: "field-l" }, group === 'biz' ? '사업체' : '수입처'),
                             h("div", { className: "cat-grid" }, pickList.map((x) => Chip((sourceId || sourceOf({ type: 'income', scope: sc, category: catVal }, data)) === x.id, x.name, () => setSourceId(x.id), x.id)))),
-                        group && h(React.Fragment, null,
+                        group && srcReady && h(React.Fragment, null,
                             h("p", { className: "field-l" }, "세부 항목"),
                             h("div", { className: "cat-grid", role: "group", "aria-label": "세부 항목" },
                                 subList.map((s) => Chip(!custom && sel && sel.name === s.name, s.name, () => { setSel(s); setCustom(false); setErr(''); }, s.name)),
                                 Chip(custom, '직접 입력', () => { setCustom(true); setErr(''); }, '__custom', 'add')),
                             custom && h("input", { className: "input", autoFocus: !touch, value: customText, onChange: (e) => setCustomText(e.target.value), placeholder: tab === 'income' ? '예: 강의료, 원고료' : '예: 세탁, 주차 정기권', maxLength: 30, "aria-label": "직접 입력한 항목" })))),
+            tab === 'expense' && !isTax && !isBiz && h("label", { className: "check dutch-t" },
+                h("input", { type: "checkbox", checked: dutch, onChange: (e) => { setDutch(e.target.checked); setErr(''); } }),
+                "더치페이 · 공동 결제"),
+            tab === 'expense' && !isTax && !isBiz && dutch && h("div", { className: "biz-box dutch" },
+                h("p", { className: "small muted" }, "위 금액은 ", h("b", null, "전체 결제금액"), "이에요. 지출에는 내 부담금만 잡히고, 정산으로 오가는 돈은 수입·지출로 다시 세지 않아요."),
+                h(Seg, { small: true, full: true, value: payer, onChange: (v) => { setPayer(v); setErr(''); }, options: [['me', '내가 전체 결제'], ['other', '상대방이 전체 결제']] }),
+                h("div", { className: "form-2" },
+                    h(Field, { label: "참여 인원 (나 포함)" },
+                        h("div", { className: "stepper" },
+                            h("button", { type: "button", className: "icon-btn", "aria-label": "인원 줄이기", onClick: () => setPeople((x) => Math.max(2, x - 1)) }, "−"),
+                            h("b", { className: "num" }, people, "명"),
+                            h("button", { type: "button", className: "icon-btn", "aria-label": "인원 늘리기", onClick: () => setPeople((x) => Math.min(30, x + 1)) }, "+"))),
+                    h(Field, { label: "내 부담금", hint: splitTouched ? null : '균등 분할 금액이에요. 직접 고칠 수 있어요.' },
+                        h(AmountInput, { value: myShare, onChange: onMyShare, "aria-label": "내 부담금" }))),
+                splitTouched && h("button", { type: "button", className: "btn small", onClick: () => setSplitTouched(false) }, "균등 분할로 다시 계산"),
+                payer === 'me' ? h("ul", { className: "dutch-list" }, parts.map((p, i) => {
+                    const rem = Math.max(0, (p.share || 0) - (p.settled || 0));
+                    return h("li", { key: p.id },
+                        h("div", { className: "dl-h" },
+                            h("input", { className: "input", value: p.name, onChange: (e) => updPart(i, { name: e.target.value }), placeholder: `참여자 ${i + 1} 이름`, maxLength: 20, "aria-label": `참여자 ${i + 1} 이름` }),
+                            h("span", { className: cx('dl-st', !rem && p.share > 0 ? 'done' : p.settled ? 'part' : '') }, !rem && p.share > 0 ? '정산 완료' : p.settled ? '일부 정산' : '미정산')),
+                        h("div", { className: "form-2" },
+                            h(Field, { label: "부담금" }, h(AmountInput, { value: p.share, onChange: (v) => { setSplitTouched(true); updPart(i, { share: v }); } })),
+                            h(Field, { label: "받은 금액" }, h(AmountInput, { value: p.settled, onChange: (v) => updPart(i, { settled: v, settledDate: v ? p.settledDate || today() : '' }) }))),
+                        h("label", { className: "check" },
+                            h("input", { type: "checkbox", checked: !rem && p.share > 0, onChange: (e) => updPart(i, e.target.checked ? { settled: p.share, settledDate: p.settledDate || today() } : { settled: 0, settledDate: '' }) }),
+                            "전액 받음", rem && p.share ? ` · 남은 ${won(rem)}원` : ''));
+                })) : h("ul", { className: "dutch-list" }, parts.slice(0, 1).map((p) => {
+                    const rem = Math.max(0, myShare - (p.settled || 0));
+                    return h("li", { key: p.id },
+                        h("div", { className: "dl-h" },
+                            h("input", { className: "input", value: p.name, onChange: (e) => updPart(0, { name: e.target.value }), placeholder: "결제한 사람 이름", maxLength: 20, "aria-label": "결제한 사람" }),
+                            h("span", { className: cx('dl-st', !rem && myShare > 0 ? 'done' : p.settled ? 'part' : '') }, !rem && myShare > 0 ? '정산 완료' : p.settled ? '일부 정산' : '미정산')),
+                        h(Field, { label: "보낸 금액" }, h(AmountInput, { value: p.settled, onChange: (v) => updPart(0, { settled: v, settledDate: v ? p.settledDate || today() : '' }) })),
+                        h("label", { className: "check" },
+                            h("input", { type: "checkbox", checked: !rem && myShare > 0, onChange: (e) => updPart(0, e.target.checked ? { settled: myShare, settledDate: p.settledDate || today() } : { settled: 0, settledDate: '' }) }),
+                            "전액 보냄", rem && myShare ? ` · 남은 ${won(rem)}원` : ''));
+                })),
+                h(Field, { label: payer === 'me' ? '정산 받은 계좌' : '보낸 계좌' },
+                    h("select", { className: "input", value: settleAcc, onChange: (e) => setSettleAcc(e.target.value) },
+                        h("option", { value: "" }, payer === 'me' ? '결제한 계좌·카드와 같음' : '선택 안 함'),
+                        nonCard.map((a) => h("option", { key: a.id, value: a.id }, a.name)))),
+                n > 0 && h("div", { className: "work-sum" },
+                    h("div", null, h("span", null, "상대방 부담금 합계"), h("b", { className: "num" }, won(othersShare), "원")),
+                    h("div", null, h("span", null, payer === 'me' ? '받을 돈 (미정산)' : '보낼 돈 (미정산)'), h("b", { className: cx('num', unsettled > 0 && 'warn-t') }, won(unsettled), "원")),
+                    h("div", null, h("span", null, "지금까지 실제 현금 유출"), h("b", { className: "num" }, won(cashOut), "원")),
+                    h("div", { className: "tot" }, h("span", null, "최종 내 소비액 (지출로 기록)"), h("b", { className: "num" }, won(myShare), "원")))),
             isTax && h("p", { className: "note" }, "세금 납부는 생활 지출과 따로 집계하고, 남은 돈(현금흐름)에서만 빠져요. 부가가치세는 사업 쪽 납부로 기록돼요."),
             isBiz && (h("div", { className: "biz-box" },
                 showOrder && (h(Field, { label: "주문 연결" },
