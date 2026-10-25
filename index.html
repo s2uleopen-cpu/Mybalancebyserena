@@ -908,6 +908,34 @@ input.input[type=date]::-webkit-date-and-time-value,input.input[type=time]::-web
 .loan-paid li{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:10px;font-size:var(--fs-sm);color:var(--ink2)}
 .loan-paid li b{text-align:right;color:var(--ink);font-weight:500}
 :root .tabs-scroll.ul-tabs .seg button,:root[data-theme] .tabs-scroll.ul-tabs .seg button.on{background:none;border-radius:0}
+
+/* ── 홈 요약: 하나의 공통 2열 그리드 ──
+   들어온/나간 돈, 예상 순현금흐름, 순자산/저축 목표가 같은 열 정의(--h6-cols)·열 간격(--h6-gap)을 써서
+   오른쪽 열 시작선이 항상 같은 위치에 오고, 제목·금액·‘원’ 크기와 행간도 같은 값을 써요. */
+.home6{--h6-cols:repeat(2,minmax(0,1fr));--h6-gap:var(--sp-4);--h6-row:20px;--h6-sec:32px;--h6-lab:var(--fs-sm);--h6-lab-lh:20px;--h6-v:clamp(20px,5.6vw,24px);--h6-v-lh:1.2}
+.home6 .io,.home6 .result,.h6-pos{display:grid;grid-template-columns:var(--h6-cols);column-gap:var(--h6-gap);row-gap:0;width:100%;margin-left:0;margin-right:0}
+.home6 .io,.h6-pos{align-items:start}
+.home6 .io-item,.h6-pos .p{display:grid;grid-template-columns:minmax(0,1fr);align-content:start;row-gap:6px;margin:0;padding:0;min-width:0}
+/* 제목 */
+.home6 .io-l,.home6 .p-l,.home6 .r-l{font-size:var(--h6-lab);line-height:var(--h6-lab-lh);letter-spacing:-0.005em;min-height:var(--h6-lab-lh);margin:0}
+.home6 .io-l,.home6 .p-l{display:block;color:var(--ink2);font-weight:400}
+/* 금액 + ‘원’: 같은 크기·같은 기준선 */
+.home6 .io-v,.home6 .p-v,.home6 .r-v{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:2px;margin:0;min-width:0;font-size:var(--h6-v);font-weight:600;line-height:var(--h6-v-lh);letter-spacing:-0.02em;white-space:normal;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;text-align:left}
+.home6 .io-v small,.home6 .p-v small,.home6 .r-v small{margin-left:1px;font-size:var(--fs-sm);font-weight:500;line-height:1;letter-spacing:0;color:var(--ink2)}
+.home6 .h6-pos .p-v,.home6 .h6-pos .p-v.muted-v{font-size:var(--h6-v);line-height:var(--h6-v-lh)}
+.home6 .h6-pos .p-v.muted-v{font-weight:500;color:var(--ink2)}
+/* 설명 문구 */
+.home6 .p-s,.home6 .r-l em{display:block;font-size:var(--fs-xs);line-height:18px;color:var(--ink2);font-style:normal;font-weight:400}
+/* 예상 순현금흐름: 제목·설명은 왼쪽 열, 금액은 오른쪽 열 시작선 — 제목과 금액은 같은 기준선 */
+.home6 .result{align-items:baseline;margin-top:var(--h6-row);padding:var(--h6-row) 0 0;border-top:1px solid var(--line);text-align:left}
+.home6 .r-l{grid-column:1;display:flex;flex-direction:column;gap:2px;min-width:0;color:var(--ink);font-weight:500;word-break:keep-all}
+.home6 .r-v{grid-column:2;justify-self:stretch;justify-content:flex-start}
+/* 순자산·저축 목표: 진행 막대는 설명 아래로 보내 두 열의 설명 줄이 같은 높이에 오게 */
+.h6-pos{margin-top:var(--h6-sec)}
+.h6-pos .p-s{order:2}
+.h6-pos .bar{order:3;margin:2px 0 0}
+@media (min-width:600px){.home6{--h6-gap:var(--sp-5);--h6-v:24px}}
+@media (min-width:960px){.h6-pos{margin-top:var(--sp-3)}}
 </style>
 </head>
 <body>
