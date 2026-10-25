@@ -25,7 +25,7 @@
   --sage:#7196F4; --sage-soft:rgba(113,150,244,0.12); --sage-ink:#A1A9B7; --neutral:#A1A9B7; --seg1:rgba(255,255,255,0.62); --seg2:rgba(255,255,255,0.34); --seg3:rgba(255,255,255,0.18); --sheet:#15181E; --dot:#7C8594; --primary:#3D6BE0; --on-primary:#FFFFFF;
   --c-fixed:#8B95A7; --c-var:#4A5263; --c-rest:rgba(255,255,255,0.07); --neg:#F27A7A; --warn:#E3AE57; --warn-soft:rgba(227,174,87,0.12); --neg-soft:rgba(242,122,122,0.10);
   --font-kr:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
-  --radius:14px; --nav-h:64px; --ring:rgba(113,150,244,0.28);
+  --radius:14px; --nav-h:4rem; --ring:rgba(113,150,244,0.28);
   color-scheme: dark;
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px);
 }
@@ -48,7 +48,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
 :focus-visible{outline:2px solid var(--sage);outline-offset:2px;border-radius:6px}
 h1,h2,h3,p{margin:0}
 .num{font-variant-numeric:tabular-nums;letter-spacing:-0.02em}
-.num small,.stat-v small,.hero-v small{font-size:.55em;font-weight:500;margin-left:2px;color:var(--ink2)}
+.num small,.stat-v small,.hero-v small{font-size:.55em;font-weight:500;margin-left:0.125rem;color:var(--ink2)}
 .muted{color:var(--ink2)} .small{font-size:0.8125rem} .center{text-align:center}
 .pos{color:var(--sage-ink)} .neg{color:var(--neg)!important}
 .err{color:var(--neg);font-size:0.8125rem}
@@ -56,155 +56,155 @@ h1,h2,h3,p{margin:0}
 /* 레이아웃 */
 .app{min-height:100vh}
 .sidebar{display:none}
-.main{padding:0 16px calc(var(--nav-h) + 28px + env(safe-area-inset-bottom,0px));max-width:1120px;margin:0 auto}
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0 4px;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;isolation:isolate}
-.topbar::before{content:"";position:absolute;inset:0 -16px;z-index:-1;background:var(--bar-top);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);pointer-events:none}
-.topbar::after{content:"";position:absolute;left:-16px;right:-16px;top:100%;height:14px;pointer-events:none;background:linear-gradient(var(--edge),transparent);opacity:0;transition:opacity .2s}
+.main{padding:0 1rem calc(var(--nav-h) + 1.75rem + env(safe-area-inset-bottom,0px));max-width:1120px;margin:0 auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:0.5rem 0 0.25rem;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;isolation:isolate}
+.topbar::before{content:"";position:absolute;inset:0 -1rem;z-index:-1;background:var(--bar-top);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);pointer-events:none}
+.topbar::after{content:"";position:absolute;left:-1rem;right:-1rem;top:100%;height:14px;pointer-events:none;background:linear-gradient(var(--edge),transparent);opacity:0;transition:opacity .2s}
 .topbar.scrolled::after{opacity:1}
 .topbar h1{font-size:1.1875rem;font-weight:600;letter-spacing:-0.03em}
-.mobile-sync{margin:0 0 10px}
-.content{padding-top:4px}
-.stack{display:flex;flex-direction:column;gap:14px}
-.stack-sm{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
-.two-col{display:grid;gap:14px}
+.mobile-sync{margin:0 0 0.625rem}
+.content{padding-top:0.25rem}
+.stack{display:flex;flex-direction:column;gap:0.875rem}
+.stack-sm{display:flex;flex-direction:column;gap:0.625rem;align-items:flex-start}
+.two-col{display:grid;gap:0.875rem}
 @media (min-width:760px){.two-col{grid-template-columns:1fr 1fr}}
 
-.month{display:flex;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:2px}
-.month-l{font-weight:600;font-size:0.875rem;padding:4px 6px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.month{display:flex;align-items:center;gap:0.125rem;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0.125rem}
+.month-l{font-weight:600;font-size:0.875rem;padding:0.25rem 0.375rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:999px;color:var(--ink2);flex:none}
 @media (hover:hover){.icon-btn:hover{background:var(--line2);color:var(--ink)}}
 
-.sync{display:inline-flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--ink2)}
+.sync{display:inline-flex;align-items:center;gap:0.375rem;font-size:0.75rem;color:var(--ink2)}
 .sync i{width:7px;height:7px;border-radius:50%;background:var(--ink3)}
 .sync.good i{background:var(--sage)} .sync.warn i{background:var(--warn)} .sync.bad{color:var(--neg)} .sync.bad i{background:var(--neg)}
 
 /* 하단 내비 */
-.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:25;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;background:var(--bar);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border-top:1px solid var(--line2);padding:4px 6px calc(4px + env(safe-area-inset-bottom,0px));height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px))}
-.nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:0.6875rem;color:var(--ink3);padding:6px 0}
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:25;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;background:var(--bar);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border-top:1px solid var(--line2);padding:0.25rem 0.375rem calc(0.25rem + env(safe-area-inset-bottom,0px));height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px))}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:0.125rem;font-size:0.6875rem;color:var(--ink3);padding:0.375rem 0}
 .nav-btn.on{color:var(--ink);font-weight:600}
-.fab{position:fixed;right:20px;bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom,0px));z-index:26;width:48px;height:48px;border-radius:24px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px var(--surface)}
+.fab{position:fixed;right:1.25rem;bottom:calc(var(--nav-h) + 1rem + env(safe-area-inset-bottom,0px));z-index:26;width:48px;height:48px;border-radius:24px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px var(--surface)}
 .fab:active{transform:scale(.94)}
 @media (min-width:960px){.fab{display:none}}
 
 @media (min-width:960px){
-  .app{display:grid;grid-template-columns:232px 1fr}
-  .sidebar{display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh;padding:calc(24px + env(safe-area-inset-top,0px)) 18px 24px;border-right:1px solid var(--line);background:var(--surface2)}
-  .brand{font-size:1.125rem;font-weight:600;letter-spacing:-0.04em;padding:0 6px}
-  .side-nav{display:flex;flex-direction:column;gap:2px;flex:1}
-  .side-nav button{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;color:var(--ink2);font-weight:500;text-align:left}
+  .app{display:grid;grid-template-columns:14.5rem 1fr}
+  .sidebar{display:flex;flex-direction:column;gap:1.125rem;position:sticky;top:0;height:100vh;padding:calc(1.5rem + env(safe-area-inset-top,0px)) 1.125rem 1.5rem;border-right:1px solid var(--line);background:var(--surface2)}
+  .brand{font-size:1.125rem;font-weight:600;letter-spacing:-0.04em;padding:0 0.375rem}
+  .side-nav{display:flex;flex-direction:column;gap:0.125rem;flex:1}
+  .side-nav button{display:flex;align-items:center;gap:0.75rem;padding:0.625rem 0.75rem;border-radius:10px;color:var(--ink2);font-weight:500;text-align:left}
   @media (hover:hover){.side-nav button:hover{background:var(--line2)}}
   .side-nav button.on{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:inset 0 0 0 1px var(--line)}
-  .sidebar .sync{padding:0 6px}
-  .main{padding:0 36px 48px;width:100%}
+  .sidebar .sync{padding:0 0.375rem}
+  .main{padding:0 2.25rem 3rem;width:100%}
   .topbar h1{font-size:1.5rem}
   .bottomnav,.mobile-sync{display:none}
 }
 
 /* 버튼·입력 */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:42px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:0.875rem;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.375rem;min-height:2.625rem;padding:0 1rem;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:0.875rem;white-space:nowrap}
 @media (hover:hover){.btn:hover{border-color:var(--ink3)}}
 .btn.primary{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 @media (hover:hover){.btn.primary:hover{opacity:.9}}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn.block{width:100%} .btn.grow{flex:1}
-.btn.small{height:34px;padding:0 12px;font-size:0.8125rem}
+.btn.small{min-height:2.125rem;padding:0 0.75rem;font-size:0.8125rem}
 .btn.danger{color:var(--neg)}
 .link{color:var(--sage-ink);font-weight:600;font-size:0.8125rem}
-.input{width:100%;height:44px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:0 12px;font-size:1rem;outline:none;min-width:0}
+.input{width:100%;min-height:2.75rem;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:0 0.75rem;font-size:1rem;outline:none;min-width:0}
 .input:focus{border-color:var(--sage)}
-select.input{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink2) 50%),linear-gradient(135deg,var(--ink2) 50%,transparent 50%);background-position:calc(100% - 16px) 19px,calc(100% - 11px) 19px;background-size:5px 5px;background-repeat:no-repeat;padding-right:30px}
-.sel-sm{height:36px;font-size:0.875rem;width:auto}
-.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+select.input{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink2) 50%),linear-gradient(135deg,var(--ink2) 50%,transparent 50%);background-position:calc(100% - 16px) calc(50% - 2px),calc(100% - 11px) calc(50% - 2px);background-size:5px 5px;background-repeat:no-repeat;padding-right:1.875rem}
+.sel-sm{min-height:2.25rem;font-size:0.875rem;width:auto}
+.field{display:flex;flex-direction:column;gap:0.375rem;min-width:0}
 .field-l{font-size:0.8125rem;color:var(--ink2);font-weight:500}
 .field-h{font-size:0.75rem;color:var(--ink3)}
-.form{display:flex;flex-direction:column;gap:14px}
-.form-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.check{display:inline-flex;align-items:center;gap:8px;font-size:0.875rem;color:var(--ink2);cursor:pointer}
+.form{display:flex;flex-direction:column;gap:0.875rem}
+.form-2{display:grid;grid-template-columns:1fr 1fr;gap:0.625rem}
+.check{display:inline-flex;align-items:center;gap:0.5rem;font-size:0.875rem;color:var(--ink2);cursor:pointer}
 .check input,.switch input{width:18px;height:18px;accent-color:var(--sage)}
-.switch{display:flex;align-items:center;gap:8px;height:44px;font-size:0.875rem}
+.switch{display:flex;align-items:center;gap:0.5rem;min-height:2.75rem;font-size:0.875rem}
 
-.seg{display:inline-flex;background:var(--line2);border-radius:11px;padding:3px;gap:2px;max-width:100%;overflow-x:auto}
-.seg button{padding:8px 14px;border-radius:8px;font-size:0.875rem;font-weight:500;color:var(--ink2);white-space:nowrap}
+.seg{display:inline-flex;background:var(--line2);border-radius:11px;padding:0.1875rem;gap:0.125rem;max-width:100%;overflow-x:auto}
+.seg button{padding:0.5rem 0.875rem;border-radius:8px;font-size:0.875rem;font-weight:500;color:var(--ink2);white-space:nowrap}
 .seg button.on{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 0 0 1px var(--line)}
-.seg-sm button{padding:6px 11px;font-size:0.8125rem}
+.seg-sm button{padding:0.375rem 0.6875rem;font-size:0.8125rem}
 
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{height:34px;padding:0 13px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:0.875rem;display:inline-flex;align-items:center;gap:5px}
+.chips{display:flex;flex-wrap:wrap;gap:0.375rem}
+.chip{min-height:2.125rem;padding:0 0.8125rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:0.875rem;display:inline-flex;align-items:center;gap:0.3125rem}
 .chip.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 .chip.recent:not(.on){border-color:var(--sage);color:var(--sage-ink)}
 .chip.fav{background:var(--sage-soft);border-color:transparent;color:var(--sage-ink)}
-.chips-static{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:0.8125rem;color:var(--ink2);margin-top:12px}
+.chips-static{display:flex;flex-wrap:wrap;gap:0.375rem 0.875rem;font-size:0.8125rem;color:var(--ink2);margin-top:0.75rem}
 .chips-static b{color:var(--ink);font-weight:600}
 
 /* 카드 */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
-.card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:0.625rem;margin-bottom:0.75rem}
 .card-h h3,.insights h3{font-size:0.9375rem;font-weight:600}
 .big{font-size:1.25rem;font-weight:600}
-.row-between{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.row-gap{display:flex;gap:14px}
-.sec-t{font-size:0.8125rem;font-weight:600;color:var(--ink2);margin:4px 2px 8px}
+.row-between{display:flex;justify-content:space-between;align-items:center;gap:0.625rem}
+.row-gap{display:flex;gap:0.875rem}
+.sec-t{font-size:0.8125rem;font-weight:600;color:var(--ink2);margin:0.25rem 0.125rem 0.5rem}
 .bad-t{color:var(--neg)}
 
 /* 홈 히어로 */
-.hero{padding:20px 4px 8px}
+.hero{padding:1.25rem 0.25rem 0.5rem}
 .hero-l{font-size:0.875rem;color:var(--ink2);font-weight:500}
-.hero-v{font-size:2.75rem;font-weight:600;letter-spacing:-0.045em;line-height:1.1;margin:4px 0 8px}
+.hero-v{font-size:2.75rem;font-weight:600;letter-spacing:-0.045em;line-height:1.1;margin:0.25rem 0 0.5rem}
 .hero-v small{font-size:1.25rem}
 .hero-s{font-size:0.8125rem;color:var(--ink2);font-variant-numeric:tabular-nums}
 .hero-s b{color:var(--ink)}
-.flow{margin-top:18px}
-.flow-bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--line2);gap:2px}
+.flow{margin-top:1.125rem}
+.flow-bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--line2);gap:0.125rem}
 .flow-bar i{display:block;height:100%}
 .flow-bar i.rest{background:var(--line)}
-.flow-legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:10px;font-size:0.8125rem;color:var(--ink2);font-variant-numeric:tabular-nums}
-.flow-legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:1px}
+.flow-legend{display:flex;flex-wrap:wrap;gap:0.25rem 0.875rem;margin-top:0.625rem;font-size:0.8125rem;color:var(--ink2);font-variant-numeric:tabular-nums}
+.flow-legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:0.3125rem;vertical-align:1px}
 .flow-legend i.rest{background:var(--line)}
 @media (min-width:960px){.hero-v{font-size:3.5rem}}
 
-.grid-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (min-width:760px){.grid-cards{grid-template-columns:repeat(3,1fr);gap:14px}}
-.stat{padding:14px}
+.grid-cards{display:grid;grid-template-columns:1fr 1fr;gap:0.625rem}
+@media (min-width:760px){.grid-cards{grid-template-columns:repeat(3,1fr);gap:0.875rem}}
+.stat{padding:0.875rem}
 .stat-l{font-size:0.8125rem;color:var(--ink2);font-weight:500}
-.stat-v{font-size:1.3125rem;font-weight:600;margin:3px 0 4px;letter-spacing:-0.03em;word-break:keep-all}
-.stat-s{font-size:0.75rem;color:var(--ink3);margin-top:3px}
+.stat-v{font-size:1.3125rem;font-weight:600;margin:0.1875rem 0 0.25rem;letter-spacing:-0.03em;word-break:keep-all}
+.stat-s{font-size:0.75rem;color:var(--ink3);margin-top:0.1875rem}
 .delta{font-size:0.75rem;color:var(--ink2);display:block;font-variant-numeric:tabular-nums}
 .delta.good{color:var(--sage-ink)} .delta.bad{color:var(--neg)}
 
-.alert{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;border-radius:12px;font-size:0.875rem;font-weight:500}
+.alert{display:flex;align-items:center;gap:0.625rem;width:100%;text-align:left;padding:0.75rem 0.875rem;border-radius:12px;font-size:0.875rem;font-weight:500}
 .alert.bad{background:var(--neg-soft);color:var(--neg)}
 .alert.warn{background:var(--warn-soft);color:var(--warn)}
 
-.bar{height:8px;border-radius:4px;background:var(--line2);overflow:hidden;margin:8px 0}
+.bar{height:8px;border-radius:4px;background:var(--line2);overflow:hidden;margin:0.5rem 0}
 .bar i{display:block;height:100%;background:var(--c-var);border-radius:4px}
 .bar i.dark{background:var(--c-fixed)} .bar i.sage{background:var(--sage)} .bar i.over{background:var(--neg)}
-.mini-rows{display:flex;flex-direction:column;gap:8px;margin-top:12px;font-size:0.875rem}
-.mini-rows > div{display:flex;justify-content:space-between;gap:12px}
+.mini-rows{display:flex;flex-direction:column;gap:0.5rem;margin-top:0.75rem;font-size:0.875rem}
+.mini-rows > div{display:flex;justify-content:space-between;gap:0.75rem}
 .mini-rows span{color:var(--ink2)}
 .mini-rows b{font-weight:600;text-align:right}
-.budget-top,.asset-sum{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px}
-.cat-budgets{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:6px;font-size:0.875rem}
-.cat-budgets .bar{margin:4px 0 6px;height:6px}
+.budget-top,.asset-sum{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.25rem}
+.cat-budgets{list-style:none;padding:0;margin:0.875rem 0 0;display:flex;flex-direction:column;gap:0.375rem;font-size:0.875rem}
+.cat-budgets .bar{margin:0.25rem 0 0.375rem;height:6px}
 
 /* 리스트 행 */
 .rows{list-style:none;margin:0;padding:0}
-.rows.card{padding:4px 0}
+.rows.card{padding:0.25rem 0}
 .rows > li + li{border-top:1px solid var(--line2)}
-.row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 0;min-height:52px}
-.rows.card .row,.rows.card .occ{padding-left:14px;padding-right:14px}
-.row.static{padding:11px 0}
+.row{display:flex;align-items:center;gap:0.75rem;width:100%;text-align:left;padding:0.6875rem 0;min-height:3.25rem}
+.rows.card .row,.rows.card .occ{padding-left:0.875rem;padding-right:0.875rem}
+.row.static{padding:0.6875rem 0}
 @media (hover:hover){.row:hover .row-t{text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}}
 .row-main{display:flex;flex-direction:column;min-width:0;flex:1}
 .row-t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row-s{font-size:0.8125rem;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row-amt{font-weight:600;white-space:nowrap}
 .row-amt small{font-size:0.6875rem;font-weight:500}
-.row-end{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.row-end{display:flex;flex-direction:column;align-items:flex-end;gap:0.125rem}
 .dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--ink3)}
 .t-income{background:var(--sage)} .t-expense{background:var(--c-fixed)} .t-saving{background:var(--c-var)} .t-transfer,.t-cardpay{background:var(--line);box-shadow:inset 0 0 0 1.5px var(--ink3)}
-.occ{display:flex;align-items:center;gap:12px}
+.occ{display:flex;align-items:center;gap:0.75rem}
 .occ .row{padding-left:0!important}
-.rows .occ .row{padding:11px 0}
+.rows .occ .row{padding:0.6875rem 0}
 .chk{width:28px;height:28px;flex:none;border-radius:50%;border:1.5px solid var(--line);color:transparent;display:flex;align-items:center;justify-content:center;background:var(--surface)}
 @media (hover:hover){.chk:hover{border-color:var(--sage);color:var(--sage)}}
 .chk.on{background:var(--sage);border-color:var(--sage);color:#fff}
@@ -212,22 +212,22 @@ select.input{appearance:none;background-image:linear-gradient(45deg,transparent 
 .occ.late .row-t{color:var(--neg)}
 .tag{font-size:0.75rem;font-weight:600;color:var(--ink3);font-variant-numeric:tabular-nums}
 .tag.good{color:var(--sage-ink)} .tag.bad{color:var(--neg)} .tag.warn{color:var(--warn)}
-.fixed-sum{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.fixed-sum{display:flex;justify-content:space-between;gap:0.75rem;align-items:flex-start}
 .ratio-box{text-align:right}
 
 details.more summary{cursor:pointer;font-size:0.875rem;color:var(--ink2);font-weight:500}
-details.more[open] summary{margin-bottom:6px}
+details.more[open] summary{margin-bottom:0.375rem}
 
 /* 내역 */
-.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-.search{flex:1;min-width:180px;display:flex;align-items:center;gap:8px;height:42px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink3)}
+.toolbar{display:flex;gap:0.625rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.search{flex:1;min-width:11.25rem;display:flex;align-items:center;gap:0.5rem;min-height:2.625rem;padding:0 0.75rem;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink3)}
 .search input{border:0;outline:0;background:none;flex:1;font-size:1rem;color:var(--ink);min-width:0}
-.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.sumline{display:flex;gap:16px;font-size:0.8125rem;color:var(--ink2);padding:0 2px}
+.filters{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap}
+.sumline{display:flex;gap:1rem;font-size:0.8125rem;color:var(--ink2);padding:0 0.125rem}
 .sumline b{color:var(--ink);font-weight:600}
-.day-h{display:flex;justify-content:space-between;font-size:0.8125rem;font-weight:600;color:var(--ink2);padding:0 2px 6px}
+.day-h{display:flex;justify-content:space-between;font-size:0.8125rem;font-weight:600;color:var(--ink2);padding:0 0.125rem 0.375rem}
 
-.empty{text-align:center;padding:40px 16px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty{text-align:center;padding:2.5rem 1rem;display:flex;flex-direction:column;align-items:center;gap:0.625rem}
 .empty-t{font-weight:600}
 .empty-d{color:var(--ink2);font-size:0.875rem;max-width:34em}
 
@@ -237,207 +237,207 @@ details.more[open] summary{margin-bottom:6px}
 .chart .grid{stroke:var(--line2);stroke-width:1}
 .chart .axis0{stroke:var(--line);stroke-width:1}
 .chart .tick{fill:var(--ink3);font-size:0.6875rem;font-variant-numeric:tabular-nums}
-.legend{display:flex;gap:14px;font-size:0.75rem;color:var(--ink2);margin-top:6px}
-.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
-.donut-wrap{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.legend{display:flex;gap:0.875rem;font-size:0.75rem;color:var(--ink2);margin-top:0.375rem}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:0.3125rem}
+.donut-wrap{display:flex;gap:1.125rem;align-items:center;flex-wrap:wrap}
 .donut-c{fill:var(--ink);font-size:0.9375rem;font-weight:600}
-.donut-legend{list-style:none;padding:0;margin:0;flex:1;min-width:190px;display:flex;flex-direction:column;gap:6px;font-size:0.875rem}
-.donut-legend li{display:grid;grid-template-columns:10px 1fr auto auto;gap:8px;align-items:center}
+.donut-legend{list-style:none;padding:0;margin:0;flex:1;min-width:11.875rem;display:flex;flex-direction:column;gap:0.375rem;font-size:0.875rem}
+.donut-legend li{display:grid;grid-template-columns:10px 1fr auto auto;gap:0.5rem;align-items:center}
 .donut-legend i{width:8px;height:8px;border-radius:2px}
 .donut-legend b{font-weight:600}
-.insights ul{margin:10px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:0.9375rem}
+.insights ul{margin:0.625rem 0 0;padding-left:1.125rem;display:flex;flex-direction:column;gap:0.375rem;font-size:0.9375rem}
 .insights li.muted{color:var(--ink2)} .insights li.bad{color:var(--neg)}
-.table-wrap{overflow-x:auto;margin:0 -16px;padding:0 16px}
+.table-wrap{overflow-x:auto;margin:0 -1rem;padding:0 1rem}
 .tbl{width:100%;border-collapse:collapse;font-size:0.875rem;white-space:nowrap}
-.tbl th{font-weight:600;color:var(--ink2);text-align:right;padding:8px 10px;border-bottom:1px solid var(--line)}
-.tbl td{text-align:right;padding:9px 10px;border-bottom:1px solid var(--line2)}
+.tbl th{font-weight:600;color:var(--ink2);text-align:right;padding:0.5rem 0.625rem;border-bottom:1px solid var(--line)}
+.tbl td{text-align:right;padding:0.5625rem 0.625rem;border-bottom:1px solid var(--line2)}
 .tbl th:first-child,.tbl td:first-child{text-align:left;padding-left:0}
 
 /* MY */
-.acc-group{margin-top:14px}
-.goal-list{list-style:none;padding:0;margin:12px 0 0}
+.acc-group{margin-top:0.875rem}
+.goal-list{list-style:none;padding:0;margin:0.75rem 0 0}
 .goal-list .bar{margin-top:0}
-.btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.625rem}
 
 /* 시트 */
 .overlay{position:fixed;inset:0;z-index:50;background:rgba(20,20,18,.42);display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--surface);width:100%;max-height:94vh;border-radius:18px 18px 0 0;display:flex;flex-direction:column;animation:up .22s ease-out;padding-bottom:env(safe-area-inset-bottom,0px);position:relative}
 @keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.sheet{animation:fade-in .2s ease}}
-.sheet-h{display:flex;align-items:center;justify-content:space-between;padding:14px 12px 6px 18px}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;padding:0.875rem 0.75rem 0.375rem 1.125rem}
 .sheet-h h2{font-size:1.0625rem;font-weight:600}
-.sheet-b{padding:6px 18px 16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.sheet-b > p + p{margin-top:8px}
-.sheet-f{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--line2);align-items:center}
+.sheet-b{padding:0.375rem 1.125rem 1rem;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sheet-b > p + p{margin-top:0.5rem}
+.sheet-f{display:flex;gap:0.5rem;padding:0.75rem 1.125rem;border-top:1px solid var(--line2);align-items:center}
 .sheet-f.col{flex-direction:column}
 @media (min-width:760px){
   .overlay{align-items:center}
-  .sheet{max-width:520px;border-radius:18px;max-height:88vh}
-  .sheet-wide{max-width:860px}
+  .sheet{max-width:32.5rem;border-radius:18px;max-height:88vh}
+  .sheet-wide{max-width:53.75rem}
 }
-.choice{display:flex;flex-direction:column;gap:4px;text-align:left;padding:14px 16px;border:1px solid var(--line);border-radius:12px}
+.choice{display:flex;flex-direction:column;gap:0.25rem;text-align:left;padding:0.875rem 1rem;border:1px solid var(--line);border-radius:12px}
 @media (hover:hover){.choice:hover{border-color:var(--sage)}}
 .choice span{font-size:0.8125rem;color:var(--ink2)}
-.note{font-size:0.8125rem;color:var(--ink2);background:var(--surface2);border:1px solid var(--line2);border-radius:10px;padding:10px 12px}
-.danger-zone{display:flex;flex-wrap:wrap;gap:8px;padding-top:12px;border-top:1px solid var(--line2)}
+.note{font-size:0.8125rem;color:var(--ink2);background:var(--surface2);border:1px solid var(--line2);border-radius:10px;padding:0.625rem 0.75rem}
+.danger-zone{display:flex;flex-wrap:wrap;gap:0.5rem;padding-top:0.75rem;border-top:1px solid var(--line2)}
 
 /* 빠른 입력 */
-.entry{display:flex;flex-direction:column;gap:14px}
-.amount{text-align:center;padding:6px 0 2px}
-.amount-v{font-size:2.5rem;font-weight:600;letter-spacing:-0.04em;min-height:52px}
+.entry{display:flex;flex-direction:column;gap:0.875rem}
+.amount{text-align:center;padding:0.375rem 0 0.125rem}
+.amount-v{font-size:2.5rem;font-weight:600;letter-spacing:-0.04em;min-height:3.25rem}
 .amount-v .ph{color:var(--ink3)}
 .amount.pos .amount-v,.amount.pos .amount-in{color:var(--sage-ink)}
-.amount-in{width:100%;text-align:center;font-size:2.375rem;font-weight:600;border:0;border-bottom:1px solid var(--line);background:none;outline:none;padding:4px 0 8px;letter-spacing:-0.04em}
+.amount-in{width:100%;text-align:center;font-size:2.375rem;font-weight:600;border:0;border-bottom:1px solid var(--line);background:none;outline:none;padding:0.25rem 0 0.5rem;letter-spacing:-0.04em}
 .amount-in:focus{border-color:var(--sage)}
-.quick{display:flex;justify-content:center;gap:6px;margin-top:8px}
-.quick button{font-size:0.8125rem;padding:5px 10px;border-radius:999px;background:var(--line2);color:var(--ink2);font-weight:500}
-.favs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.quick{display:flex;justify-content:center;gap:0.375rem;margin-top:0.5rem}
+.quick button{font-size:0.8125rem;padding:0.3125rem 0.625rem;border-radius:999px;background:var(--line2);color:var(--ink2);font-weight:500}
+.favs{display:flex;gap:0.375rem;overflow-x:auto;padding-bottom:0.125rem}
 .favs .chip{flex:none}
-.cats{max-height:140px;overflow-y:auto}
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.keypad button{height:52px;border-radius:12px;background:var(--surface2);border:1px solid var(--line2);font-size:1.375rem;font-weight:600;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.cats{max-height:8.75rem;overflow-y:auto}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:0.375rem}
+.keypad button{height:3.25rem;border-radius:12px;background:var(--surface2);border:1px solid var(--line2);font-size:1.375rem;font-weight:600;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
 .keypad button:active{background:var(--line2)}
 .more-t{text-align:left;font-size:0.875rem;font-weight:600;color:var(--sage-ink)}
-.budget-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.bulk{display:flex;flex-direction:column;gap:10px;margin-top:10px}
-.bulk-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding-bottom:10px;border-bottom:1px solid var(--line2);align-items:center}
+.budget-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.625rem}
+.bulk{display:flex;flex-direction:column;gap:0.625rem;margin-top:0.625rem}
+.bulk-row{display:grid;grid-template-columns:1fr 1fr;gap:0.375rem;padding-bottom:0.625rem;border-bottom:1px solid var(--line2);align-items:center}
 .bulk-row .icon-btn{justify-self:end}
-@media (min-width:760px){.bulk-row{grid-template-columns:150px 100px 130px 140px 1fr 36px;border:0;padding:0}}
+@media (min-width:760px){.bulk-row{grid-template-columns:9.375rem 6.25rem 8.125rem 8.75rem 1fr 36px;border:0;padding:0}}
 
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + 86px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--elev);color:var(--ink);border:1px solid var(--line);padding:11px 16px;border-radius:12px;font-size:0.875rem;display:flex;gap:14px;align-items:center;max-width:calc(100% - 32px);animation:toast-in .28s cubic-bezier(.2,.9,.3,1)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + 5.375rem + env(safe-area-inset-bottom,0px));z-index:60;background:var(--elev);color:var(--ink);border:1px solid var(--line);padding:0.6875rem 1rem;border-radius:12px;font-size:0.875rem;display:flex;gap:0.875rem;align-items:center;max-width:calc(100% - 32px);animation:toast-in .28s cubic-bezier(.2,.9,.3,1)}
 .toast.out{animation:toast-out .18s ease-in forwards}
 .toast button{color:var(--sage);font-weight:600;white-space:nowrap}
-.badge{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:5px;font-size:0.6875rem;font-weight:600;background:var(--line2);color:var(--ink2);vertical-align:2px}
+.badge{display:inline-block;margin-left:0.375rem;padding:1px 0.375rem;border-radius:5px;font-size:0.6875rem;font-weight:600;background:var(--line2);color:var(--ink2);vertical-align:2px}
 .chk.half{border-color:var(--warn);background:linear-gradient(90deg,var(--warn-soft) 50%,var(--surface) 50%);color:var(--warn)}
-.biz-box{display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface2)}
+.biz-box{display:flex;flex-direction:column;gap:0.625rem;padding:0.75rem;border:1px solid var(--line);border-radius:12px;background:var(--surface2)}
 .warn-t{color:var(--warn)}
-.pay-head{display:flex;flex-direction:column;gap:4px}
-.pay-head .mini-rows{margin-top:6px}
-.big-tag{font-size:0.8125rem;align-self:flex-start;padding:3px 9px;border-radius:6px;background:var(--line2)}
-.note .rows{margin-top:6px}
-.note .row.static{padding:8px 0;min-height:0}
+.pay-head{display:flex;flex-direction:column;gap:0.25rem}
+.pay-head .mini-rows{margin-top:0.375rem}
+.big-tag{font-size:0.8125rem;align-self:flex-start;padding:0.1875rem 0.5625rem;border-radius:6px;background:var(--line2)}
+.note .rows{margin-top:0.375rem}
+.note .row.static{padding:0.5rem 0;min-height:0}
 
-.top-r{display:flex;align-items:center;gap:6px}
+.top-r{display:flex;align-items:center;gap:0.375rem}
 .top-my{border:1px solid var(--line);background:var(--surface);color:var(--ink2)}
 .top-my.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 @media (min-width:960px){.top-my{display:none}}
 .bell{position:relative;border:1px solid var(--line);background:var(--surface);color:var(--ink2)}
 .bell-n{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--ink);color:var(--surface);font-size:0.6875rem;font-weight:600;display:flex;align-items:center;justify-content:center;line-height:1}
 .bell-n.crit{background:var(--neg);color:#fff}
-.hero-s.faint{color:var(--ink3);font-size:0.75rem;margin-top:4px}
+.hero-s.faint{color:var(--ink3);font-size:0.75rem;margin-top:0.25rem}
 .card.tap{text-align:left;width:100%;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start}
 @media (hover:hover){.card.tap:hover{border-color:var(--ink3)}}
 .grid-cards.four{grid-template-columns:1fr 1fr}
 @media (min-width:760px){.grid-cards.four{grid-template-columns:repeat(4,1fr)}}
-.info-list{padding:4px 0}
-.info-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 16px;min-height:56px}
+.info-list{padding:0.25rem 0}
+.info-row{display:flex;align-items:center;gap:0.75rem;width:100%;text-align:left;padding:0.8125rem 1rem;min-height:3.5rem}
 .info-row + .info-row{border-top:1px solid var(--line2)}
 .info-ic{width:34px;height:34px;border-radius:10px;background:var(--line2);color:var(--ink2);display:flex;align-items:center;justify-content:center;flex:none}
 .info-l{font-size:0.875rem;font-weight:600}
 .info-v{font-weight:600;white-space:nowrap;font-size:0.9375rem}
 .info-v.muted{font-weight:500;color:var(--ink3)}
 .chev{color:var(--ink3);flex:none}
-.alerts{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-direction:column;gap:8px}
-.alert-item{border:1px solid var(--line);border-radius:12px;padding:12px 12px 8px;background:var(--surface)}
+.alerts{list-style:none;padding:0;margin:0.75rem 0 0;display:flex;flex-direction:column;gap:0.5rem}
+.alert-item{border:1px solid var(--line);border-radius:12px;padding:0.75rem 0.75rem 0.5rem;background:var(--surface)}
 .alert-item.unread{background:var(--surface2)}
 .alert-item.lv-critical{border-left:3px solid var(--neg)}
 .alert-item.lv-warn{border-left:3px solid var(--warn)}
-.alert-main{display:flex;flex-direction:column;gap:3px;text-align:left;width:100%}
-.alert-top{display:flex;align-items:center;gap:8px}
-.lv{font-size:0.6875rem;font-weight:600;padding:1px 7px;border-radius:5px;background:var(--line2);color:var(--ink2)}
+.alert-main{display:flex;flex-direction:column;gap:0.1875rem;text-align:left;width:100%}
+.alert-top{display:flex;align-items:center;gap:0.5rem}
+.lv{font-size:0.6875rem;font-weight:600;padding:1px 0.4375rem;border-radius:5px;background:var(--line2);color:var(--ink2)}
 .lv.bad{background:var(--neg-soft);color:var(--neg)} .lv.warn{background:var(--warn-soft);color:var(--warn)}
 .unread-dot{width:7px;height:7px;border-radius:50%;background:var(--sage);margin-left:auto}
 .alert-t{font-weight:600;font-size:0.9375rem}
 .alert-item:not(.unread) .alert-t{font-weight:600;color:var(--ink2)}
 .alert-b{font-size:0.8125rem;color:var(--ink2);font-variant-numeric:tabular-nums}
-.alert-act{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;padding-top:8px;border-top:1px solid var(--line2)}
-.alert-act button{font-size:0.8125rem;font-weight:600;color:var(--ink2);display:inline-flex;align-items:center;gap:4px;padding:2px 0}
-.snooze{display:flex;gap:6px}
-.snooze button{padding:3px 10px!important;border-radius:999px;background:var(--line2)}
-.snoozed{margin-top:14px}
-.toggles{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.alert-act{display:flex;flex-wrap:wrap;gap:0.25rem 0.875rem;margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid var(--line2)}
+.alert-act button{font-size:0.8125rem;font-weight:600;color:var(--ink2);display:inline-flex;align-items:center;gap:0.25rem;padding:0.125rem 0}
+.snooze{display:flex;gap:0.375rem}
+.snooze button{padding:0.1875rem 0.625rem!important;border-radius:999px;background:var(--line2)}
+.snoozed{margin-top:0.875rem}
+.toggles{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem}
 .topbar h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 @media (max-width:959px){
   .topbar h1{font-size:1.125rem}
-  .top-r{gap:5px;flex:none}
+  .top-r{gap:0.3125rem;flex:none}
   .month .icon-btn{width:30px;height:34px}
-  .month-l{padding:4px 2px;font-size:0.875rem}
+  .month-l{padding:0.25rem 0.125rem;font-size:0.875rem}
   .bell,.top-my{width:34px;height:34px}
 }
-.timer{display:flex;flex-direction:column;gap:12px}
+.timer{display:flex;flex-direction:column;gap:0.75rem}
 .timer.on{border-color:var(--sage);background:var(--sage-soft)}
-.timer-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.timer-top{display:flex;justify-content:space-between;align-items:center;gap:0.75rem;flex-wrap:wrap}
 .timer-clock{font-size:2.125rem;font-weight:600;letter-spacing:-0.03em}
 .work-total{font-size:0.875rem}
-.work-total b{font-size:1.125rem;margin-left:6px}
+.work-total b{font-size:1.125rem;margin-left:0.375rem}
 .row-gap.wrap{flex-wrap:wrap;align-items:center}
-.input.short{width:90px}
+.input.short{width:5.625rem}
 .chip.static{opacity:.7;cursor:default}
 .link.small{font-size:0.8125rem;align-self:flex-start}
-.job{padding:12px 0;display:flex;flex-direction:column;gap:8px}
+.job{padding:0.75rem 0;display:flex;flex-direction:column;gap:0.5rem}
 .job .right{text-align:right}
 .job-got{text-align:left;width:100%;font-size:0.8125rem}
 .pay-calc{color:var(--ink2);font-size:0.875rem}
-.pay-calc b{font-size:1rem;color:var(--sage-ink);margin-left:2px}
-.reserve-grid{display:grid;gap:12px;margin-bottom:10px}
+.pay-calc b{font-size:1rem;color:var(--sage-ink);margin-left:0.125rem}
+.reserve-grid{display:grid;gap:0.75rem;margin-bottom:0.625rem}
 @media (min-width:760px){.reserve-grid{grid-template-columns:1fr 1fr}}
-.reserve{border:1px solid var(--line2);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
-.reserve .mini-rows{width:100%;margin-top:4px;font-size:0.875rem}
+.reserve{border:1px solid var(--line2);border-radius:12px;padding:0.75rem;display:flex;flex-direction:column;gap:0.375rem;align-items:flex-start}
+.reserve .mini-rows{width:100%;margin-top:0.25rem;font-size:0.875rem}
 .warn-card{border-color:var(--warn);background:var(--warn-soft)}
-.profile-line{padding:12px 16px}
+.profile-line{padding:0.75rem 1rem}
 .grid-cards.two{grid-template-columns:1fr 1fr}
 @media (max-width:420px){.grid-cards.two{grid-template-columns:1fr}}
-.est-tag{display:inline-block;font-size:0.6875rem;font-weight:600;padding:1px 6px;border-radius:5px;background:var(--warn-soft);color:var(--warn);vertical-align:1px;margin-left:4px}
-.est-head .est-tag{margin:0 0 6px}
+.est-tag{display:inline-block;font-size:0.6875rem;font-weight:600;padding:1px 0.375rem;border-radius:5px;background:var(--warn-soft);color:var(--warn);vertical-align:1px;margin-left:0.25rem}
+.est-head .est-tag{margin:0 0 0.375rem}
 .small-v{font-size:1rem!important;color:var(--ink2)}
 .est-tbl td{white-space:normal}
 .est-tbl td:last-child{white-space:nowrap;font-weight:600}
 .row-s.block{display:block;white-space:normal}
-.plain{margin:6px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:0.8125rem}
-.ci-sum{display:flex;flex-direction:column;gap:6px}
+.plain{margin:0.375rem 0 0;padding-left:1.125rem;display:flex;flex-direction:column;gap:0.25rem;font-size:0.8125rem}
+.ci-sum{display:flex;flex-direction:column;gap:0.375rem}
 .ci-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
-.ci-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line2)}
+.ci-row{display:flex;align-items:center;gap:0.625rem;padding:0.625rem 0;border-top:1px solid var(--line2)}
 .ci-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--sage);flex:none}
 .ci-row.off{opacity:.45}
 .ci-main{flex:1;min-width:0;display:flex;flex-direction:column}
-.ci-side{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
-.ci-cat{height:34px;font-size:0.875rem;width:auto;max-width:130px;padding-right:26px}
+.ci-side{display:flex;flex-direction:column;align-items:flex-end;gap:0.375rem}
+.ci-cat{min-height:2.125rem;font-size:0.875rem;width:auto;max-width:8.125rem;padding-right:1.625rem}
 .ci-cat.need{border-color:var(--warn);background-color:var(--warn-soft)}
-.ci-scope{height:34px;font-size:0.8125rem;padding:0 10px}
+.ci-scope{min-height:2.125rem;font-size:0.8125rem;padding:0 0.625rem}
 .ci-main .row-s,.ci-main .row-t{white-space:normal;word-break:break-all}
 /* 새 구조 */
-.side-set{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;color:var(--ink2);font-weight:500}
+.side-set{display:flex;align-items:center;gap:0.75rem;padding:0.625rem 0.75rem;border-radius:10px;color:var(--ink2);font-weight:500}
 .side-set.on{background:var(--line2);color:var(--ink)}
 @media (hover:hover){.side-set:hover{background:var(--line2);color:var(--ink)}}
-.tabs-scroll{overflow-x:auto;margin:0 -16px;padding:0 16px}
+.tabs-scroll{overflow-x:auto;margin:0 -1rem;padding:0 1rem}
 .tabs-scroll .seg{flex-wrap:nowrap}
 .home2{max-width:760px}
 @media (min-width:960px){.home2{margin:0}}
-.list-card{padding:4px 0}
-.kv-row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;padding:13px 16px;min-height:56px}
+.list-card{padding:0.25rem 0}
+.kv-row{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;width:100%;text-align:left;padding:0.8125rem 1rem;min-height:3.5rem}
 .kv-row + .kv-row{border-top:1px solid var(--line2)}
 .kv-l{font-size:0.9375rem;font-weight:600;min-width:0}
-.kv-r{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right;flex:none;max-width:60%}
+.kv-r{display:flex;flex-direction:column;align-items:flex-end;gap:0.125rem;text-align:right;flex:none;max-width:60%}
 .kv-r b{font-size:1.0625rem;font-weight:600}
 .mini-bar{width:110px}
-.mini-bar .bar{margin:4px 0 0;height:6px}
-.card-h.pad{padding:12px 16px 0;margin-bottom:4px}
-.pad-x{padding:6px 16px 14px}
+.mini-bar .bar{margin:0.25rem 0 0;height:6px}
+.card-h.pad{padding:0.75rem 1rem 0;margin-bottom:0.25rem}
+.pad-x{padding:0.375rem 1rem 0.875rem}
 .content > .stack{max-width:1040px}
 .home2 .two-col{grid-template-columns:1fr 1fr}
-.cat-edit{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
-.cat-edit li{display:flex;flex-direction:column;gap:6px;padding:10px;border:1px solid var(--line2);border-radius:10px}
+.cat-edit{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem}
+.cat-edit li{display:flex;flex-direction:column;gap:0.375rem;padding:0.625rem;border:1px solid var(--line2);border-radius:10px}
 .cat-edit li.off{opacity:.55}
-.cat-flags{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
-.src-row{display:flex;flex-direction:column;gap:6px}
-.insight{display:flex;flex-direction:column;gap:4px}
+.cat-flags{display:flex;flex-wrap:wrap;gap:0.375rem 1rem;align-items:center}
+.src-row{display:flex;flex-direction:column;gap:0.375rem}
+.insight{display:flex;flex-direction:column;gap:0.25rem}
 .insight.lv-warn{border-left:3px solid var(--warn)} .insight.lv-critical{border-left:3px solid var(--neg)}
-.ins-dl{margin:8px 0 4px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:0.875rem}
+.ins-dl{margin:0.5rem 0 0.25rem;display:grid;grid-template-columns:auto 1fr;gap:0.25rem 0.75rem;font-size:0.875rem}
 .ins-dl dt{color:var(--ink3);font-weight:600;white-space:nowrap}
 .ins-dl dd{margin:0}
 .risk-row td{background:var(--neg-soft)}
 .link{white-space:nowrap;flex:none}
-.input.mini{height:34px;width:76px;font-size:0.875rem;padding:0 8px}
+.input.mini{min-height:2.125rem;width:4.75rem;font-size:0.875rem;padding:0 0.5rem}
 .sc-tbl td{vertical-align:middle}
 .sc-tbl tr.mine td{background:var(--sage-soft)}
 .kv-row:disabled{cursor:default;opacity:1}
@@ -461,13 +461,13 @@ h1,h2,h3{font-weight:600}
 .mini-rows b{font-weight:500}
 .delta{font-size:0.75rem}
 .muted{color:var(--ink2)}
-.btn{height:42px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-weight:500;font-size:0.875rem;color:var(--ink)}
+.btn{min-height:2.625rem;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-weight:500;font-size:0.875rem;color:var(--ink)}
 @media (hover:hover){.btn:hover{border-color:var(--ink3)}}
 .btn.primary{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
 @media (hover:hover){.btn.primary:hover{opacity:.92;border-color:var(--primary)}}
-.btn.small{height:32px;font-size:0.8125rem;border-radius:8px}
+.btn.small{min-height:2rem;font-size:0.8125rem;border-radius:8px}
 .link{color:var(--sage);font-weight:500;font-size:0.8125rem}
-.input{height:44px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-size:1rem;color:var(--ink);transition:border-color .15s, box-shadow .15s}
+.input{min-height:2.75rem;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-size:1rem;color:var(--ink);transition:border-color .15s, box-shadow .15s}
 .input::placeholder{color:var(--ink3)}
 .input:focus{border-color:var(--sage);box-shadow:0 0 0 3px var(--ring)}
 select.input{background-image:linear-gradient(45deg,transparent 50%,var(--ink3) 50%),linear-gradient(135deg,var(--ink3) 50%,transparent 50%)}
@@ -500,7 +500,7 @@ select.input{background-image:linear-gradient(45deg,transparent 50%,var(--ink3) 
 
 /* 헤더 */
 .topbar h1{font-size:1.0625rem;font-weight:600}
-.top-r{gap:2px}
+.top-r{gap:0.125rem}
 .top-r .icon-btn,.bell,.top-my,.theme-btn{width:40px;height:40px;border:0;background:transparent;color:var(--ink2);border-radius:10px}
 @media (hover:hover){.top-r .icon-btn:hover{background:var(--chip);color:var(--ink)}}
 .top-my.on{background:var(--chip);color:var(--ink)}
@@ -508,13 +508,13 @@ select.input{background-image:linear-gradient(45deg,transparent 50%,var(--ink3) 
 .bell-n.crit{background:var(--neg)}
 .month{background:transparent;border:0;padding:0;gap:0}
 .month .icon-btn{width:28px;height:32px;color:var(--ink3)}
-.month-l{font-size:0.9375rem;font-weight:600;letter-spacing:-0.01em;padding:4px 2px}
-.month-l .yr{font-family:Inter,sans-serif;font-size:0.75rem;font-weight:400;color:var(--ink3);margin-left:5px}
+.month-l{font-size:0.9375rem;font-weight:600;letter-spacing:-0.01em;padding:0.25rem 0.125rem}
+.month-l .yr{font-family:Inter,sans-serif;font-size:0.75rem;font-weight:400;color:var(--ink3);margin-left:0.3125rem}
 .mobile-sync{display:none}
 @media (max-width:959px){
-  .topbar{padding:6px 0 0}
+  .topbar{padding:0.375rem 0 0}
   .topbar h1{display:none}
-  .topbar .month{order:-1;margin-left:-8px}
+  .topbar .month{order:-1;margin-left:-0.5rem}
   .topbar{justify-content:space-between}
 }
 /* 하단 내비 */
@@ -523,96 +523,96 @@ select.input{background-image:linear-gradient(45deg,transparent 50%,var(--ink3) 
 .nav-btn.on svg{color:var(--sage)}
 /* 사이드바 */
 @media (min-width:960px){
-  .app{grid-template-columns:208px 1fr}
-  .sidebar{background:var(--bg);border-right:1px solid var(--line2);padding:18px 12px;gap:16px}
-  .brand{font-size:0.875rem;font-weight:600;letter-spacing:-0.01em;display:flex;align-items:center;gap:8px}
-  .side-nav button{height:34px;padding:0 10px;font-size:0.875rem;font-weight:400;border-radius:7px}
+  .app{grid-template-columns:13rem 1fr}
+  .sidebar{background:var(--bg);border-right:1px solid var(--line2);padding:1.125rem 0.75rem;gap:1rem}
+  .brand{font-size:0.875rem;font-weight:600;letter-spacing:-0.01em;display:flex;align-items:center;gap:0.5rem}
+  .side-nav button{min-height:2.125rem;padding:0 0.625rem;font-size:0.875rem;font-weight:400;border-radius:7px}
   .side-nav button.on{background:var(--chip);box-shadow:none;font-weight:500}
   .side-nav button.on svg{color:var(--sage)}
-  .sidebar .btn.primary{height:36px;font-size:0.8125rem}
-  .topbar{padding:14px 0;margin-bottom:8px}
-  .topbar::before,.topbar::after{left:-44px;right:-44px}
-  .main{padding:0 44px 48px}
+  .sidebar .btn.primary{min-height:2.25rem;font-size:0.8125rem}
+  .topbar{padding:0.875rem 0;margin-bottom:0.5rem}
+  .topbar::before,.topbar::after{left:-2.75rem;right:-2.75rem}
+  .main{padding:0 2.75rem 3rem}
 }
 
 /* ── 홈 v2 ── */
 .home3{display:flex;flex-direction:column;max-width:1120px}
-.h-hero{padding:8px 0 22px;display:flex;flex-direction:column}
+.h-hero{padding:0.5rem 0 1.375rem;display:flex;flex-direction:column}
 .h-lbl{font-size:0.8125rem;color:var(--ink2)}
-.h-amt{margin-top:6px;font-family:Inter,sans-serif;font-size:2.5rem;font-weight:600;letter-spacing:-0.035em;line-height:1.08;font-variant-numeric:tabular-nums}
-.h-amt small{font-family:var(--font-kr);font-size:1.0625rem;font-weight:400;color:var(--ink3);margin-left:4px;letter-spacing:0}
+.h-amt{margin-top:0.375rem;font-family:Inter,sans-serif;font-size:2.5rem;font-weight:600;letter-spacing:-0.035em;line-height:1.08;font-variant-numeric:tabular-nums}
+.h-amt small{font-family:var(--font-kr);font-size:1.0625rem;font-weight:400;color:var(--ink3);margin-left:0.25rem;letter-spacing:0}
 .h-amt.neg{color:var(--neg)}
-.h-sub{margin-top:6px;font-size:0.8125rem;color:var(--ink2)}
+.h-sub{margin-top:0.375rem;font-size:0.8125rem;color:var(--ink2)}
 .h-sub b{font-family:Inter,sans-serif;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
-.h-basis{margin-top:4px;font-size:0.75rem;color:var(--ink3)}
+.h-basis{margin-top:0.25rem;font-size:0.75rem;color:var(--ink3)}
 .h-basis summary{cursor:pointer;color:var(--sage);list-style:none;display:inline}
 .h-basis summary::-webkit-details-marker{display:none}
-.h-basis p{margin:4px 0 0;font-variant-numeric:tabular-nums}
-.h-flow{margin-top:18px;display:flex;flex-direction:column;gap:8px}
+.h-basis p{margin:0.25rem 0 0;font-variant-numeric:tabular-nums}
+.h-flow{margin-top:1.125rem;display:flex;flex-direction:column;gap:0.5rem}
 .h-flow-top{display:flex;justify-content:space-between;font-size:0.75rem;color:var(--ink3)}
-.h-flow-bar{display:flex;height:4px;border-radius:2px;overflow:hidden;gap:2px;background:var(--c-rest)}
+.h-flow-bar{display:flex;height:4px;border-radius:2px;overflow:hidden;gap:0.125rem;background:var(--c-rest)}
 .h-flow-bar i{display:block;height:100%}
-.h-flow-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:0.75rem;color:var(--ink3)}
-.h-flow-leg span{display:inline-flex;align-items:center;gap:5px}
+.h-flow-leg{display:flex;flex-wrap:wrap;gap:0.375rem 0.875rem;font-size:0.75rem;color:var(--ink3)}
+.h-flow-leg span{display:inline-flex;align-items:center;gap:0.3125rem}
 .h-flow-leg i{width:6px;height:6px;border-radius:1px;display:inline-block}
 .h-flow-leg b{font-family:Inter,sans-serif;font-weight:400;color:var(--ink2);font-variant-numeric:tabular-nums}
-.h-sheet{background:var(--surface);border-top:1px solid var(--line);border-radius:22px 22px 0 0;margin:0 -16px;padding:6px 22px 24px}
+.h-sheet{background:var(--surface);border-top:1px solid var(--line);border-radius:22px 22px 0 0;margin:0 -1rem;padding:0.375rem 1.375rem 1.5rem}
 .h-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
-.h-kpi{padding:16px 16px 16px 0;display:flex;flex-direction:column;gap:4px;text-align:left;background:none;border:0;color:inherit}
-.h-kpi + .h-kpi{padding:16px 0 16px 16px;border-left:1px solid var(--line2)}
+.h-kpi{padding:1rem 1rem 1rem 0;display:flex;flex-direction:column;gap:0.25rem;text-align:left;background:none;border:0;color:inherit}
+.h-kpi + .h-kpi{padding:1rem 0 1rem 1rem;border-left:1px solid var(--line2)}
 .h-kpi .h-k{font-size:0.75rem;color:var(--ink3)}
 .h-val{font-family:Inter,sans-serif;font-size:1.1875rem;font-weight:400;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;line-height:1.2}
-.h-val small{font-family:var(--font-kr);font-size:0.75rem;color:var(--ink3);margin-left:3px;font-weight:400}
+.h-val small{font-family:var(--font-kr);font-size:0.75rem;color:var(--ink3);margin-left:0.1875rem;font-weight:400}
 .h-val.w5{font-weight:500} .h-val.w6{font-weight:600}
 .h-chg{font-family:Inter,sans-serif;font-size:0.75rem;font-weight:500;font-variant-numeric:tabular-nums}
 .h-chg.good{color:var(--sage-ink)} .h-chg.bad{color:var(--neg)} .h-chg.none{color:var(--ink3);font-weight:400;font-family:inherit}
 .h-mini{font-size:0.75rem;color:var(--ink3)}
-.h-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-top:1px solid var(--line2);background:none;border-left:0;border-right:0;border-bottom:0;width:100%;text-align:left;color:inherit}
+.h-row{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:0.875rem 0;border-top:1px solid var(--line2);background:none;border-left:0;border-right:0;border-bottom:0;width:100%;text-align:left;color:inherit}
 .h-row .h-val{font-size:1.25rem}
 .h-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--line2)}
-.h-split > button{padding:14px 16px 14px 0;display:flex;flex-direction:column;gap:6px;background:none;border:0;text-align:left;color:inherit}
-.h-split > button + button{padding:14px 0 14px 16px;border-left:1px solid var(--line2)}
+.h-split > button{padding:0.875rem 1rem 0.875rem 0;display:flex;flex-direction:column;gap:0.375rem;background:none;border:0;text-align:left;color:inherit}
+.h-split > button + button{padding:0.875rem 0 0.875rem 1rem;border-left:1px solid var(--line2)}
 .h-line{height:3px;border-radius:2px;background:var(--chip)} .h-line i{display:block;height:3px;border-radius:2px;background:var(--sage)}
-.h-al-h{display:flex;justify-content:space-between;align-items:center;padding:14px 0 2px;border-top:1px solid var(--line2);font-size:0.8125rem;font-weight:500;color:var(--ink2)}
-.h-al-h .cnt{font-family:Inter,sans-serif;color:var(--ink3);margin-left:4px;font-weight:400}
+.h-al-h{display:flex;justify-content:space-between;align-items:center;padding:0.875rem 0 0.125rem;border-top:1px solid var(--line2);font-size:0.8125rem;font-weight:500;color:var(--ink2)}
+.h-al-h .cnt{font-family:Inter,sans-serif;color:var(--ink3);margin-left:0.25rem;font-weight:400}
 .h-alerts{display:flex;flex-direction:column}
-.h-alert{display:flex;align-items:center;gap:12px;padding:12px 0;background:none;border:0;border-top:1px solid var(--line2);text-align:left;color:inherit;width:100%}
+.h-alert{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 0;background:none;border:0;border-top:1px solid var(--line2);text-align:left;color:inherit;width:100%}
 .h-alert:first-child{border-top:0}
 .h-alert .dot{width:6px;height:6px;flex:none}
 .h-alert .t{font-size:0.875rem;line-height:1.45}
 .h-alert .s{font-size:0.75rem;color:var(--ink3)}
 .h-alert .m{font-family:Inter,sans-serif;font-size:0.8125rem;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
 .h-desk{display:none}
-.h-chart-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px 12px}
+.h-chart-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.125rem 1.25rem 0.75rem}
 @media (min-width:960px){
-  .home3{padding-top:8px}
-  .h-top{display:grid;grid-template-columns:5fr 7fr;gap:56px;padding:20px 0 28px;border-bottom:1px solid var(--line2)}
+  .home3{padding-top:0.5rem}
+  .h-top{display:grid;grid-template-columns:5fr 7fr;gap:3.5rem;padding:1.25rem 0 1.75rem;border-bottom:1px solid var(--line2)}
   .h-hero{padding:0}
   .h-amt{font-size:2.875rem;letter-spacing:-0.04em}
   .h-sheet{background:transparent;border:0;border-radius:0;margin:0;padding:0;display:contents}
-  .h-kpis-d{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-content:start;padding-top:4px}
-  .h-kpis-d .h-kpi{padding:2px 0 2px 24px;border-left:1px solid var(--line2)}
+  .h-kpis-d{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-content:start;padding-top:0.25rem}
+  .h-kpis-d .h-kpi{padding:0.125rem 0 0.125rem 1.5rem;border-left:1px solid var(--line2)}
   .h-kpis-d .h-kpi:first-child{padding-left:0;border-left:0}
   .h-kpis-d .h-val{font-size:1.375rem}
   .h-mob{display:none !important}
-  .h-bottom{display:grid;grid-template-columns:8fr 4fr;gap:40px;padding-top:28px}
+  .h-bottom{display:grid;grid-template-columns:8fr 4fr;gap:2.5rem;padding-top:1.75rem}
   .h-side{display:flex;flex-direction:column}
   .h-side .h-split{display:flex;flex-direction:column;border-top:0}
-  .h-side .h-split > button{padding:0 0 16px;border-bottom:1px solid var(--line2)}
-  .h-side .h-split > button + button{padding:16px 0;border-left:0}
+  .h-side .h-split > button{padding:0 0 1rem;border-bottom:1px solid var(--line2)}
+  .h-side .h-split > button + button{padding:1rem 0;border-left:0}
 }
 @media (max-width:959px){ .h-kpis-d,.h-bottom .h-chart-card{display:none} }
-.top-l{display:flex;align-items:center;gap:12px;min-width:0}
+.top-l{display:flex;align-items:center;gap:0.75rem;min-width:0}
 .top-sep{width:1px;height:16px;background:var(--line);display:inline-block}
-.top-add{display:none;height:34px;padding:0 14px;margin-left:8px;font-size:0.8125rem}
+.top-add{display:none;min-height:2.125rem;padding:0 0.875rem;margin-left:0.5rem;font-size:0.8125rem}
 @media (min-width:960px){ .top-add{display:inline-flex} .top-my{display:none} }
-@media (max-width:959px){ .top-l h1,.top-sep{display:none} .top-l{margin-left:-8px} }
+@media (max-width:959px){ .top-l h1,.top-sep{display:none} .top-l{margin-left:-0.5rem} }
 .more-t{color:var(--sage);font-weight:500}
 .keypad button{background:var(--chip);border:0;font-weight:400;font-size:1.3125rem;border-radius:10px}
 .keypad button:active{background:var(--line)}
 .quick button{background:var(--chip);color:var(--ink2);font-weight:400}
 .amount-v{font-weight:600}
-.cats .chip{height:32px}
+.cats .chip{min-height:2rem}
 .alert-item.lv-critical{border-left:3px solid var(--neg)} .alert-item.lv-warn{border-left:3px solid var(--warn)}
 
 /* ───────── 확정 디자인 반영 (홈 v4 · 공통 디테일) ───────── */
@@ -620,64 +620,64 @@ select.input{background-image:linear-gradient(45deg,transparent 50%,var(--ink3) 
 .pos{color:var(--ink)}
 .tag.good{color:var(--ink2)}
 .sync.good i{background:var(--ink3)}
-.main{padding-bottom:calc(var(--nav-h) + 96px + env(safe-area-inset-bottom,0px))}
-@media (min-width:960px){ .main{padding-bottom:48px} }
+.main{padding-bottom:calc(var(--nav-h) + 6rem + env(safe-area-inset-bottom,0px))}
+@media (min-width:960px){ .main{padding-bottom:3rem} }
 .home4{display:flex;flex-direction:column}
 .home4 .h-k{font-size:0.8125rem;color:var(--ink2);font-weight:400}
 .home4 .h-mini{font-size:0.75rem;color:var(--ink3);margin:0}
 .home4 .h-gl{margin:0;font-size:0.75rem;font-weight:500;color:var(--ink2);letter-spacing:0.01em}
-.home4 .h-gl .num{color:var(--ink3);font-weight:400;margin-left:2px}
+.home4 .h-gl .num{color:var(--ink3);font-weight:400;margin-left:0.125rem}
 .home4 .h-val{font-family:Inter,sans-serif;font-size:1.125rem;font-weight:500;letter-spacing:-0.02em;line-height:1.2;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
 .home4 .h-val.w5{font-weight:500} .home4 .h-val.w6{font-weight:600}
-.home4 .h-val small{font-family:var(--font-kr);font-size:0.75rem;font-weight:400;color:var(--ink3);margin-left:3px;letter-spacing:0}
+.home4 .h-val small{font-family:var(--font-kr);font-size:0.75rem;font-weight:400;color:var(--ink3);margin-left:0.1875rem;letter-spacing:0}
 .home4 .h-val.neg{color:var(--neg)}
 .home4 .muted-v{font-size:0.9375rem;font-weight:400;color:var(--ink3)}
 .home4 .h-chg{font-family:Inter,sans-serif;font-size:0.8125rem;font-weight:500;color:var(--neutral);white-space:nowrap;font-variant-numeric:tabular-nums}
-.home4 .h-hero{padding:2px 0 14px;display:flex;flex-direction:column}
+.home4 .h-hero{padding:0.125rem 0 0.875rem;display:flex;flex-direction:column}
 .home4 .h-lbl{font-size:0.8125rem;color:var(--ink2)}
-.home4 .h-amt{margin-top:4px;font-size:2.375rem;font-weight:600;letter-spacing:-0.035em}
-.home4 .h-sub{margin-top:4px;font-size:0.8125rem}
-.home4 .h-basis{margin-top:2px}
-.home4 .h-basis p{margin:4px 0 0;font-size:0.75rem;line-height:1.5}
-.h-flow-wrap{padding-bottom:16px}
-.home4 .h-flow{margin:0;display:flex;flex-direction:column;gap:10px}
+.home4 .h-amt{margin-top:0.25rem;font-size:2.375rem;font-weight:600;letter-spacing:-0.035em}
+.home4 .h-sub{margin-top:0.25rem;font-size:0.8125rem}
+.home4 .h-basis{margin-top:0.125rem}
+.home4 .h-basis p{margin:0.25rem 0 0;font-size:0.75rem;line-height:1.5}
+.h-flow-wrap{padding-bottom:1rem}
+.home4 .h-flow{margin:0;display:flex;flex-direction:column;gap:0.625rem}
 .home4 .h-flow-top{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;padding:0;font-size:0.75rem;color:var(--ink3);text-align:left}
 .home4 .h-flow-top .num{color:var(--ink2)}
-.h-more{display:inline-flex;align-items:center;gap:2px}
-.home4 .h-flow-bar{height:6px;border-radius:3px;gap:2px;background:transparent}
+.h-more{display:inline-flex;align-items:center;gap:0.125rem}
+.home4 .h-flow-bar{height:6px;border-radius:3px;gap:0.125rem;background:transparent}
 .home4 .h-flow-bar i{border-radius:0}
-.home4 .h-flow-leg{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:0 6px}
-.home4 .h-flow-leg button{display:inline-flex;align-items:center;gap:5px;background:none;border:0;padding:2px 0;font-size:0.8125rem;color:var(--ink2);white-space:nowrap;min-width:0}
+.home4 .h-flow-leg{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:0 0.375rem}
+.home4 .h-flow-leg button{display:inline-flex;align-items:center;gap:0.3125rem;background:none;border:0;padding:0.125rem 0;font-size:0.8125rem;color:var(--ink2);white-space:nowrap;min-width:0}
 .home4 .h-flow-leg button.on{color:var(--ink)}
 .home4 .h-flow-leg i,.h-flow-list i{width:7px;height:7px;border-radius:2px;flex:none}
 .home4 i.rest{box-shadow:inset 0 0 0 1px var(--ink3)}
 .home4 .h-flow-leg b{font-family:Inter,sans-serif;font-weight:400;color:inherit}
 .home4 .h-flow-leg button.on b{font-weight:500}
 .h-flow-list{display:flex;flex-direction:column}
-.h-fl{display:flex;align-items:center;gap:8px;padding:5px 0;background:none;border:0;font-size:0.8125rem;color:var(--ink2);text-align:left;width:100%}
+.h-fl{display:flex;align-items:center;gap:0.5rem;padding:0.3125rem 0;background:none;border:0;font-size:0.8125rem;color:var(--ink2);text-align:left;width:100%}
 .h-fl.on{color:var(--ink)}
 .h-fl .l{flex:1}
 .h-fl .v{font-family:Inter,sans-serif;font-variant-numeric:tabular-nums}
-.h-fl .p{font-family:Inter,sans-serif;width:40px;text-align:right;color:var(--ink3);font-variant-numeric:tabular-nums}
+.h-fl .p{font-family:Inter,sans-serif;width:2.5rem;text-align:right;color:var(--ink3);font-variant-numeric:tabular-nums}
 .h-fl.on .v{font-weight:500}
-.home4 .h-sheet{background:var(--sheet);border:0;border-top:1px solid var(--line);border-radius:20px 20px 0 0;margin:0 -16px;padding:12px 22px 8px;display:block}
-.home4 .h-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:6px}
-.home4 .h-kpi{padding:2px 16px 12px 0;display:flex;flex-direction:column;gap:4px;text-align:left;background:none;border:0;color:inherit;min-width:0}
-.home4 .h-kpi + .h-kpi{padding:2px 0 12px 16px;border-left:1px solid var(--line2)}
-.home4 .h-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0 14px;border:0;border-top:1px solid var(--line2);background:none;width:100%;text-align:left;color:inherit}
+.home4 .h-sheet{background:var(--sheet);border:0;border-top:1px solid var(--line);border-radius:20px 20px 0 0;margin:0 -1rem;padding:0.75rem 1.375rem 0.5rem;display:block}
+.home4 .h-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:0.375rem}
+.home4 .h-kpi{padding:0.125rem 1rem 0.75rem 0;display:flex;flex-direction:column;gap:0.25rem;text-align:left;background:none;border:0;color:inherit;min-width:0}
+.home4 .h-kpi + .h-kpi{padding:0.125rem 0 0.75rem 1rem;border-left:1px solid var(--line2)}
+.home4 .h-row{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:0.75rem 0 0.875rem;border:0;border-top:1px solid var(--line2);background:none;width:100%;text-align:left;color:inherit}
 .home4 .h-row-l{display:flex;flex-direction:column;gap:1px;min-width:0}
-.home4 .h-div{height:1px;background:var(--line);margin:2px -22px 12px}
-.home4 .h-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:6px;border:0}
-.h-cell{display:grid;grid-template-rows:auto auto 18px;row-gap:6px;padding:2px 16px 14px 0;background:none;border:0;text-align:left;color:inherit;min-width:0}
-.home4 .h-split .h-cell + .h-cell{padding:2px 0 14px 16px;border-left:1px solid var(--line2)}
-.h-cell-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;min-width:0}
+.home4 .h-div{height:1px;background:var(--line);margin:0.125rem -1.375rem 0.75rem}
+.home4 .h-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:0.375rem;border:0}
+.h-cell{display:grid;grid-template-rows:auto auto 18px;row-gap:0.375rem;padding:0.125rem 1rem 0.875rem 0;background:none;border:0;text-align:left;color:inherit;min-width:0}
+.home4 .h-split .h-cell + .h-cell{padding:0.125rem 0 0.875rem 1rem;border-left:1px solid var(--line2)}
+.h-cell-top{display:flex;justify-content:space-between;align-items:baseline;gap:0.5rem;min-width:0}
 .h-cell-top b.accent{font-family:Inter,sans-serif;font-size:0.8125rem;font-weight:600;color:var(--sage)}
 .h-vis{align-self:center;display:block;min-width:0}
 .home4 .h-line{display:block;height:3px;border-radius:2px;background:var(--line2)} .home4 .h-line i{display:block;height:3px;border-radius:2px;background:var(--sage)}
 .home4 .h-line.seg i{background:var(--seg1)}
 .home4 .h-al-h{display:flex;justify-content:space-between;align-items:baseline;padding:0;border:0}
-.home4 .h-alerts{display:flex;flex-direction:column;margin-top:2px}
-.home4 .h-alert{display:flex;align-items:center;gap:12px;min-height:42px;padding:8px 0;border:0;border-top:1px solid var(--line2);background:none;text-align:left;color:inherit;width:100%}
+.home4 .h-alerts{display:flex;flex-direction:column;margin-top:0.125rem}
+.home4 .h-alert{display:flex;align-items:center;gap:0.75rem;min-height:2.625rem;padding:0.5rem 0;border:0;border-top:1px solid var(--line2);background:none;text-align:left;color:inherit;width:100%}
 .home4 .h-alert:first-child{border-top:0}
 .home4 .h-alert .dot{width:6px;height:6px;border-radius:3px;flex:none}
 .home4 .h-alert .dot.crit{background:var(--neg)} .home4 .h-alert .dot.warn{background:var(--dot)} .home4 .h-alert .dot.info{box-shadow:inset 0 0 0 1.25px var(--dot)}
@@ -686,30 +686,255 @@ select.input{background-image:linear-gradient(45deg,transparent 50%,var(--ink3) 
 .home4 .h-alert.two .t{white-space:normal}
 .home4 .h-alert .s{font-size:0.75rem;color:var(--ink3);line-height:1.45}
 @media (min-width:960px){
-  .h-desk{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);column-gap:48px;padding-top:28px;max-width:1180px}
-  .hd-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:40px;padding-bottom:28px;border-bottom:1px solid var(--line2)}
+  .h-desk{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);column-gap:3rem;padding-top:1.75rem;max-width:1180px}
+  .hd-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:2.5rem;padding-bottom:1.75rem;border-bottom:1px solid var(--line2)}
   .hd-top .h-hero{padding:0}
   .hd-top .h-amt{font-size:2.75rem;letter-spacing:-0.04em}
-  .hd-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:26px 0 28px}
-  .hd-kpis .h-kpi{padding:0 0 0 22px;border-left:1px solid var(--line2);gap:5px}
+  .hd-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:1.625rem 0 1.75rem}
+  .hd-kpis .h-kpi{padding:0 0 0 1.375rem;border-left:1px solid var(--line2);gap:0.3125rem}
   .hd-kpis .h-kpi:first-child{padding-left:0;border-left:0}
   .hd-kpis .h-val{font-size:1.375rem}
-  .hd-kpis .h-line{margin-top:7px;width:86%}
-  .home4 .h-chart-card{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:18px 20px 10px}
+  .hd-kpis .h-line{margin-top:0.4375rem;width:86%}
+  .home4 .h-chart-card{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:1.125rem 1.25rem 0.625rem}
   .hd-side{display:flex;flex-direction:column;align-self:start}
-  .hd-side .h-cell{grid-template-rows:auto auto auto;padding:0 0 4px}
+  .hd-side .h-cell{grid-template-rows:auto auto auto;padding:0 0 0.25rem}
   .hd-side .h-val{font-size:1.5rem}
-  .hd-side .h-div{margin:18px 0}
-  .hd-side .h-al-h{margin-bottom:4px}
+  .hd-side .h-div{margin:1.125rem 0}
+  .hd-side .h-al-h{margin-bottom:0.25rem}
 }
 .chart .tick{font-size:0.75rem}
 .legend{font-size:0.75rem}
 .h-cell{align-content:start;align-items:start}
 .home4 .h-kpi,.home4 .h-row{align-content:start}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.home4 .h-split > .h-cell{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto 18px;row-gap:6px;padding:2px 16px 14px 0;width:100%;align-content:start}
-.home4 .h-split > .h-cell + .h-cell{padding:2px 0 14px 16px;border-left:1px solid var(--line2)}
-.home4 .hd-side > .h-cell{display:grid;grid-template-columns:minmax(0,1fr);row-gap:8px;padding:0;width:100%}
+.home4 .h-split > .h-cell{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto 18px;row-gap:0.375rem;padding:0.125rem 1rem 0.875rem 0;width:100%;align-content:start}
+.home4 .h-split > .h-cell + .h-cell{padding:0.125rem 0 0.875rem 1rem;border-left:1px solid var(--line2)}
+.home4 .hd-side > .h-cell{display:grid;grid-template-columns:minmax(0,1fr);row-gap:0.5rem;padding:0;width:100%}
+
+/* ───────── 리디자인 V2 ───────── */
+:root{--bg:#0F1115;--surface:#171A20;--surface2:#1A1E25;--elev:#1E222A;--sheet:#171A20;--ink:#F5F7FA;--ink2:#A1A9B7;--ink3:#7C8594;--line:rgba(255,255,255,0.08);--line2:rgba(255,255,255,0.055);--chip:rgba(255,255,255,0.06);--seg1:rgba(255,255,255,0.70);--seg2:rgba(255,255,255,0.38);--seg3:rgba(255,255,255,0.16)}
+:root[data-theme="light"]{--bg:#F4F6F9;--surface:#FFFFFF;--surface2:#F8FAFC;--elev:#F0F3F7;--sheet:#FFFFFF;--ink:#141922;--ink2:#5B6576;--ink3:#6B7587;--line:#E4E8EE;--line2:#EEF1F5;--chip:#EEF1F5;--seg1:#2E3644;--seg2:#8A94A5;--seg3:#C9D0DA}
+body{background:var(--bg)}
+/* 헤더 */
+@media (max-width:959px){
+  .topbar{padding:0.25rem 0 0.125rem;min-height:56px}
+  .top-l h1{display:block;font-size:1.25rem;font-weight:600;letter-spacing:-0.02em}
+  .top-l .top-sep{display:none}
+  .top-l{gap:0.375rem;margin-left:0}
+  .top-l .month .icon-btn{width:26px}
+  .top-l.mo-month h1{display:none}
+  .top-l.mo-month{margin-left:-0.5rem}
+  .top-l.mo-month .month-l{font-size:1.25rem}
+  .top-l:not(.mo-month) .month-l{font-size:0.875rem;font-weight:500;color:var(--ink2)}
+  .top-l:not(.mo-month) .month-l .yr{display:none}
+}
+.top-r .icon-btn,.theme-btn,.bell,.top-my{width:44px;height:44px}
+.bell-n{width:8px;height:8px;min-width:8px;top:11px;right:11px}
+/* 하단 탭 + 기록 버튼 */
+.nav-btn{font-size:0.6875rem}
+.nav-btn.on{font-weight:600}
+.fab{width:auto;height:48px;padding:0 1.125rem 0 0.875rem;border-radius:24px;gap:0.375rem;display:inline-flex;align-items:center;font-size:0.9375rem;font-weight:500;right:1.25rem;bottom:calc(var(--nav-h) + 0.875rem + env(safe-area-inset-bottom,0px));box-shadow:none}
+.main{padding-bottom:calc(var(--nav-h) + 5.75rem + env(safe-area-inset-bottom,0px))}
+@media (min-width:960px){.main{padding-bottom:3.5rem}}
+/* 탭 */
+.ul-tabs .seg{background:transparent;border-radius:0;padding:0;gap:1.375rem;border-bottom:1px solid var(--line);box-shadow:none}
+.ul-tabs .seg button{flex:none;padding:0.625rem 0 0.6875rem;border-radius:0;background:none;box-shadow:none;font-size:0.875rem;color:var(--ink3);font-weight:400}
+.ul-tabs .seg button.on{background:none;box-shadow:inset 0 -2px 0 var(--ink);color:var(--ink);font-weight:600}
+.pill-tabs .seg{background:transparent;padding:0;gap:0.375rem;box-shadow:none}
+.pill-tabs .seg button{flex:none;min-height:2.125rem;padding:0 0.75rem;border-radius:17px;background:var(--chip);color:var(--ink2);font-size:0.875rem;font-weight:400;box-shadow:none}
+.pill-tabs .seg button.on{background:var(--ink);color:var(--bg);font-weight:500;box-shadow:none}
+/* 공통 섹션 제목 */
+.hm-sh{display:flex;justify-content:space-between;align-items:baseline;margin:1.375rem 0 0.5rem}
+.hm-sh h2{margin:0;font-size:0.9375rem;font-weight:600;letter-spacing:-0.01em}
+.hm-sh h2 .num{color:var(--ink3);font-weight:500;margin-left:0.125rem}
+.hm-sh .link,.hm-lh .link{display:inline-flex;align-items:center;gap:0.125rem;color:var(--ink2);font-weight:400;font-size:0.8125rem}
+.hm-lbl{font-size:0.875rem;color:var(--ink2)}
+.hm-sub{font-size:0.875rem;color:var(--ink2);line-height:1.5}
+.hm-sub b{font-family:Inter,sans-serif;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.hm-empty{margin:0;padding:0.875rem 0;font-size:0.875rem;color:var(--ink3)}
+.num small,.hm-amt small,.pl-amt small,.as-amt small,.an-amt small,.lg-tv small,.as-ev small,.pl-big small{font-family:var(--font-kr);font-weight:400;color:var(--ink3);margin-left:0.1875rem;letter-spacing:0}
+/* 내역 */
+.hist2{gap:0}
+.hs-bar{display:flex;gap:0.5rem;margin-top:0.625rem}
+.hs-search{flex:1;min-height:2.75rem;border-radius:12px;background:var(--chip);display:flex;align-items:center;gap:0.625rem;padding:0 0.875rem;color:var(--ink3)}
+.hs-search input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font-size:1rem;font-family:inherit;outline:none}
+.hs-search input::placeholder{color:var(--ink3)}
+.hs-search:focus-within{box-shadow:0 0 0 2px var(--sage) inset}
+.hs-fbtn{position:relative;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center}
+.hs-fbtn.on{border-color:var(--sage);color:var(--sage)}
+.hs-badge{position:absolute;top:-0.3125rem;right:-0.3125rem;min-width:18px;height:18px;border-radius:9px;background:var(--sage);color:var(--bg);font-size:0.75rem;font-weight:600;line-height:18px;text-align:center}
+.hs-fold{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .32s cubic-bezier(.2,.8,.2,1),opacity .2s ease}
+.hs-fold.open{grid-template-rows:1fr;opacity:1}
+.hs-fold > div{min-height:0;overflow:hidden}
+@media (prefers-reduced-motion:reduce){.hs-fold{transition:opacity .2s ease}}
+.hs-filter{margin-top:0.625rem;padding:1rem;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column}
+.hs-fl{margin:0.75rem 0 0.5rem;font-size:0.8125rem;color:var(--ink2)} .hs-fl:first-child{margin-top:0}
+.hs-fbtns{display:flex;gap:0.5rem;margin-top:1rem}
+.hs-sum{display:flex;justify-content:space-between;align-items:baseline;padding:1rem 0 0.125rem;font-size:0.8125rem;color:var(--ink2)}
+.hs-tools{display:flex;gap:0.375rem;justify-content:flex-end;margin:0.125rem -0.375rem 0 0}
+.hs-tools .btn{min-height:1.875rem;font-size:0.8125rem;color:var(--ink2);border:0;background:none}
+.hs-day{margin-top:0.5rem}
+.hs-dh{display:flex;justify-content:space-between;align-items:baseline;padding:0.75rem 0 0.375rem;border-bottom:1px solid var(--line2);font-size:0.8125rem;color:var(--ink2)}
+.hs-dh b{color:var(--ink);font-weight:500}
+.hs-dh .num{font-size:0.8125rem;color:var(--ink3)}
+.rows .tx2{display:flex;align-items:center;gap:0.75rem;min-height:3.75rem;padding:0.5rem 0;border-bottom:1px solid var(--line2);border-top:0;background:none;width:100%;text-align:left;color:inherit;border-radius:0}
+.rows li + li .tx2{border-top:0}
+.tx2 .row-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:0.1875rem}
+.tx2 .row-t{font-size:1rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx2 .row-s{font-size:0.8125rem;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx2 .row-amt{font-family:Inter,sans-serif;font-size:1rem;font-weight:500;color:var(--ink);white-space:nowrap}
+.tx2 .row-end{display:flex;flex-direction:column;align-items:flex-end;gap:0.125rem}
+.tx-tag{margin-left:0.375rem;font-size:0.75rem;font-weight:500;color:var(--ink2);background:var(--chip);border-radius:5px;padding:1px 0.375rem;vertical-align:2px}
+.rows .tx2:hover{background:transparent}
+/* 분석 */
+.an-hero{display:flex;flex-direction:column;gap:0.375rem;padding:1.25rem 0 0.25rem}
+.an-hv{display:flex;align-items:baseline;gap:0.75rem;flex-wrap:wrap}
+.an-amt,.pl-amt,.as-amt{font-family:Inter,sans-serif;font-size:2rem;font-weight:600;letter-spacing:-0.03em;line-height:1.15;font-variant-numeric:tabular-nums}
+.an-amt small,.pl-amt small,.as-amt small{font-size:0.9375rem}
+.an-amt.neg,.pl-amt.neg,.as-amt.neg{color:var(--neg)}
+.as-chg{font-family:Inter,sans-serif;font-size:0.8125rem;font-weight:500;color:var(--ink2)}
+.an-sent{margin:0.25rem 0 0;font-size:0.875rem;line-height:1.55;color:var(--ink2)}
+.an-sent b{color:var(--ink);font-weight:500}
+.an-chart{margin:0.75rem 0 0}
+.an-tick{font-family:Inter,var(--font-kr);font-size:0.75rem;fill:var(--ink3)}
+.an-top{font-family:Inter,sans-serif;font-size:0.75rem;font-weight:600;fill:var(--ink)}
+.an-leg{display:flex;gap:1rem;font-size:0.8125rem;color:var(--ink2);margin-top:0.125rem}
+.an-leg span{display:inline-flex;align-items:center;gap:0.375rem}
+.an-leg i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.an-leg i.dash{width:14px;height:0;border-top:1.5px dashed var(--ink2);border-radius:0}
+.an-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:1rem;align-items:center;padding:0.8125rem 0;border-bottom:1px solid var(--line2)}
+.an-row .row-t{font-size:0.9375rem;font-weight:500}
+.an-row .row-s{font-size:0.8125rem;color:var(--ink3)}
+.an-c{display:flex;flex-direction:column;align-items:flex-end;gap:0.125rem}
+.an-c .num{font-family:Inter,sans-serif;font-size:0.9375rem;font-weight:500}
+.an-c.w{min-width:72px}
+.an-c.w .num{font-weight:600}
+.an-dh{margin-top:1.875rem;padding-top:1.125rem;border-top:1px solid var(--line)}
+/* 계획 */
+.pl-hero{display:flex;align-items:center;gap:1rem;padding:1.125rem 0 0}
+.pl-hl{flex:1;min-width:0;display:flex;flex-direction:column;gap:0.375rem}
+.pl-ring{flex:none;background:none;border:0;padding:0}
+.pl-rv{font-family:Inter,sans-serif;font-size:1.25rem;font-weight:600;fill:var(--ink)}
+.pl-rl{font-size:0.75rem;fill:var(--ink3)}
+.pl-cats{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem}
+.pl-cat{border:0;padding:0.4375rem 0.6875rem;border-radius:10px;background:var(--chip);font-size:0.8125rem;color:var(--ink2)}
+.pl-cat b{font-family:Inter,sans-serif;font-weight:500;color:var(--ink)}
+.pl-cat.over{background:var(--neg-soft);color:var(--neg)} .pl-cat.over b{color:var(--neg)}
+.pl-goals{display:flex;flex-direction:column;gap:0.625rem}
+.pl-goal{padding:1rem 1.125rem;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:0.625rem}
+.pl-gt{display:flex;justify-content:space-between;align-items:baseline;font-size:0.875rem;color:var(--ink2)}
+.pl-tag{font-family:Inter,sans-serif;font-size:0.8125rem;color:var(--ink3)} .pl-tag.warn{color:var(--neg)}
+.pl-gb{display:flex;align-items:flex-end;justify-content:space-between;gap:0.75rem}
+.pl-gv{display:flex;flex-direction:column;gap:0.25rem;min-width:0}
+.pl-big{font-family:Inter,sans-serif;font-size:1.375rem;font-weight:600;letter-spacing:-0.015em}
+.pl-big small{font-size:0.8125rem}
+.pl-need{font-size:0.8125rem;color:var(--ink2);line-height:1.45}
+.pl-goal .btn{flex:none;background:var(--chip);border:0;min-height:2.25rem;border-radius:10px}
+.pl-catlist{padding:0.25rem 0}
+.pl-fixed{display:flex;justify-content:space-between;font-size:0.8125rem;color:var(--ink2);padding:0.875rem 0;border-top:1px solid var(--line2);margin-top:0.5rem}
+/* 자산 */
+.as-hero{display:flex;flex-direction:column;gap:0.375rem;padding:1.25rem 0 0}
+.as-amt{font-size:2.125rem}
+.as-eq{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:0.5rem;margin-top:1.125rem;padding:1rem;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.as-eq > div{display:flex;flex-direction:column;gap:0.25rem;min-width:0} .as-eq .r{text-align:right;align-items:flex-end}
+.as-eq .hm-lbl{font-size:0.8125rem;color:var(--ink3)}
+.as-ev{font-family:Inter,sans-serif;font-size:1.0625rem;font-weight:500;white-space:nowrap}
+.as-ev small{font-size:0.75rem}
+.as-op{font-family:Inter,sans-serif;font-size:1.125rem;color:var(--ink3)}
+.as-comp{margin-top:1rem;display:flex;flex-direction:column;gap:0.625rem}
+.as-bar{display:flex;height:8px;gap:0.1875rem} .as-bar i{display:block;height:100%;border-radius:4px}
+.as-leg{display:flex;flex-wrap:wrap;gap:0.375rem 1rem;font-size:0.8125rem;color:var(--ink2)}
+.as-leg span{display:inline-flex;align-items:center;gap:0.375rem} .as-leg i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.as-leg b{font-family:Inter,sans-serif;font-weight:500;color:var(--ink)}
+.as-grp .hm-sh{margin-top:1.625rem} .as-tot{font-family:Inter,sans-serif;font-size:0.875rem;color:var(--ink2)}
+.as-ret{font-family:Inter,sans-serif;font-size:0.8125rem;color:var(--ink2)}
+.as-metrics .tx2{min-height:3.25rem}
+.as-metrics .row-amt{font-size:0.9375rem}
+/* 기록하기·시트·입력 */
+.sheet{border-radius:22px 22px 0 0;background:var(--surface);border:1px solid var(--line)}
+@media (min-width:760px){.sheet{border-radius:22px}}
+.sheet-h h2{font-size:1.0625rem}
+.amount-v{font-size:2.5rem;letter-spacing:-0.03em}
+.keypad button{height:3.25rem;border-radius:12px;background:var(--chip);font-size:1.375rem;font-weight:400}
+.input{min-height:3rem;border-radius:12px;font-size:1rem}
+.btn{min-height:2.75rem;border-radius:12px}
+.btn.small{min-height:2.25rem;border-radius:10px;font-size:0.875rem}
+.btn.primary{background:var(--primary);border-color:var(--primary)}
+.chip{min-height:2.25rem;padding:0 0.875rem;font-size:0.875rem}
+.chip.on{background:var(--sage-soft);border-color:var(--sage);color:var(--sage)}
+.empty{padding:2rem 0;text-align:center}
+.empty-t{font-size:0.9375rem;font-weight:500}
+.seg button.on{background:var(--surface)}
+:root[data-theme="dark"] .seg button.on{background:var(--elev)}
+.card{border-radius:16px}
+.pill-tabs{overflow:visible}
+.pill-tabs .seg{display:flex;flex-wrap:nowrap;gap:0.25rem}
+.pill-tabs .seg button{flex:1 1 auto;min-width:0;padding:0 0.5rem;font-size:0.8125rem}
+@media (max-width:599px){ .eff-tbl th:nth-child(5),.eff-tbl td:nth-child(5){display:none} }
+:where(.content) small{font-size:0.75rem}
+.delta{font-size:0.75rem}
+.lg-tv small,.stat-v small,.num small{font-size:0.75rem}
+.hm-amt small{font-size:1.125rem} .an-amt small,.pl-amt small,.as-amt small{font-size:0.9375rem} .pl-big small{font-size:0.8125rem}
+:root .pill-tabs .seg button.on,:root[data-theme="dark"] .pill-tabs .seg button.on{background:var(--ink);color:var(--bg)}
+:root .ul-tabs .seg button.on,:root[data-theme="dark"] .ul-tabs .seg button.on{background:none}
+@media (max-width:959px){ .topbar .top-l .month{order:0} .top-l.mo-month .month{order:-1} }
+
+/* ───────── 홈 v6 — 읽기 쉬운 그룹 목록 ───────── */
+.home7{display:flex;flex-direction:column;padding-bottom:0.5rem}
+.h7-col{display:flex;flex-direction:column;min-width:0}
+.h7-hero{margin-top:0.5rem;padding:1.25rem 1.25rem 1.125rem;border-radius:20px;background:var(--surface);border:1px solid var(--line)}
+.h7-cap{margin:0;font-size:0.9375rem;color:var(--ink2)}
+.h7-big{margin:0.375rem 0 0;font-family:Inter,var(--font-kr);font-size:2.625rem;font-weight:600;letter-spacing:-.035em;line-height:1.08;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.h7-big small{font-family:var(--font-kr);font-size:1.125rem;font-weight:500;color:var(--ink2);margin-left:0.25rem;letter-spacing:0}
+.h7-big.neg{color:var(--neg)}
+.h7-sub{margin-top:0.875rem;padding-top:0.875rem;border-top:1px solid var(--line2);display:flex;justify-content:space-between;align-items:center;gap:0.375rem 1rem;flex-wrap:wrap;font-size:0.9375rem;color:var(--ink2)}
+.h7-sub b{font-family:Inter,var(--font-kr);font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.h7-link{display:inline-flex;align-items:center;gap:0.125rem;font-size:0.875rem;font-weight:500;color:var(--sage);white-space:nowrap}
+.h7-sh{display:flex;justify-content:space-between;align-items:baseline;gap:0.75rem;margin:1.75rem 0.25rem 0.5rem;font-size:0.8125rem;font-weight:600;color:var(--ink2);letter-spacing:.01em}
+.h7-sh .num{color:var(--ink3);font-weight:500;margin-left:0.125rem}
+.h7-group{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.h7-row{display:flex;align-items:center;gap:0.75rem;width:100%;min-height:3.5rem;padding:0.75rem 0.75rem 0.75rem 1rem;text-align:left;color:var(--ink)}
+.h7-group > * + *{box-shadow:inset 0 1px 0 var(--line2)}
+.h7-l{flex:1;min-width:0;display:flex;flex-direction:column;gap:0.1875rem}
+.h7-l > b{font-size:1rem;font-weight:500;line-height:1.35}
+.h7-l > span{font-size:0.8125rem;color:var(--ink2);line-height:1.4}
+.h7-v{font-family:Inter,var(--font-kr);font-size:1.0625rem;font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.h7-v small{font-family:var(--font-kr);font-size:0.8125rem;font-weight:400;color:var(--ink2);margin-left:0.125rem;letter-spacing:0}
+.h7-v.neg{color:var(--neg)}
+.h7-v.dim{font-family:var(--font-kr);font-size:0.9375rem;font-weight:400;color:var(--ink3)}
+.h7-row .chev{color:var(--ink3);flex:none;margin-left:-0.25rem}
+.h7-total .h7-l > b{font-weight:600}
+.h7-total .h7-v{font-size:1.1875rem}
+.h7-prog{display:block;height:6px;border-radius:3px;background:var(--chip);margin-top:0.375rem;overflow:hidden}
+.h7-prog i{display:block;height:100%;border-radius:3px;background:var(--sage)}
+.h7-urgent{display:flex;align-items:flex-start;gap:0.75rem;width:100%;padding:0.875rem 0.75rem 0.875rem 0.875rem;margin-bottom:0.5rem;border-radius:16px;background:var(--neg-soft);text-align:left;color:var(--ink)}
+.h7-urgent .ic{color:var(--neg);flex:none;display:flex;margin-top:1px}
+.h7-urgent .h7-l > b{font-weight:600}
+.h7-urgent .h7-l > span{color:var(--ink2)}
+.h7-urgent .chev{color:var(--ink3);flex:none;align-self:center}
+.h7-dot{width:7px;height:7px;border-radius:50%;background:var(--ink3);flex:none}
+.h7-dot.warn{background:var(--warn)}
+.h7-al .t{color:var(--ink);font-size:0.9375rem;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.h7-empty{margin:0;padding:1rem;font-size:0.9375rem;color:var(--ink3)}
+.h7-row:active,.h7-urgent:active{background-color:var(--chip)}
+.h7-urgent:active{background-color:var(--neg-soft);transform:scale(.985)}
+.h7-link:active{opacity:.55}
+.h7-row,.h7-urgent,.h7-link{transition:transform .2s cubic-bezier(.2,.8,.2,1),background-color .2s,opacity .2s}
+@media (min-width:960px){
+  .home7{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);column-gap:3rem;max-width:1080px;padding-top:0.75rem}
+  .h7-hero{margin-top:0;padding:1.5rem 1.5rem 1.25rem}
+  .h7-big{font-size:3.25rem}
+  .h7-col:last-child > .h7-sh:first-child{margin-top:0.25rem}
+}
+/* 계산 근거 시트 */
+.calc{margin:0.25rem 0 0}
+.calc div{display:flex;justify-content:space-between;gap:0.75rem;padding:0.5625rem 0;font-size:0.9375rem}
+.calc dt{color:var(--ink2)} .calc dd{margin:0;font-family:Inter,var(--font-kr);font-variant-numeric:tabular-nums;white-space:nowrap}
+.calc .sum{border-top:1px solid var(--line);margin-top:0.25rem;padding-top:0.75rem}
+.calc .sum dt{color:var(--ink);font-weight:500}.calc .sum dd{font-weight:600}
+.calc .big dd{font-size:1.125rem;color:var(--sage)}
+.calc-note{margin:0.75rem 0 0;font-size:0.875rem;line-height:1.55;color:var(--ink2)}
+@media (min-width:960px){.fab{display:none !important}}
 
 
 /* ───────── Apple 디자인 원칙 반영 ───────── */
@@ -740,22 +965,22 @@ button{touch-action:manipulation}
 .overlay-bg{position:absolute;inset:0;background:rgba(5,7,10,.55);opacity:0}
 .sheet.live{animation:none;will-change:transform,opacity;z-index:1}
 .sheet-grab{touch-action:none;flex:none;-webkit-user-select:none;user-select:none}
-.sheet-handle{display:block;width:36px;height:5px;border-radius:3px;background:var(--line);margin:7px auto -4px}
+.sheet-handle{display:block;width:36px;height:5px;border-radius:3px;background:var(--line);margin:0.4375rem auto -0.25rem}
 @media (min-width:760px){.sheet-handle{display:none}}
 @media (max-width:759px){.sheet-grab{cursor:grab}}
-.sheet-h{min-height:48px}
+.sheet-h{min-height:3rem}
 /* 9. 시트 안 스크롤이 뒤로 넘어가지 않게 */
 .sheet-b,.overlay{overscroll-behavior:contain}
 
 /* 7. 확인 창 (앱 스타일) */
-.ask-wrap{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(5,7,10,.5);animation:fade-in .2s ease}
-.ask{width:100%;max-width:300px;background:var(--elev);border:1px solid var(--line);border-radius:16px;overflow:hidden;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.28);animation:ask-in .32s cubic-bezier(.2,.9,.3,1)}
-.ask-m{padding:20px 18px 16px;display:flex;flex-direction:column;gap:6px}
+.ask-wrap{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:rgba(5,7,10,.5);animation:fade-in .2s ease}
+.ask{width:100%;max-width:18.75rem;background:var(--elev);border:1px solid var(--line);border-radius:16px;overflow:hidden;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.28);animation:ask-in .32s cubic-bezier(.2,.9,.3,1)}
+.ask-m{padding:1.25rem 1.125rem 1rem;display:flex;flex-direction:column;gap:0.375rem}
 .ask-t{font-size:1.0625rem;font-weight:600;letter-spacing:-0.01em}
 .ask-b{font-size:0.8125rem;color:var(--ink2);white-space:pre-line;line-height:1.5}
 .ask-f{display:grid;border-top:1px solid var(--line)}
 .ask-f.two{grid-template-columns:1fr 1fr}
-.ask-f button{min-height:46px;padding:10px 12px;font-size:1rem;color:var(--sage);font-weight:500}
+.ask-f button{min-height:2.875rem;padding:0.625rem 0.75rem;font-size:1rem;color:var(--sage);font-weight:500}
 .ask-f button + button{border-top:1px solid var(--line)}
 .ask-f.two button + button{border-top:0;border-left:1px solid var(--line)}
 .ask-f button.primary{font-weight:600}
@@ -766,7 +991,7 @@ button{touch-action:manipulation}
 @keyframes ask-in{from{opacity:0;transform:scale(1.08)}to{opacity:1;transform:none}}
 @keyframes toast-in{from{opacity:0;transform:translate(-50%,12px) scale(.96)}to{opacity:1;transform:translate(-50%,0)}}
 @keyframes toast-out{to{opacity:0;transform:translate(-50%,8px) scale(.98)}}
-@media (min-width:960px){.toast{bottom:28px;left:calc(50% + 104px)}}
+@media (min-width:960px){.toast{bottom:1.75rem;left:calc(50% + 6.5rem)}}
 
 /* 11. 동작 줄이기 · 투명도 줄이기 · 고대비 */
 @media (prefers-reduced-motion:reduce){
@@ -18470,6 +18695,7 @@ const useApp = () => React.useContext(AppCtx);
 const ICONS = {
     home: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
     list: 'M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01',
+    filter: 'M3 6h18M6.5 12h11M10 18h4',
     repeat: 'M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3',
     chart: 'M4 20V11M10 20V4M16 20v-8M21 20H3',
     user: 'M20 21a8 8 0 0 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10z',
@@ -19048,7 +19274,7 @@ function App() {
                 React.createElement(SyncBadge, null)),
             React.createElement("main", { className: "main" },
                 React.createElement("header", { className: "topbar", ref: topRef },
-                    React.createElement("div", { className: "top-l" },
+                    React.createElement("div", { className: "top-l mo-month" },
                         React.createElement("h1", null, cur.label),
                         React.createElement("span", { className: "top-sep" }),
                         React.createElement(MonthPicker, null)),
@@ -19067,7 +19293,8 @@ function App() {
                     React.createElement(Page, null))),
             React.createElement("nav", { className: "bottomnav", "aria-label": "\uBA54\uB274" }, PAGES.map((p) => React.createElement(NavBtn, { key: p.id, p: p, on: page === p.id, onClick: () => setPage(p.id) }))),
             React.createElement("button", { className: "fab", onClick: () => openSheet('entry'), "aria-label": "\uC218\uC785\u00B7\uC9C0\uCD9C \uAE30\uB85D\uD558\uAE30" },
-                React.createElement(Icon, { n: "plus", s: 26 })),
+                React.createElement(Icon, { n: "plus", s: 20 }),
+                React.createElement("span", null, "\uAE30\uB85D")),
             sheet && React.createElement(SheetRouter, { key: sheet.k, sheet: sheet }),
             store.choice && React.createElement(SyncChoice, null),
             askS && React.createElement(AskDialog, { ask: askS, onAnswer: (v) => { setAskS(null); askS.res(v); } }),
@@ -19145,7 +19372,7 @@ function SyncChoice() {
 }
 function SheetRouter({ sheet }) {
     const { closeSheet } = useApp();
-    const C = { valuation: ValuationSheet, investFlow: InvestFlowSheet, emergency: EmergencySheet, categories: CategorySheet, sources: SourceSheet, cardImport: CardImportSheet, estimate: EstimateSheet, filing: FilingSheet, taxProfile: TaxProfileSheet, reserveRates: ReserveRatesSheet, work: WorkSheet, workPrefs: WorkPrefsSheet, jobs: JobsSheet, order: OrderSheet, alerts: AlertSheet, alertPrefs: AlertPrefsSheet, entry: EntrySheet, pay: PaySheet, bulk: BulkSheet, rule: RuleSheet, account: AccountSheet, budget: BudgetSheet, goal: GoalSheet, biz: BizSheet, target: TargetSheet, importer: ImportSheet }[sheet.type];
+    const C = { basis: BasisSheet, valuation: ValuationSheet, investFlow: InvestFlowSheet, emergency: EmergencySheet, categories: CategorySheet, sources: SourceSheet, cardImport: CardImportSheet, estimate: EstimateSheet, filing: FilingSheet, taxProfile: TaxProfileSheet, reserveRates: ReserveRatesSheet, work: WorkSheet, workPrefs: WorkPrefsSheet, jobs: JobsSheet, order: OrderSheet, alerts: AlertSheet, alertPrefs: AlertPrefsSheet, entry: EntrySheet, pay: PaySheet, bulk: BulkSheet, rule: RuleSheet, account: AccountSheet, budget: BudgetSheet, goal: GoalSheet, biz: BizSheet, target: TargetSheet, importer: ImportSheet }[sheet.type];
     return React.createElement(C, { ...sheet.props, onClose: closeSheet });
 }
 /* ───────── 알림 ───────── */
@@ -19378,251 +19605,264 @@ function normalizeTarget(t) {
     }
     return T;
 }
-function HomePage() {
-    const { data, month, statsOf, firstMonth, alerts, go, accounts } = useApp();
-    const st = statsOf(month), pv = statsOf(addM(month, -1));
-    const hasPrev = !!firstMonth && addM(month, -1) >= firstMonth;
+// 홈 숫자: 기존 계산식 그대로 (예상 순현금흐름 = 남은 돈 − 남은 고정비, 자유롭게 쓸 수 있는 돈 = 예상 순현금흐름 − 저축 목표까지 − 세금 적립)
+function homeNumbers(data, month, statsOf) {
+    const st = statsOf(month);
     const tm = thisMonth(), t = today();
     const settings = data.settings.settings || {};
     const savingLeft = settings.savingTarget ? Math.max(0, settings.savingTarget - st.saving) : 0;
-    const tprof = taxProfileOf(data);
-    const RI = tprof ? reserveInfo(data, statsOf) : {};
+    const RI = taxProfileOf(data) ? reserveInfo(data, statsOf) : {};
     const reserveIds = live(data.account).filter((a) => a.kind === 'reserve').map((a) => a.id);
     const reservedNow = sum(st.all.filter((x) => x.type === 'transfer' && reserveIds.includes(x.toAccountId)), (x) => x.amount);
     const taxLeft = month === tm ? Math.max(0, sum(Object.values(RI), (r) => r.monthly || 0) - reservedNow) : 0;
-    // 계산 기준 (한곳에서 정의해 화면 전체에서 같은 값을 써요)
-    const flow = st.remaining - st.fixedUnpaid; // 예상 순현금흐름 = 수입 − 지출 − 저축·투자 − 세금 − 남은 고정비
-    const free = flow - savingLeft - taxLeft; // 자유롭게 쓸 수 있는 돈
+    const flow = st.remaining - st.fixedUnpaid;
+    const free = flow - savingLeft - taxLeft;
     const remainDays = month === tm ? dim(month) - +t.slice(8) + 1 : month > tm ? dim(month) : 0;
+    return { st, settings, savingLeft, taxLeft, flow, free, remainDays };
+}
+function BasisSheet({ onClose }) {
+    const { data, month, statsOf } = useApp();
+    const H = homeNumbers(data, month, statsOf);
+    const st = H.st;
+    const rows = [['수입', st.income, ''], ['지출', st.expense, '−'], ['저축·투자', st.saving, '−'], ...(st.tax > 0 ? [['세금 납부', st.tax, '−']] : []), ['남은 고정비', st.fixedUnpaid, '−']];
+    return (React.createElement(Sheet, { title: "\uACC4\uC0B0 \uADFC\uAC70", onClose: onClose },
+        React.createElement("dl", { className: "calc h-basis" },
+            rows.map(([l, v, sg]) => React.createElement("div", { key: l },
+                React.createElement("dt", null, l),
+                React.createElement("dd", { className: "num" },
+                    sg ? `${sg} ` : '',
+                    won(v),
+                    "\uC6D0"))),
+            React.createElement("div", { className: "sum" },
+                React.createElement("dt", null, "\uC608\uC0C1 \uC21C\uD604\uAE08\uD750\uB984"),
+                React.createElement("dd", { className: "num" },
+                    won(H.flow),
+                    "\uC6D0")),
+            React.createElement("div", null,
+                React.createElement("dt", null, "\uC800\uCD95 \uBAA9\uD45C\uAE4C\uC9C0 \uB0A8\uC740 \uAE08\uC561"),
+                React.createElement("dd", { className: "num" },
+                    "\u2212 ",
+                    won(H.savingLeft),
+                    "\uC6D0")),
+            React.createElement("div", null,
+                React.createElement("dt", null, "\uC138\uAE08 \uC801\uB9BD (\uC774\uBC88 \uB2EC \uB0A8\uC740 \uBAAB)"),
+                React.createElement("dd", { className: "num" },
+                    "\u2212 ",
+                    won(H.taxLeft),
+                    "\uC6D0")),
+            React.createElement("div", { className: "sum big" },
+                React.createElement("dt", null, "\uC790\uC720\uB86D\uAC8C \uC4F8 \uC218 \uC788\uB294 \uB3C8"),
+                React.createElement("dd", { className: "num" },
+                    won(H.free),
+                    "\uC6D0"))),
+        React.createElement("p", { className: "calc-note" },
+            "\uB0A8\uC740 \uB3C8 ",
+            won(st.remaining),
+            "\uC6D0 = \uC218\uC785 \u2212 \uC9C0\uCD9C \u2212 \uC800\uCD95\u00B7\uD22C\uC790 \u2212 \uC138\uAE08 \uB0A9\uBD80. \uD558\uB8E8 \uC0AC\uC6A9 \uAC00\uB2A5 \uAE08\uC561 = \uC790\uC720\uB86D\uAC8C \uC4F8 \uC218 \uC788\uB294 \uB3C8 \u00F7 \uB0A8\uC740 ",
+            H.remainDays,
+            "\uC77C. \uC138\uAE08 \uC801\uB9BD ",
+            H.taxLeft ? `${won(H.taxLeft)}원` : '0원',
+            ".")));
+}
+function HomePage() {
+    const { data, month, statsOf, firstMonth, alerts, go, accounts, openSheet } = useApp();
+    const { st, settings, flow, free, remainDays } = homeNumbers(data, month, statsOf);
+    const tm = thisMonth(), t = today();
     const endOf = (m) => `${m}-${pad(dim(m))}`;
     const nwNow = accounts.length ? netWorthAt(data, month >= tm ? t : endOf(month)) : null;
     const nwPrev = accounts.length ? netWorthAt(data, endOf(addM(month, -1))) : null;
-    const nwSeries = accounts.length ? [5, 4, 3, 2, 1, 0].map((k) => { const m = addM(month, -k); return netWorthAt(data, m >= tm ? t : endOf(m)); }) : [];
-    const activeAlerts = alerts.filter((a) => !a.snoozeUntil);
-    const top = activeAlerts.slice(0, 3);
-    const [sel, setSel] = useState('fixed');
-    const [openFlow, setOpenFlow] = useState(false);
-    const chg = (cur, prev) => {
-        if (!hasPrev)
-            return React.createElement("span", { className: "h-chg" }, "\uC9C0\uB09C\uB2EC \uAE30\uB85D \uC5C6\uC74C");
-        const r = change(cur, prev);
-        if (r == null)
-            return React.createElement("span", { className: "h-chg" }, "\uC9C0\uB09C\uB2EC 0\uC6D0");
-        if (Math.abs(r) < 0.05)
-            return React.createElement("span", { className: "h-chg" }, "\uC9C0\uB09C\uB2EC\uACFC \uAC19\uC74C");
-        return React.createElement("span", { className: "h-chg" },
-            React.createElement("svg", { width: "9", height: "10", viewBox: "0 0 9 10", "aria-hidden": "true", style: { marginRight: 3, verticalAlign: '-1px' } },
-                React.createElement("path", { d: r > 0 ? 'M4.5 9V1.5M1.5 4.5l3-3 3 3' : 'M4.5 1v7.5M1.5 5.5l3 3 3-3', fill: "none", stroke: "currentColor", strokeWidth: "1.4", strokeLinecap: "round", strokeLinejoin: "round" })),
-            r > 0 ? '+' : '−',
-            Math.abs(Math.round(r * 10) / 10),
-            "%",
-            React.createElement("span", { className: "sr-only" }, r > 0 ? ' 증가' : ' 감소'));
-    };
-    // 수입 배분: 고정비 · 생활비 · 저축·투자 · 세금 · 남을 돈(= 예상 순현금흐름)
-    const segs = [
-        ['fixed', '고정비', st.fixedTotal, 'var(--seg1)'],
-        ['var', '생활비', st.variable, 'var(--seg2)'],
-        ['save', '저축·투자', st.saving, 'var(--seg3)'],
-        ...(st.tax > 0 ? [['tax', '세금', st.tax, 'var(--seg3)']] : []),
-        ['rest', '남을 돈', flow, 'var(--c-rest)'],
-    ];
-    const pctOf = (v) => (st.income > 0 ? (v / st.income) * 100 : 0);
-    const pctTxt = (v) => `${Math.round(pctOf(v))}%`;
-    const spark = (w, h) => {
-        if (nwSeries.length < 2)
-            return null;
-        const mx = Math.max(...nwSeries), mn = Math.min(...nwSeries);
-        const pts = nwSeries.map((v, i) => [i * (w / (nwSeries.length - 1)), h - 2 - ((v - mn) / (mx - mn || 1)) * (h - 4)]);
-        const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
-        return React.createElement("svg", { width: "100%", height: h, viewBox: `0 0 ${w} ${h}`, preserveAspectRatio: "none", "aria-label": "\uCD5C\uADFC 6\uAC1C\uC6D4 \uC21C\uC790\uC0B0 \uCD94\uC774", role: "img" },
-            React.createElement("path", { d: `${d} L${w},${h} L0,${h} Z`, fill: "var(--sage)", fillOpacity: "0.08" }),
-            React.createElement("path", { d: d, fill: "none", stroke: "var(--sage)", strokeWidth: "1.5", vectorEffect: "non-scaling-stroke" }));
-    };
-    const series = [...Array(6)].map((_, i) => addM(month, i - 5));
-    const sv = series.map((m) => (firstMonth && m >= firstMonth ? statsOf(m) : null));
-    const dotOf = (a) => (a.level === 'critical' ? 'crit' : a.level === 'warn' ? 'warn' : 'info');
-    const won2 = (v) => React.createElement(React.Fragment, null,
+    const nwCh = nwNow != null && firstMonth && addM(month, -1) >= firstMonth ? change(nwNow, nwPrev) : null;
+    const man = (v) => (Math.abs(v) >= 1e6 ? React.createElement(React.Fragment, null,
+        v < 0 ? '-' : '',
+        Math.round(Math.abs(v) / 1e4).toLocaleString('ko-KR'),
+        React.createElement("small", null, "\uB9CC\uC6D0")) : React.createElement(React.Fragment, null,
         won(v),
-        React.createElement("small", null, "\uC6D0"));
-    const nwText = nwNow == null ? null : Math.abs(nwNow) >= 1e6 ? React.createElement(React.Fragment, null,
-        nwNow < 0 ? '-' : '',
-        Math.round(Math.abs(nwNow) / 1e4).toLocaleString('ko-KR'),
-        React.createElement("small", null, "\uB9CC\uC6D0")) : won2(nwNow);
-    const savePct = settings.savingTarget ? Math.min(100, ratio(st.saving, settings.savingTarget)) : null;
-    const goalLbl = `${+month.slice(5)}월 저축 목표`;
-    const FlowBlock = ({ detail }) => (React.createElement("div", { className: cx('h-flow', detail && 'detail') },
-        React.createElement("button", { type: "button", className: "h-flow-top", onClick: () => setOpenFlow(!openFlow), "aria-expanded": openFlow || detail },
-            React.createElement("span", null,
-                detail ? '이번 달 수입 ' : '수입 ',
-                React.createElement("span", { className: "num" }, won(st.income)),
-                "\uC6D0 \uC911"),
-            !detail && React.createElement("span", { className: "h-more" },
-                openFlow ? '접기' : '자세히',
-                React.createElement(Icon, { n: "right", s: 14, style: { transform: openFlow ? 'rotate(90deg)' : 'none' } }))),
-        React.createElement("div", { className: "h-flow-bar", role: "img", "aria-label": segs.map(([, l, v]) => `${l} ${pctTxt(v)}`).join(', ') }, segs.map(([k, l, v, c]) => v > 0 && React.createElement("i", { key: k, style: { width: `${pctOf(v)}%`, background: sel === k ? 'var(--sage)' : c }, title: l }))),
-        detail || openFlow ? (React.createElement("div", { className: "h-flow-list" },
-            segs.map(([k, l, v, c]) => (React.createElement("button", { type: "button", key: k, className: cx('h-fl', sel === k && 'on'), onClick: () => setSel(k) },
-                React.createElement("i", { style: { background: sel === k ? 'var(--sage)' : c }, className: k === 'rest' ? 'rest' : '' }),
-                React.createElement("span", { className: "l" }, l),
-                React.createElement("span", { className: "v num" }, won(v)),
-                React.createElement("span", { className: "p num" }, pctTxt(v))))),
-            React.createElement("p", { className: "h-mini" }, "\uB0A8\uC744 \uB3C8 = \uC608\uC0C1 \uC21C\uD604\uAE08\uD750\uB984"))) : (React.createElement("div", { className: "h-flow-leg" }, segs.map(([k, l, v, c]) => (React.createElement("button", { type: "button", key: k, className: cx(sel === k && 'on'), onClick: () => setSel(k) },
-            React.createElement("i", { style: { background: sel === k ? 'var(--sage)' : c }, className: k === 'rest' ? 'rest' : '' }),
-            l === '저축·투자' ? '저축' : l,
-            " ",
-            React.createElement("b", { className: "num" }, pctTxt(v)))))))));
-    const Basis = () => (React.createElement("details", { className: "h-basis" },
-        React.createElement("summary", null, "\uACC4\uC0B0 \uADFC\uAC70"),
-        React.createElement("p", { className: "faint" },
-            "\uB0A8\uC740 \uB3C8 ",
-            won(st.remaining),
-            " \u2212 \uB0A8\uC740 \uACE0\uC815\uBE44 ",
-            won(st.fixedUnpaid),
-            " = \uC608\uC0C1 \uC21C\uD604\uAE08\uD750\uB984 ",
-            won(flow)),
-        React.createElement("p", { className: "faint" },
-            "\uC608\uC0C1 \uC21C\uD604\uAE08\uD750\uB984 ",
-            won(flow),
-            savingLeft ? ` − 저축 목표까지 ${won(savingLeft)}` : '',
-            taxLeft ? ` − 세금 적립 ${won(taxLeft)}` : '',
-            " = \uC790\uC720\uB86D\uAC8C \uC4F8 \uC218 \uC788\uB294 \uB3C8 ",
-            won(free))));
-    const Hero = () => (React.createElement("section", { className: "h-hero" },
-        React.createElement("span", { className: "h-lbl" }, month === tm ? '자유롭게 쓸 수 있는 돈' : `${mShort(month)} 자유롭게 쓸 수 있는 돈`),
-        React.createElement("span", { className: cx('h-amt hero-v', free < 0 && 'neg') },
-            won(free),
-            React.createElement("small", null, "\uC6D0")),
-        React.createElement("span", { className: "h-sub" }, free > 0 && remainDays > 0 ? React.createElement(React.Fragment, null,
-            "\uD558\uB8E8 ",
-            React.createElement("b", null,
-                won(free / remainDays),
-                "\uC6D0"),
-            " \u00B7 ",
-            remainDays,
-            "\uC77C \uB0A8\uC74C") : month < tm ? '지난 달 결과예요' : '남은 금액이 없어요'),
-        Basis()));
-    const Saving = () => (React.createElement("button", { className: "h-cell", onClick: () => go({ page: 'plan', planTab: 'saving' }) },
-        React.createElement("span", { className: "h-cell-top" },
-            React.createElement("span", { className: "h-k" }, goalLbl),
-            savePct != null && React.createElement("b", { className: "num accent" },
-                Math.round(savePct),
-                "%")),
-        settings.savingTarget ? React.createElement("span", { className: "h-val w6" },
-            won(st.saving),
-            React.createElement("small", null,
-                "/ ",
-                settings.savingTarget >= 1e4 && settings.savingTarget % 1e4 === 0 ? `${(settings.savingTarget / 1e4).toLocaleString('ko-KR')}만원` : `${won(settings.savingTarget)}원`)) : React.createElement("span", { className: "h-val muted-v" }, "\uBBF8\uC124\uC815"),
-        React.createElement("span", { className: "h-vis" }, settings.savingTarget ? React.createElement("span", { className: "h-line" },
-            React.createElement("i", { style: { width: `${savePct}%` } })) : React.createElement("span", { className: "h-mini" }, "\uACC4\uD68D \u203A \uC800\uCD95\uC5D0\uC11C \uC815\uD558\uAE30"))));
-    const NetWorth = ({ h = 18 }) => (React.createElement("button", { className: "h-cell", onClick: () => go({ page: 'assets' }) },
-        React.createElement("span", { className: "h-cell-top" },
-            React.createElement("span", { className: "h-k" }, "\uC21C\uC790\uC0B0"),
-            nwNow != null && nwPrev != null ? chg(nwNow, nwPrev || 0.0001) : null),
-        nwText ? React.createElement("span", { className: "h-val w6" }, nwText) : React.createElement("span", { className: "h-val muted-v" }, "\uACC4\uC88C \uBBF8\uB4F1\uB85D"),
-        React.createElement("span", { className: "h-vis" }, nwText ? spark(150, h) : React.createElement("span", { className: "h-mini" }, "\uC790\uC0B0\uC5D0\uC11C \uACC4\uC88C \uCD94\uAC00"))));
-    const Alerts = ({ two, n = 3 }) => (React.createElement("div", { className: "h-alerts" }, top.length ? activeAlerts.slice(0, n).map((a) => (React.createElement("button", { key: a.key, className: cx('h-alert', two && 'two'), onClick: () => go(a.target) },
-        React.createElement("span", { className: cx('dot', dotOf(a)) }),
-        React.createElement("span", { className: "h-alert-m" },
-            React.createElement("span", { className: "t", style: { fontWeight: a.level === 'critical' ? 500 : 400 } }, a.title),
-            two && React.createElement("span", { className: "s" }, a.body)),
-        React.createElement(Icon, { n: "right", s: 15, className: "chev" })))) : React.createElement("p", { className: "h-mini", style: { padding: '10px 0' } }, "\uC9C0\uAE08 \uD655\uC778\uD560 \uC77C\uC774 \uC5C6\uC5B4\uC694.")));
+        React.createElement("small", null, "\uC6D0")));
+    const manTxt = (v) => (v >= 1e4 && v % 1e3 === 0 ? `${Math.round(v / 1e3) / 10}만` : won(v));
+    const goal = settings.savingTarget || 0;
+    const savePct = goal ? Math.round(ratio(st.saving, goal)) : null;
+    const active = alerts.filter((a) => !a.snoozeUntil);
+    const urgent = active.find((a) => a.level === 'critical');
+    const rest = active.filter((a) => a !== urgent).slice(0, urgent ? 2 : 3);
     const flowTxt = `${flow > 0 ? '+' : ''}${won(flow)}`;
-    return (React.createElement("div", { className: "home4" },
-        React.createElement("div", { className: "h-mob" },
-            Hero(),
-            st.income > 0 && React.createElement("div", { className: "h-flow-wrap" }, FlowBlock({})),
-            React.createElement("div", { className: "h-sheet" },
-                React.createElement("p", { className: "h-gl" }, "\uC774\uBC88 \uB2EC \uD750\uB984"),
-                React.createElement("div", { className: "h-kpis" },
-                    React.createElement("button", { className: "h-kpi", onClick: () => go({ page: 'analysis', anaTab: 'income' }) },
-                        React.createElement("span", { className: "h-k" }, "\uAC1C\uC778 \uC218\uC785"),
-                        React.createElement("span", { className: "h-val w5" }, won2(st.income)),
-                        chg(st.income, pv.income)),
-                    React.createElement("button", { className: "h-kpi", onClick: () => go({ page: 'history', tab: 'expense' }) },
-                        React.createElement("span", { className: "h-k" }, "\uAC1C\uC778 \uC9C0\uCD9C"),
-                        React.createElement("span", { className: "h-val" }, won2(st.expense)),
-                        chg(st.expense, pv.expense),
-                        React.createElement("span", { className: "h-mini" },
-                            "\uACE0\uC815\uBE44 \uBE44\uC728 ",
-                            fmtPct(st.fixedRatio)))),
-                React.createElement("button", { className: "h-row", onClick: () => go({ page: 'analysis', anaTab: 'flow' }) },
-                    React.createElement("span", { className: "h-row-l" },
-                        React.createElement("span", { className: "h-k" }, "\uC608\uC0C1 \uC21C\uD604\uAE08\uD750\uB984"),
-                        React.createElement("span", { className: "h-mini" },
-                            "\uB0A8\uC740 \uACE0\uC815\uBE44 ",
-                            won(st.fixedUnpaid),
-                            "\uC6D0 \uBC18\uC601")),
-                    React.createElement("span", { className: cx('h-val w6', flow < 0 && 'neg') },
-                        flowTxt,
-                        React.createElement("small", null, "\uC6D0"))),
-                React.createElement("div", { className: "h-div" }),
-                React.createElement("p", { className: "h-gl" }, "\uBAA9\uD45C\uC640 \uC790\uC0B0"),
-                React.createElement("div", { className: "h-split" },
-                    Saving(),
-                    NetWorth({})),
-                React.createElement("div", { className: "h-div" }),
-                React.createElement("div", { className: "h-al-h" },
-                    React.createElement("p", { className: "h-gl" },
-                        "\uD655\uC778\uD560 \uAC83 ",
-                        React.createElement("span", { className: "num" }, activeAlerts.length)),
-                    activeAlerts.length > 3 && React.createElement("span", { className: "h-mini" },
-                        "\uC678 ",
-                        activeAlerts.length - 3,
-                        "\uAC1C\uB294 \uD83D\uDD14")),
-                Alerts({}))),
-        React.createElement("div", { className: "h-desk" },
-            React.createElement("div", { className: "hd-left" },
-                React.createElement("div", { className: "hd-top" },
-                    Hero(),
-                    st.income > 0 ? FlowBlock({ detail: true }) : React.createElement("p", { className: "h-mini" }, "\uC774\uBC88 \uB2EC \uC218\uC785 \uAE30\uB85D\uC774 \uC5C6\uC5B4\uC694.")),
-                React.createElement("div", { className: "hd-kpis" },
-                    React.createElement("button", { className: "h-kpi", onClick: () => go({ page: 'analysis', anaTab: 'income' }) },
-                        React.createElement("span", { className: "h-k" }, "\uAC1C\uC778 \uC218\uC785"),
-                        React.createElement("span", { className: "h-val w5" }, won2(st.income)),
-                        chg(st.income, pv.income)),
-                    React.createElement("button", { className: "h-kpi", onClick: () => go({ page: 'history', tab: 'expense' }) },
-                        React.createElement("span", { className: "h-k" }, "\uAC1C\uC778 \uC9C0\uCD9C"),
-                        React.createElement("span", { className: "h-val" }, won2(st.expense)),
-                        chg(st.expense, pv.expense)),
-                    React.createElement("button", { className: "h-kpi", onClick: () => go({ page: 'history', tab: 'fixed' }) },
-                        React.createElement("span", { className: "h-k" }, "\uACE0\uC815\uBE44 \uBE44\uC728"),
-                        React.createElement("span", { className: "h-val" },
-                            st.fixedRatio == null ? '—' : Math.round(st.fixedRatio * 10) / 10,
-                            React.createElement("small", null, st.fixedRatio == null ? '' : '%')),
-                        React.createElement("span", { className: "h-line seg" },
-                            React.createElement("i", { style: { width: `${Math.min(100, st.fixedRatio || 0)}%` } }))),
-                    React.createElement("button", { className: "h-kpi", onClick: () => go({ page: 'analysis', anaTab: 'flow' }) },
-                        React.createElement("span", { className: "h-k" }, "\uC608\uC0C1 \uC21C\uD604\uAE08\uD750\uB984"),
-                        React.createElement("span", { className: cx('h-val w6', flow < 0 && 'neg') },
-                            flowTxt,
-                            React.createElement("small", null, "\uC6D0")),
-                        React.createElement("span", { className: "h-mini" }, "\uB0A8\uC740 \uACE0\uC815\uBE44 \uBC18\uC601"))),
-                React.createElement("section", { className: "h-chart-card" },
-                    React.createElement("div", { className: "card-h" },
-                        React.createElement("h3", null, "\uC6D4\uBCC4 \uC218\uC785\u00B7\uC9C0\uCD9C"),
-                        React.createElement("span", { className: "h-mini" }, "\uCD5C\uADFC 6\uAC1C\uC6D4 \u00B7 \uB2E8\uC704 \uC6D0")),
-                    firstMonth ? React.createElement(BarChart, { labels: series.map(mShort), height: 290, series: [{ name: '개인 수입', color: 'var(--sage)', values: sv.map((s) => (s ? s.income : null)) }, { name: '개인 지출', color: 'var(--seg2)', values: sv.map((s) => (s ? s.expense : null)) }] }) : React.createElement("p", { className: "h-mini" }, "\uAE30\uB85D\uC774 \uC313\uC774\uBA74 \uBCF4\uC5EC\uB4DC\uB824\uC694."))),
-            React.createElement("aside", { className: "hd-side h-side" },
-                NetWorth({ h: 64 }),
-                React.createElement("div", { className: "h-div" }),
-                Saving(),
-                React.createElement("div", { className: "h-div" }),
-                React.createElement("div", { className: "h-al-h" },
-                    React.createElement("p", { className: "h-gl" },
-                        "\uD655\uC778\uD560 \uAC83 ",
-                        React.createElement("span", { className: "num" }, activeAlerts.length)),
-                    activeAlerts.length > 6 && React.createElement("span", { className: "h-mini" },
-                        "\uC678 ",
-                        activeAlerts.length - 6,
-                        "\uAC1C\uB294 \uD83D\uDD14")),
-                Alerts({ two: true, n: 6 })))));
+    const unit = (u = '원') => React.createElement("small", null, u);
+    const amt = (v, u) => React.createElement(React.Fragment, null, v, unit(u));
+    const row = (o) => (React.createElement("button", { key: o.key || o.label, className: cx('h7-row', o.cls), onClick: o.onClick },
+        o.lead,
+        React.createElement("span", { className: "h7-l" },
+            React.createElement("b", null, o.label),
+            o.cap && React.createElement("span", null, o.cap),
+            o.extra),
+        o.value != null && React.createElement("span", { className: cx('h7-v num', o.neg && 'neg', o.dim && 'dim') }, o.value),
+        React.createElement(Icon, { n: "right", s: 16, className: "chev" })));
+    const mName = month === tm ? '이번 달' : mShort(month);
+    return (React.createElement("div", { className: "home7" },
+        React.createElement("div", { className: "h7-col" },
+            React.createElement("section", { className: "h7-hero" },
+                React.createElement("p", { className: "h7-cap" }, mName, " 자유롭게 쓸 수 있는 돈"),
+                React.createElement("p", { className: cx('h7-big num', free < 0 && 'neg') }, amt(won(free))),
+                React.createElement("div", { className: "h7-sub" },
+                    React.createElement("span", null, free > 0 && remainDays > 0 ? React.createElement(React.Fragment, null,
+                        "남은 ", remainDays, "일 · 하루 ",
+                        React.createElement("b", null, won(free / remainDays), "원")) : month < tm ? '지난 달 결과예요' : '남은 금액이 없어요'),
+                    React.createElement("button", { className: "h7-link", onClick: () => openSheet('basis') },
+                        "계산 근거",
+                        React.createElement(Icon, { n: "right", s: 14 })))),
+            React.createElement("h2", { className: "h7-sh" }, mName, " 흐름"),
+            React.createElement("div", { className: "h7-group" },
+                row({ label: '들어온 돈', value: amt(won(st.income)), onClick: () => go({ page: 'history', tab: 'income' }) }),
+                row({ label: '나간 돈', value: amt(won(st.expense)), onClick: () => go({ page: 'history', tab: 'expense' }) }),
+                row({ label: '예상 순현금흐름', cap: '저축·남은 고정비 반영', cls: 'h7-total', value: amt(flowTxt), neg: flow < 0, onClick: () => go({ page: 'analysis', anaTab: 'flow' }) }))),
+        React.createElement("div", { className: "h7-col" },
+            React.createElement("h2", { className: "h7-sh" }, "목표와 자산"),
+            React.createElement("div", { className: "h7-group" },
+                row({
+                    label: `${+month.slice(5)}월 저축 목표`,
+                    cap: goal ? `${manTxt(st.saving)} / ${manTxt(goal)}원 모았어요` : '계획에서 목표를 정해 보세요',
+                    extra: goal ? React.createElement("span", { className: "h7-prog", "aria-hidden": "true" },
+                        React.createElement("i", { style: { width: `${Math.min(100, savePct)}%` } })) : null,
+                    value: goal ? amt(savePct, '%') : '미설정', dim: !goal,
+                    onClick: () => go({ page: 'plan', planTab: 'saving' }),
+                }),
+                row({
+                    label: '순자산',
+                    cap: nwNow == null ? '자산에서 계좌를 추가해 보세요' : nwCh == null ? '지난달 기록 없음' : `지난달보다 ${nwCh >= 0 ? '+' : '−'}${Math.abs(Math.round(nwCh * 10) / 10)}%`,
+                    value: nwNow != null ? man(nwNow) : '계좌 미등록', dim: nwNow == null, neg: nwNow != null && nwNow < 0,
+                    onClick: () => go({ page: 'assets' }),
+                })),
+            React.createElement("h2", { className: "h7-sh" },
+                React.createElement("span", null,
+                    "확인할 항목",
+                    React.createElement("span", { className: "num" }, active.length)),
+                active.length > 3 && React.createElement("button", { className: "h7-link", onClick: () => openSheet('alerts') },
+                    "전체",
+                    React.createElement(Icon, { n: "right", s: 14 }))),
+            urgent && (React.createElement("button", { className: "h7-urgent", onClick: () => go(urgent.target) },
+                React.createElement("span", { className: "ic" },
+                    React.createElement(Icon, { n: "alert", s: 20 })),
+                React.createElement("span", { className: "h7-l" },
+                    React.createElement("b", null, urgent.title),
+                    React.createElement("span", null, urgent.body)),
+                React.createElement(Icon, { n: "right", s: 16, className: "chev" }))),
+            rest.length > 0 && React.createElement("div", { className: "h7-group" }, rest.map((x) => (React.createElement("button", { key: x.key, className: "h7-row h7-al", onClick: () => go(x.target) },
+                React.createElement("i", { className: cx('h7-dot', x.level === 'warn' && 'warn'), "aria-hidden": "true" }),
+                React.createElement("span", { className: "h7-l" },
+                    React.createElement("span", { className: "t" }, x.title)),
+                React.createElement(Icon, { n: "right", s: 16, className: "chev" }))))),
+            !active.length && React.createElement("div", { className: "h7-group" },
+                React.createElement("p", { className: "h7-empty" }, "지금 확인할 일이 없어요.")))));
 }
 function HistoryPage() {
     const { histTab, setHistTab } = useApp();
     return (React.createElement("div", { className: "stack" },
-        React.createElement("div", { className: "tabs-scroll" },
-            React.createElement(Seg, { value: histTab, onChange: setHistTab, options: [['all', '전체'], ['income', '수입'], ['expense', '지출'], ['fixed', '고정비'], ['work', '근무'], ['move', '이동·납부']] })),
+        React.createElement("div", { className: "tabs-scroll ul-tabs" },
+            React.createElement(Seg, { value: histTab, onChange: setHistTab, options: [['all', '전체'], ['expense', '지출'], ['income', '수입'], ['fixed', '고정비'], ['work', '근무'], ['move', '이동·납부']] })),
         histTab === 'fixed' ? React.createElement(FixedPage, null) : histTab === 'work' ? React.createElement(WorkPanel, { mode: "log" }) : React.createElement(TxListPage, { preset: histTab })));
+}
+function ProfitOverview() {
+    const { data, month, statsOf, firstMonth, go } = useApp();
+    const series = [...Array(6)].map((_, i) => addM(month, i - 5));
+    const pts = series.map((m) => {
+        if (!firstMonth || m < firstMonth)
+            return null;
+        const s = statsOf(m);
+        const mins = sum(s.worklogs.filter((w) => w.kind !== 'job'), (w) => w.minutes || 0);
+        return { m, profit: s.biz.profit, sales: s.biz.sales, hourly: perHour(s.biz.profit, mins) };
+    });
+    const cur = pts[5] || { profit: 0, hourly: null }, prev = pts[4];
+    const valid = pts.filter(Boolean);
+    const best = valid.filter((p) => p.hourly != null).sort((a, b) => b.hourly - a.hourly)[0];
+    const ch = prev && prev.profit ? change(cur.profit, prev.profit) : null;
+    const mx = Math.max(1, ...valid.map((p) => Math.max(0, p.profit)));
+    const hmx = Math.max(1, ...valid.map((p) => p.hourly || 0));
+    const [chartRef, chartW] = useWidth();
+    const W = Math.min(chartW, 720), H = 156, top = 22, bot = 24, chh = H - top - bot, gw = W / 6;
+    const y = (v) => top + chh - (Math.max(0, v) / mx) * chh;
+    const hy = (v) => top + chh - (v / hmx) * chh * 0.9;
+    const line = pts.map((p, i) => (p && p.hourly != null ? [gw * i + gw / 2, hy(p.hourly)] : null)).filter(Boolean);
+    const rows = sourceEfficiency(data, statsOf, month);
+    let sentence = null;
+    if (cur.hourly != null && best && best.m === month && valid.filter((p) => p.hourly != null).length >= 2)
+        sentence = React.createElement(React.Fragment, null,
+            "\uC2DC\uAC04\uB2F9 \uC21C\uC774\uC775\uC774 ",
+            React.createElement("b", null,
+                won(cur.hourly),
+                "\uC6D0"),
+            "\uC73C\uB85C \uCD5C\uADFC ",
+            valid.length,
+            "\uAC1C\uC6D4 \uC911 \uAC00\uC7A5 \uB192\uC544\uC694.");
+    else if (cur.hourly != null && prev && prev.hourly != null)
+        sentence = React.createElement(React.Fragment, null,
+            "\uC2DC\uAC04\uB2F9 \uC21C\uC774\uC775\uC740 ",
+            React.createElement("b", null,
+                won(cur.hourly),
+                "\uC6D0"),
+            ", \uC9C0\uB09C\uB2EC\uBCF4\uB2E4 ",
+            Math.abs(Math.round(change(cur.hourly, prev.hourly))),
+            "% ",
+            cur.hourly >= prev.hourly ? '높아요' : '낮아요',
+            ".");
+    else if (cur.hourly != null)
+        sentence = React.createElement(React.Fragment, null,
+            "\uC2DC\uAC04\uB2F9 \uC21C\uC774\uC775\uC740 ",
+            React.createElement("b", null,
+                won(cur.hourly),
+                "\uC6D0"),
+            "\uC774\uC5D0\uC694.");
+    return (React.createElement("div", { className: "an-ov" },
+        React.createElement("section", { className: "an-hero" },
+            React.createElement("span", { className: "hm-lbl" },
+                +month.slice(5),
+                "\uC6D4 \uC0AC\uC5C5 \uC21C\uC774\uC775"),
+            React.createElement("span", { className: "an-hv" },
+                React.createElement("span", { className: cx('an-amt num', cur.profit < 0 && 'neg') },
+                    won(cur.profit),
+                    React.createElement("small", null, "\uC6D0")),
+                ch != null && React.createElement("span", { className: "as-chg num" },
+                    ch >= 0 ? '↑ +' : '↓ −',
+                    Math.abs(Math.round(ch)),
+                    "% \uC9C0\uB09C\uB2EC")),
+            sentence && React.createElement("p", { className: "an-sent" }, sentence)),
+        React.createElement("figure", { className: "an-chart", ref: chartRef, hidden: !valid.length }, valid.length > 0 && React.createElement(React.Fragment, null,
+            React.createElement("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": "\uCD5C\uADFC 6\uAC1C\uC6D4 \uC0AC\uC5C5 \uC21C\uC774\uC775 \uB9C9\uB300\uC640 \uC2DC\uAC04\uB2F9 \uC21C\uC774\uC775 \uC120" },
+                React.createElement("line", { x1: "0", x2: W, y1: top + chh, y2: top + chh, stroke: "var(--line)" }),
+                pts.map((p, i) => {
+                    const cx2 = gw * i + gw / 2;
+                    const last = i === 5;
+                    return (React.createElement("g", { key: i },
+                        p && React.createElement("rect", { x: cx2 - 11, y: y(p.profit), width: "22", height: Math.max(1, top + chh - y(p.profit)), rx: "3", fill: last ? 'var(--sage)' : 'var(--seg3)' },
+                            React.createElement("title", null, `${mShort(series[i])} 순이익 ${won(p.profit)}원`)),
+                        React.createElement("text", { x: cx2, y: H - 6, textAnchor: "middle", className: "an-tick", style: last ? { fill: 'var(--ink)', fontWeight: 500 } : null }, mShort(series[i])),
+                        last && p && React.createElement("text", { x: cx2, y: y(p.profit) - 7, textAnchor: "middle", className: "an-top" }, compact(p.profit))));
+                }),
+                line.length > 1 && React.createElement("path", { d: line.map((q, i) => `${i ? 'L' : 'M'}${q[0].toFixed(1)},${q[1].toFixed(1)}`).join(' '), fill: "none", stroke: "var(--ink2)", strokeWidth: "1.5", strokeDasharray: "3 3" }),
+                line.map((q, i) => React.createElement("circle", { key: i, cx: q[0], cy: q[1], r: "3", fill: "var(--bg)", stroke: "var(--ink2)", strokeWidth: "1.5" }))),
+            React.createElement("figcaption", { className: "an-leg" },
+                React.createElement("span", null,
+                    React.createElement("i", { style: { background: 'var(--seg3)' } }),
+                    "\uC21C\uC774\uC775"),
+                React.createElement("span", null,
+                    React.createElement("i", { className: "dash" }),
+                    "\uC2DC\uAC04\uB2F9 \uC21C\uC774\uC775")))),
+        React.createElement("div", { className: "hm-sh" },
+            React.createElement("h2", null, "\uC218\uC785\uC6D0\uBCC4 \uC218\uC775\uC131"),
+            React.createElement("button", { className: "link", onClick: () => document.getElementById('an-detail') && document.getElementById('an-detail').scrollIntoView({ behavior: 'smooth' }) },
+                "\uC790\uC138\uD788",
+                React.createElement(Icon, { n: "right", s: 14 }))),
+        rows.length ? React.createElement("ul", { className: "rows an-rows" }, rows.map((r) => (React.createElement("li", { key: r.id, className: "an-row" },
+            React.createElement("span", { className: "row-main" },
+                React.createElement("span", { className: "row-t" }, r.name),
+                React.createElement("span", { className: "row-s" },
+                    r.basis,
+                    r.minutes ? ` · ${fmtMin(r.minutes)}` : '')),
+            React.createElement("span", { className: "an-c" },
+                React.createElement("span", { className: "num" }, won(r.earned)),
+                React.createElement("span", { className: "row-s" }, "\uBC88 \uB3C8")),
+            React.createElement("span", { className: "an-c w" },
+                React.createElement("span", { className: cx('num', r.hourly == null && 'faint') }, r.hourly == null ? '—' : won(r.hourly)),
+                React.createElement("span", { className: "row-s" }, "\uC2DC\uAC04\uB2F9")))))) : React.createElement("p", { className: "hm-empty" }, "\uC774 \uB2EC \uC218\uC785 \uAE30\uB85D\uC774 \uC5C6\uC5B4\uC694."),
+        React.createElement("div", { id: "an-detail", className: "hm-sh an-dh" },
+            React.createElement("h2", null, "\uC790\uC138\uD788"))));
 }
 function IncomePanel() {
     const { data, month, statsOf, firstMonth, openSheet } = useApp();
@@ -19642,7 +19882,7 @@ function IncomePanel() {
             React.createElement("div", { className: "card-h" },
                 React.createElement("h3", null,
                     mShort(month),
-                    " \uC218\uC785\uC6D0\uBCC4\uB85C \uBC88 \uB3C8"),
+                    " \uC218\uC785\uC6D0\uBCC4 \uAE08\uC561"),
                 React.createElement("button", { className: "link", onClick: () => openSheet('sources') }, "\uC218\uC785\uC6D0 \uAD00\uB9AC")),
             items.length ? React.createElement(Donut, { items: items, center: compact(totalEarned) }) : React.createElement("p", { className: "muted small" }, "\uC774 \uB2EC \uC218\uC785 \uAE30\uB85D\uC774 \uC5C6\uC5B4\uC694."),
             rows.length > 0 && (React.createElement("div", { className: "table-wrap" },
@@ -19698,10 +19938,12 @@ function IncomePanel() {
 function AnalysisPage() {
     const { anaTab, setAnaTab } = useApp();
     return (React.createElement("div", { className: "stack" },
-        React.createElement("div", { className: "tabs-scroll" },
-            React.createElement(Seg, { value: anaTab, onChange: setAnaTab, options: [['income', '수입'], ['eff', '효율'], ['spend', '지출'], ['flow', '현금흐름'], ['asset', '자산 성장'], ['insight', '인사이트']] })),
-        anaTab === 'eff' ? React.createElement(React.Fragment, null,
+        React.createElement("div", { className: "tabs-scroll ul-tabs" },
+            React.createElement(Seg, { value: anaTab === 'eff' ? 'income' : anaTab, onChange: setAnaTab, options: [['income', '수익'], ['spend', '지출'], ['flow', '현금흐름'], ['asset', '자산'], ['insight', '인사이트']] })),
+        anaTab === 'income' || anaTab === 'eff' ? React.createElement(React.Fragment, null,
+            React.createElement(ProfitOverview, null),
             React.createElement(EfficiencyCompare, null),
+            React.createElement(IncomePanel, null),
             React.createElement("h3", { className: "sec-t" }, "OAOC \uC0C1\uC138"),
             React.createElement(WorkPanel, { mode: "eff" }),
             React.createElement("h3", { className: "sec-t" }, "\uC8FC\uBB38\uBCC4 \uC218\uC775\uC131"),
@@ -19711,13 +19953,13 @@ function AnalysisPage() {
                 : anaTab === 'flow' ? React.createElement(SpendAnalysis, { part: "flow" },
                     React.createElement(FlowForecast, null))
                     : anaTab === 'asset' ? React.createElement(AssetGrowthPanel, null)
-                        : anaTab === 'insight' ? React.createElement(InsightsPanel, null) : React.createElement(IncomePanel, null)));
+                        : React.createElement(InsightsPanel, null)));
 }
 function PlanPage() {
     const { planTab, setPlanTab } = useApp();
     return (React.createElement("div", { className: "stack" },
-        React.createElement("div", { className: "tabs-scroll" },
-            React.createElement(Seg, { value: planTab, onChange: setPlanTab, options: [['budget', '예산'], ['saving', '저축'], ['emergency', '비상자금'], ['tax', '세금'], ['sim', '시뮬레이션']] })),
+        React.createElement("div", { className: "tabs-scroll ul-tabs" },
+            React.createElement(Seg, { value: planTab, onChange: setPlanTab, options: [['budget', '이번 달'], ['saving', '저축'], ['emergency', '비상자금'], ['tax', '세금'], ['sim', '시뮬레이션']] })),
         planTab === 'tax' ? React.createElement(TaxPanel, null) : planTab === 'saving' ? React.createElement(SavingPlanPanel, null) : planTab === 'emergency' ? React.createElement(EmergencyPanel, null) : planTab === 'sim' ? React.createElement(SimulationPanel, null) : React.createElement(BudgetPanel, null)));
 }
 function SettingsPage() { return React.createElement(MyPage, { part: "settings" }); }
@@ -19812,7 +20054,7 @@ function WorkPanel({ mode = 'log' }) {
         mode === 'eff' && (React.createElement(React.Fragment, null,
             React.createElement("h3", { className: "sec-t" }, "\uC0AC\uC5C5(OAOC) \uADFC\uBB34 \uD6A8\uC728"),
             React.createElement("p", { className: "muted small" }, "\uC2DC\uAC04\uB2F9 \uC218\uC775\uC740 \uADFC\uB85C\uACC4\uC57D\uC0C1 \uC2DC\uAE09\uC774 \uC544\uB2C8\uB77C, \uC0AC\uC5C5 \uC21C\uC774\uC775(\uC138\uC804)\uC744 \uADFC\uBB34\uC2DC\uAC04\uC73C\uB85C \uB098\uB208 \uD6A8\uC728 \uC9C0\uD45C\uC608\uC694."),
-            React.createElement("section", { className: "grid-cards four" }, cards.map((c) => (React.createElement("div", { key: c.label, className: "card stat" },
+            React.createElement("section", { className: "grid-cards four work-eff" }, cards.map((c) => (React.createElement("div", { key: c.label, className: "card stat" },
                 React.createElement("p", { className: "stat-l" }, c.label),
                 React.createElement("p", { className: "stat-v num" }, c.text != null ? c.text : c.v == null ? '계산 불가' : React.createElement(React.Fragment, null,
                     won(c.v),
@@ -21899,7 +22141,7 @@ function EfficiencyCompare() {
                 mShort(month),
                 " \uC218\uC785\uC6D0\uBCC4 \uD6A8\uC728")),
         rows.length ? (React.createElement("div", { className: "table-wrap" },
-            React.createElement("table", { className: "tbl" },
+            React.createElement("table", { className: "tbl eff-tbl" },
                 React.createElement("thead", null,
                     React.createElement("tr", null,
                         React.createElement("th", null, "\uC218\uC785\uC6D0"),
@@ -22110,75 +22352,89 @@ function savingRange(data, statsOf, firstMonth) {
     return { ok: true, b, em, low: Math.max(0, Math.round(b.ip.conservative - deduct)), base: Math.max(0, Math.round(b.ip.avg3 - deduct)), max: Math.max(0, Math.round(b.ip.avg3 - b.ess - b.taxM - (em.monthly || 0))) };
 }
 function BudgetPanel() {
-    const { data, month, statsOf, openSheet } = useApp();
+    const { data, month, statsOf, openSheet, go, firstMonth } = useApp();
     const st = statsOf(month);
     const budgets = budgetMap(data);
     const tm = thisMonth(), t = today();
     const total = budgets._total || 0, varB = budgets._variable || 0;
     const remainDays = month === tm ? dim(month) - +t.slice(8) + 1 : month > tm ? dim(month) : 0;
-    const left = total ? total - st.expense - st.fixedUnpaid : null;
-    const varLeft = varB ? varB - st.variable : null;
-    const daily = (v) => (remainDays > 0 && v != null ? `${won(Math.max(0, v) / remainDays)}원` : '—');
-    return (React.createElement("div", { className: "stack" },
-        React.createElement("section", { className: "card" },
-            React.createElement("div", { className: "card-h" },
-                React.createElement("h3", null,
-                    mShort(month),
-                    " \uC4F8 \uC218 \uC788\uB294 \uB3C8"),
-                React.createElement("button", { className: "link", onClick: () => openSheet('budget') }, "\uC608\uC0B0 \uC124\uC815")),
-            total || varB ? (React.createElement(React.Fragment, null,
-                React.createElement("p", { className: cx('stat-v num', (varLeft !== null && varLeft !== void 0 ? varLeft : left) < 0 && 'neg') },
-                    won(varLeft !== null && varLeft !== void 0 ? varLeft : left),
-                    React.createElement("small", null, "\uC6D0")),
-                React.createElement("p", { className: "stat-s" },
-                    varB ? '남은 변동비 예산' : '남은 전체 예산 (남은 고정비 포함)',
-                    " \u00B7 \uD558\uB8E8 ",
-                    daily(varLeft !== null && varLeft !== void 0 ? varLeft : left),
-                    remainDays > 0 ? ` · ${remainDays}일 남음` : ''))) : React.createElement("p", { className: "muted small" }, "\uC608\uC0B0\uC744 \uC815\uD558\uBA74 \uB0A8\uC740 \uB0A0\uC9DC \uAE30\uC900\uC73C\uB85C \uD558\uB8E8\uC5D0 \uC4F8 \uC218 \uC788\uB294 \uAE08\uC561\uC744 \uACC4\uC0B0\uD574\uC694.")),
-        React.createElement("div", { className: "two-col" },
-            React.createElement("section", { className: "card" },
-                React.createElement("div", { className: "card-h" },
-                    React.createElement("h3", null, "\uACE0\uC815\uBE44"),
-                    React.createElement("span", { className: "muted small" }, "\uB4F1\uB85D\uD55C \uC608\uC815\uC561")),
-                React.createElement("p", { className: "stat-v num" },
-                    won(st.fixedTotal),
-                    React.createElement("small", null, "\uC6D0")),
-                React.createElement(Progress, { value: st.fixedPaid, max: st.fixedTotal, tone: "dark" }),
-                React.createElement("p", { className: "stat-s" },
-                    "\uB0A9\uBD80 ",
-                    won(st.fixedPaid),
-                    " \u00B7 \uB0A8\uC74C ",
-                    won(st.fixedUnpaid),
-                    " \u00B7 \uC218\uC785 \uB300\uBE44 ",
-                    fmtPct(st.fixedRatio))),
-            React.createElement("section", { className: "card" },
-                React.createElement("div", { className: "card-h" },
-                    React.createElement("h3", null, "\uBCC0\uB3D9\uBE44"),
-                    React.createElement("span", { className: "muted small" }, varB ? `예산 ${won(varB)}원` : '예산 미설정')),
-                React.createElement("p", { className: cx('stat-v num', varLeft < 0 && 'neg') },
-                    won(st.variable),
-                    React.createElement("small", null, "\uC6D0")),
-                varB ? React.createElement(React.Fragment, null,
-                    React.createElement(Progress, { value: st.variable, max: varB }),
-                    React.createElement("p", { className: "stat-s" }, varLeft >= 0 ? `${won(varLeft)}원 남음` : `${won(-varLeft)}원 초과`)) : React.createElement("p", { className: "stat-s" }, "\uACE0\uC815\uBE44 \uC678 \uC0DD\uD65C\uBE44 \uC608\uC0B0\uC744 \uB530\uB85C \uC815\uD560 \uC218 \uC788\uC5B4\uC694"))),
-        total > 0 && (React.createElement("section", { className: "card" },
-            React.createElement("div", { className: "card-h" },
-                React.createElement("h3", null, "\uC804\uCCB4 \uC608\uC0B0"),
-                React.createElement("span", { className: "muted small" },
-                    won(total),
-                    "\uC6D0")),
-            React.createElement(Progress, { value: st.expense + st.fixedUnpaid, max: total }),
-            React.createElement("p", { className: "stat-s" },
-                "\uC4F4 \uB3C8 ",
-                won(st.expense),
-                " + \uB0A8\uC740 \uACE0\uC815\uBE44 ",
-                won(st.fixedUnpaid),
-                " \u00B7 ",
-                left >= 0 ? `${won(left)}원 남음` : `${won(-left)}원 초과`))),
-        React.createElement("section", { className: "card" },
-            React.createElement("div", { className: "card-h" },
-                React.createElement("h3", null, "\uCE74\uD14C\uACE0\uB9AC\uBCC4")),
-            React.createElement(BudgetSummary, null))));
+    const B = varB || total;
+    const used = varB ? st.variable : st.expense + st.fixedUnpaid;
+    const left = B - used;
+    const pct = B ? Math.round((used / B) * 100) : 0;
+    const r = 46, c = 2 * Math.PI * r;
+    const cats = Object.entries(budgets).filter(([k]) => !k.startsWith('_')).map(([k, v]) => ({ k, b: v, u: st.byCat[k] || 0 })).map((x) => ({ ...x, left: x.b - x.u })).sort((a, b) => (a.left < 0) === (b.left < 0) ? a.left / a.b - b.left / b.b : a.left < 0 ? -1 : 1);
+    const settings = data.settings.settings || {};
+    const savingLeft = settings.savingTarget ? Math.max(0, settings.savingTarget - st.saving) : null;
+    const E = emergencyInfo(data, statsOf, firstMonth);
+    const RI = taxProfileOf(data) ? reserveInfo(data, statsOf) : {};
+    const taxShort = Object.values(RI).filter((x) => x.short > 0).sort((a, b) => b.short - a.short)[0];
+    const short = (v) => (Math.abs(v) >= 10000 ? `${Math.round(Math.abs(v) / 1000) / 10}만` : `${Math.round(Math.abs(v) / 100) / 10}천`);
+    const Goal = ({ title, big, unit, need, act, onAct, tag }) => (React.createElement("div", { className: "pl-goal" },
+        React.createElement("div", { className: "pl-gt" },
+            React.createElement("span", null, title),
+            tag && React.createElement("span", { className: cx('pl-tag', tag.warn && 'warn') }, tag.t)),
+        React.createElement("div", { className: "pl-gb" },
+            React.createElement("div", { className: "pl-gv" },
+                React.createElement("span", { className: "pl-big num" },
+                    big,
+                    React.createElement("small", null, unit)),
+                React.createElement("span", { className: "pl-need" }, need)),
+            React.createElement("button", { className: "btn small", onClick: onAct }, act))));
+    return (React.createElement("div", { className: "stack plan2" },
+        React.createElement("section", { className: "pl-hero" },
+            React.createElement("div", { className: "pl-hl" },
+                React.createElement("span", { className: "hm-lbl" }, varB ? '이번 달 남은 생활비' : total ? '이번 달 남은 예산' : '이번 달 예산'),
+                B ? React.createElement(React.Fragment, null,
+                    React.createElement("span", { className: cx('pl-amt num', left < 0 && 'neg') },
+                        won(left),
+                        React.createElement("small", null, "\uC6D0")),
+                    React.createElement("span", { className: "hm-sub" }, left > 0 && remainDays > 0 ? React.createElement(React.Fragment, null,
+                        "\uD558\uB8E8 ",
+                        React.createElement("b", null,
+                            won(left / remainDays),
+                            "\uC6D0"),
+                        " \uC548\uC5D0\uC11C \uC4F0\uBA74 \uB3FC\uC694") : left < 0 ? `${won(-left)}원 초과했어요` : '이번 달 예산을 다 썼어요'))
+                    : React.createElement(React.Fragment, null,
+                        React.createElement("span", { className: "hm-sub" }, "\uC608\uC0B0\uC744 \uC815\uD558\uBA74 \uB0A8\uC740 \uAE08\uC561\uACFC \uD558\uB8E8 \uC0AC\uC6A9\uC561\uC744 \uC54C\uB824\uB4DC\uB824\uC694."),
+                        React.createElement("button", { className: "btn small primary", style: { alignSelf: 'flex-start', marginTop: 8 }, onClick: () => openSheet('budget') }, "\uC608\uC0B0 \uC815\uD558\uAE30"))),
+            B > 0 && (React.createElement("button", { className: "pl-ring", onClick: () => openSheet('budget'), "aria-label": `예산 ${pct}% 사용, 예산 설정` },
+                React.createElement("svg", { width: "112", height: "112", viewBox: "0 0 120 120" },
+                    React.createElement("circle", { cx: "60", cy: "60", r: r, fill: "none", stroke: "var(--chip)", strokeWidth: "9" }),
+                    React.createElement("circle", { cx: "60", cy: "60", r: r, fill: "none", stroke: pct > 100 ? 'var(--neg)' : 'var(--sage)', strokeWidth: "9", strokeLinecap: "round", strokeDasharray: `${(c * Math.min(100, pct)) / 100} ${c}`, transform: "rotate(-90 60 60)" }),
+                    React.createElement("text", { x: "60", y: "60", textAnchor: "middle", className: "pl-rv" },
+                        pct,
+                        "%"),
+                    React.createElement("text", { x: "60", y: "78", textAnchor: "middle", className: "pl-rl" }, "\uC0AC\uC6A9"))))),
+        cats.length > 0 && React.createElement("div", { className: "pl-cats" }, cats.slice(0, 6).map((x) => React.createElement("button", { key: x.k, className: cx('pl-cat', x.left < 0 && 'over'), onClick: () => openSheet('budget') },
+            x.k,
+            " ",
+            React.createElement("b", { className: "num" }, short(x.left)),
+            x.left < 0 ? ' 초과' : ' 남음'))),
+        React.createElement("div", { className: "hm-sh" },
+            React.createElement("h2", null, "\uBAA9\uD45C\uAE4C\uC9C0 \uD544\uC694\uD55C \uAC83")),
+        React.createElement("div", { className: "pl-goals" },
+            savingLeft != null ? React.createElement(Goal, { title: `${+month.slice(5)}월 저축 목표`, big: won(savingLeft), unit: savingLeft ? '원 남음' : '원 · 달성', need: `${won(settings.savingTarget)}원 중 ${won(st.saving)}원 모았어요`, act: "\uC800\uCD95 \uAE30\uB85D", onAct: () => openSheet('entry', { prefill: { type: 'saving' } }) })
+                : React.createElement(Goal, { title: "\uC6D4 \uC800\uCD95 \uBAA9\uD45C", big: "\uBBF8\uC124\uC815", unit: "", need: "\uBAA9\uD45C\uB97C \uC815\uD558\uBA74 \uB0A8\uC740 \uAE08\uC561\uC744 \uC54C\uB824\uB4DC\uB824\uC694", act: "\uC815\uD558\uAE30", onAct: () => openSheet('target') }),
+            taxShort && React.createElement(Goal, { title: `${taxShort.label} 준비금`, big: won(taxShort.short), unit: "\uC6D0 \uBD80\uC871", need: taxShort.monthly ? `월 ${won(taxShort.monthly)}원씩 모으면 마감 전 완료` : '준비금 통장으로 옮겨 두세요', act: "\uC801\uB9BD", onAct: () => go({ page: 'plan', planTab: 'tax' }), tag: taxShort.due ? { t: `D-${Math.max(0, daysBetween(t, taxShort.due.due))}`, warn: daysBetween(t, taxShort.due.due) <= 30 } : null }),
+            E.hasAcc && E.short != null && React.createElement(Goal, { title: "\uBE44\uC0C1\uC790\uAE08", big: E.short ? won(E.short) : `${Math.round(E.covered * 10) / 10}`, unit: E.short ? '원 더' : '개월치 · 목표 달성', need: `필수 지출 ${E.months}개월치까지 · 지금 ${E.covered == null ? '—' : Math.round(E.covered * 10) / 10}개월치`, act: "\uACC4\uD68D", onAct: () => go({ page: 'plan', planTab: 'emergency' }) })),
+        React.createElement("div", { className: "hm-sh" },
+            React.createElement("h2", null, "\uCE74\uD14C\uACE0\uB9AC \uC608\uC0B0"),
+            React.createElement("button", { className: "link", onClick: () => openSheet('budget') },
+                "\uC608\uC0B0 \uC124\uC815",
+                React.createElement(Icon, { n: "right", s: 14 }))),
+        React.createElement("section", { className: "pl-catlist" },
+            React.createElement(BudgetSummary, null)),
+        React.createElement("div", { className: "pl-fixed" },
+            React.createElement("span", null,
+                "\uACE0\uC815\uBE44 ",
+                won(st.fixedTotal),
+                "\uC6D0"),
+            React.createElement("span", { className: "num" },
+                "\uB0A9\uBD80 ",
+                won(st.fixedPaid),
+                " \u00B7 \uB0A8\uC74C ",
+                won(st.fixedUnpaid)))));
 }
 function SavingPlanPanel() {
     const { data, statsOf, firstMonth, month, openSheet } = useApp();
@@ -22576,80 +22832,114 @@ function AccountRows({ list, values, onOpen, extra }) {
 function AssetsPage() {
     const { assetTab, setAssetTab } = useApp();
     return (React.createElement("div", { className: "stack" },
-        React.createElement("div", { className: "tabs-scroll" },
-            React.createElement(Seg, { value: assetTab, onChange: setAssetTab, options: [['all', '전체'], ['cash', '계좌·현금'], ['deposit', '예적금'], ['invest', '투자'], ['debt', '부채'], ['trend', '추이']] })),
-        assetTab === 'cash' ? React.createElement(AccountListPanel, { kinds: ['cash', 'card'], title: "\uACC4\uC88C\u00B7\uD604\uAE08" })
-            : assetTab === 'deposit' ? React.createElement(AccountListPanel, { kinds: ['deposit', 'reserve'], title: "\uC608\uAE08\u00B7\uC801\uAE08\u00B7\uC900\uBE44\uAE08" })
-                : assetTab === 'invest' ? React.createElement(InvestPanel, null)
-                    : assetTab === 'debt' ? React.createElement(DebtPanel, null)
-                        : assetTab === 'trend' ? React.createElement(React.Fragment, null,
-                            React.createElement(AssetGrowthPanel, null),
-                            React.createElement(ScenarioPanel, null))
-                            : React.createElement(AssetOverview, null)));
+        React.createElement("div", { className: "tabs-scroll ul-tabs" },
+            React.createElement(Seg, { value: assetTab === 'cash' || assetTab === 'deposit' ? 'accounts' : assetTab, onChange: setAssetTab, options: [['all', '전체'], ['accounts', '계좌'], ['invest', '투자'], ['debt', '부채'], ['trend', '추이']] })),
+        assetTab === 'accounts' || assetTab === 'cash' || assetTab === 'deposit' ? React.createElement(AccountListPanel, { kinds: ['cash', 'card', 'deposit', 'reserve'], title: "\uACC4\uC88C" })
+            : assetTab === 'invest' ? React.createElement(InvestPanel, null)
+                : assetTab === 'debt' ? React.createElement(DebtPanel, null)
+                    : assetTab === 'trend' ? React.createElement(React.Fragment, null,
+                        React.createElement(AssetGrowthPanel, null),
+                        React.createElement(ScenarioPanel, null))
+                        : React.createElement(AssetOverview, null)));
 }
 function AssetOverview() {
     const { data, statsOf, firstMonth, openSheet, accounts, go } = useApp();
     if (!accounts.length)
         return React.createElement(Empty, { title: "\uB4F1\uB85D\uB41C \uACC4\uC88C\uAC00 \uC5C6\uC5B4\uC694.", action: React.createElement("button", { className: "btn primary", onClick: () => openSheet('account') },
                 React.createElement(Icon, { n: "plus", s: 18 }),
-                "\uACC4\uC88C \uCD94\uAC00") }, "\uACC4\uC88C\uB97C \uCD94\uAC00\uD558\uBA74 \uC21C\uC790\uC0B0, \uC790\uC0B0 \uBC30\uBD84, \uBE44\uC0C1\uC790\uAE08, \uBD80\uCC44 \uC9C0\uD45C\uB97C \uACC4\uC0B0\uD574\uC694. \uC740\uD589\uACFC \uC790\uB3D9 \uC5F0\uB3D9\uB418\uC9C0 \uC54A\uC73C\uB2C8 \uC794\uC561\uACFC \uD3C9\uAC00\uC561\uC740 \uC9C1\uC811 \uC785\uB825\uD558\uAC70\uB098 \uAE30\uB85D\uD55C \uAC70\uB798\uB85C \uACC4\uC0B0\uD574\uC694.");
+                "\uACC4\uC88C \uCD94\uAC00") }, "\uACC4\uC88C\uB97C \uCD94\uAC00\uD558\uBA74 \uC21C\uC790\uC0B0\uACFC \uC790\uC0B0 \uAD6C\uC131\uC744 \uACC4\uC0B0\uD574\uC694. \uC794\uC561\uACFC \uD22C\uC790 \uD3C9\uAC00\uC561\uC740 \uC9C1\uC811 \uC785\uB825\uD558\uAC70\uB098 \uAE30\uB85D\uD55C \uAC70\uB798\uB85C \uACC4\uC0B0\uD574\uC694.");
     const W = wealthMetrics(data, statsOf, firstMonth);
     const curSt = statsOf(thisMonth());
     const pAcc = accounts.filter((a) => a.scope !== 'business');
     const cashP = sum(pAcc.filter((a) => a.kind === 'cash'), (a) => W.v[a.id]);
     const cardDue = -sum(pAcc.filter((a) => a.kind === 'card'), (a) => Math.min(0, W.v[a.id]));
     const usable = cashP - cardDue - curSt.fixedUnpaid;
-    const alloc = [['현금·입출금', W.cash], ['예금·적금', W.deposit], ['투자', W.invest], ['세금 준비금', W.reserve]].filter((x) => x[1] > 0).map(([l, v], i) => ({ label: l, value: v, color: PALETTE[i] }));
+    const d = W.nw - W.nwPrev;
+    const comp = [['현금·예적금', W.cash + W.deposit, 'var(--seg1)'], ['투자', W.invest, 'var(--sage)'], ['세금 준비금', W.reserve, 'var(--seg3)']].filter((x) => x[1] > 0);
+    const grp = (title, kinds, extra) => {
+        const l = accounts.filter((a) => kinds.includes(a.kind));
+        if (!l.length)
+            return null;
+        return (React.createElement("section", { className: "as-grp" },
+            React.createElement("div", { className: "hm-sh" },
+                React.createElement("h2", null, title),
+                React.createElement("span", { className: "num as-tot" }, won(sum(l, (a) => W.v[a.id])))),
+            React.createElement("ul", { className: "rows" }, l.map((a) => {
+                const s = a.kind === 'invest' ? investStats(data, a) : null;
+                return (React.createElement("li", { key: a.id },
+                    React.createElement("button", { className: "row tx2", onClick: () => openSheet('account', { acc: a }) },
+                        React.createElement("span", { className: "row-main" },
+                            React.createElement("span", { className: "row-t" },
+                                a.name,
+                                a.scope === 'business' && React.createElement("span", { className: "tx-tag" }, "\uC0AC\uC5C5")),
+                            React.createElement("span", { className: "row-s" },
+                                ACC_KINDS[a.kind],
+                                a.assetClass ? ` · ${a.assetClass}` : '',
+                                s && s.lastVal ? ` · ${+s.lastVal.date.slice(5, 7)}/${+s.lastVal.date.slice(8)} 평가액` : '',
+                                a.memo ? ` · ${a.memo}` : '')),
+                        React.createElement("span", { className: "row-end" },
+                            React.createElement("span", { className: "row-amt num" }, a.kind === 'card' && W.v[a.id] < 0 ? `결제 예정 ${won(-W.v[a.id])}` : won(W.v[a.id])),
+                            s && s.ret != null && React.createElement("span", { className: "as-ret num" },
+                                s.ret >= 0 ? '↑ +' : '↓ −',
+                                Math.abs(Math.round(s.ret * 10) / 10),
+                                "%")))));
+            })),
+            extra));
+    };
     const metrics = [
+        ['실제 쓸 수 있는 돈', `${won(usable)}원`, null],
         ['비상자금', W.E.covered == null ? '계산 불가' : `${Math.round(W.E.covered * 10) / 10}개월치`, { page: 'plan', planTab: 'emergency' }],
-        ['저축률 (최근 3개월)', fmtPct(W.savingRate), { page: 'plan', planTab: 'saving' }],
-        ['현금 · 예적금 · 투자 비중', W.assets > 0 ? `${Math.round((W.cash / W.assets) * 100)} · ${Math.round((W.deposit / W.assets) * 100)} · ${Math.round((W.invest / W.assets) * 100)}%` : '—', null],
-        ['순자산 증가율 (전월 / 1년)', `${fmtPct(change(W.nw, W.nwPrev))} / ${fmtPct(change(W.nw, W.nwYear))}`, { page: 'assets', assetTab: 'trend' }],
+        ['저축률 · 최근 3개월', fmtPct(W.savingRate), { page: 'plan', planTab: 'saving' }],
+        ['부채 비율', W.debtRatio == null ? '—' : fmtPct(W.debtRatio), { page: 'assets', assetTab: 'debt' }],
         ['부채 상환 부담 (월 상환 ÷ 수입)', W.repay ? fmtPct(W.repayBurden) : '대출 상환 고정비 없음', { page: 'assets', assetTab: 'debt' }],
-        ['투자 집중도 (가장 큰 자산군)', W.concentration != null ? `${W.topClass[0]} ${fmtPct(W.concentration)}` : '투자 없음', { page: 'assets', assetTab: 'invest' }],
+        ['투자 집중도', W.concentration != null ? `${W.topClass[0]} ${fmtPct(W.concentration)}` : '투자 없음', { page: 'assets', assetTab: 'invest' }],
     ];
-    return (React.createElement("div", { className: "stack" },
-        React.createElement("section", { className: "card" },
-            React.createElement("div", { className: "card-h" },
-                React.createElement("h3", null, "\uC21C\uC790\uC0B0"),
-                React.createElement("button", { className: "link", onClick: () => openSheet('account') }, "\uACC4\uC88C \uCD94\uAC00")),
-            React.createElement("p", { className: cx('stat-v num', W.nw < 0 && 'neg') },
+    return (React.createElement("div", { className: "stack asset2" },
+        React.createElement("section", { className: "as-hero" },
+            React.createElement("span", { className: "hm-lbl" }, "\uC21C\uC790\uC0B0"),
+            React.createElement("span", { className: cx('as-amt num', W.nw < 0 && 'neg') },
                 won(W.nw),
                 React.createElement("small", null, "\uC6D0")),
-            React.createElement(Delta, { cur: W.nw, prev: W.nwPrev, good: "up", hasPrev: !!firstMonth }),
-            React.createElement("div", { className: "mini-rows" },
-                React.createElement("div", null,
-                    React.createElement("span", null, "\uC790\uC0B0 / \uBD80\uCC44"),
-                    React.createElement("b", { className: "num" },
-                        won(W.assets),
-                        " / ",
-                        won(W.debt),
-                        "\uC6D0")),
-                React.createElement("div", null,
-                    React.createElement("span", null, "\uC2E4\uC81C \uC4F8 \uC218 \uC788\uB294 \uB3C8"),
-                    React.createElement("b", { className: cx('num', usable < 0 && 'neg') },
-                        won(usable),
-                        "\uC6D0"))),
-            React.createElement("p", { className: "small muted" },
-                "\uC4F8 \uC218 \uC788\uB294 \uB3C8 = \uAC1C\uC778 \uD604\uAE08\u00B7\uC785\uCD9C\uAE08 ",
-                won(cashP),
-                " \u2212 \uCE74\uB4DC \uACB0\uC81C \uC608\uC815 ",
-                won(cardDue),
-                " \u2212 \uC774\uBC88 \uB2EC \uB0A8\uC740 \uACE0\uC815\uBE44 ",
-                won(curSt.fixedUnpaid),
-                ". \uD22C\uC790 \uACC4\uC88C\uB294 \uC9C1\uC811 \uC785\uB825\uD55C \uD3C9\uAC00\uC561 \uAE30\uC900\uC774\uACE0, \uC785\uB825 \uC804\uC774\uBA74 \uB123\uC740 \uB3C8(\uC6D0\uAE08)\uC73C\uB85C \uACC4\uC0B0\uD574\uC694.")),
-        React.createElement("div", { className: "two-col" },
-            React.createElement("section", { className: "card" },
-                React.createElement("div", { className: "card-h" },
-                    React.createElement("h3", null, "\uC790\uC0B0 \uBC30\uBD84")),
-                alloc.length ? React.createElement(Donut, { items: alloc, center: compact(W.assets) }) : React.createElement("p", { className: "muted small" }, "\uC794\uC561\uC774 \uC788\uB294 \uC790\uC0B0 \uACC4\uC88C\uAC00 \uC5C6\uC5B4\uC694.")),
-            React.createElement("section", { className: "card list-card" },
-                React.createElement("div", { className: "card-h pad" },
-                    React.createElement("h3", null, "\uC7AC\uD14C\uD06C \uC9C0\uD45C")),
-                metrics.map(([l, val, to]) => (React.createElement("button", { key: l, className: "kv-row", onClick: () => to && go(to), disabled: !to },
-                    React.createElement("span", { className: "kv-l" }, l),
-                    React.createElement("span", { className: "kv-r" },
-                        React.createElement("b", { className: "num" }, val)))))))));
+            firstMonth && React.createElement("span", { className: "as-chg num" },
+                d >= 0 ? '↑ +' : '↓ −',
+                won(Math.abs(d)),
+                "\uC6D0",
+                W.nwPrev ? ` · ${Math.abs(Math.round(change(W.nw, W.nwPrev) * 10) / 10)}%` : '',
+                " \uC9C0\uB09C\uB2EC")),
+        React.createElement("section", { className: "as-eq" },
+            React.createElement("div", null,
+                React.createElement("span", { className: "hm-lbl" }, "\uC790\uC0B0"),
+                React.createElement("span", { className: "as-ev num" },
+                    won(W.assets),
+                    React.createElement("small", null, "\uC6D0"))),
+            React.createElement("span", { className: "as-op" }, "\u2212"),
+            React.createElement("div", { className: "r" },
+                React.createElement("span", { className: "hm-lbl" }, "\uBD80\uCC44"),
+                React.createElement("span", { className: "as-ev num" },
+                    won(W.debt),
+                    React.createElement("small", null, "\uC6D0")))),
+        comp.length > 0 && W.assets > 0 && (React.createElement("section", { className: "as-comp" },
+            React.createElement("div", { className: "as-bar" }, comp.map(([l, v, c]) => React.createElement("i", { key: l, style: { width: `${(v / W.assets) * 100}%`, background: c }, title: l }))),
+            React.createElement("div", { className: "as-leg" }, comp.map(([l, v, c]) => React.createElement("span", { key: l },
+                React.createElement("i", { style: { background: c } }),
+                l,
+                " ",
+                React.createElement("b", { className: "num" },
+                    Math.round((v / W.assets) * 100),
+                    "%")))))),
+        grp('현금·예적금', ['cash', 'deposit', 'reserve']),
+        grp('투자', ['invest']),
+        grp('부채', ['loan', 'card']),
+        React.createElement("div", { className: "hm-sh" },
+            React.createElement("h2", null, "\uC7AC\uD14C\uD06C \uC9C0\uD45C"),
+            React.createElement("button", { className: "link", onClick: () => openSheet('account') },
+                "\uACC4\uC88C \uCD94\uAC00",
+                React.createElement(Icon, { n: "right", s: 14 }))),
+        React.createElement("ul", { className: "rows as-metrics" }, metrics.map(([l, v, to]) => React.createElement("li", { key: l },
+            React.createElement("button", { className: "row tx2", onClick: () => to && go(to), disabled: !to },
+                React.createElement("span", { className: "row-main" },
+                    React.createElement("span", { className: "row-t", style: { fontWeight: 400 } }, l)),
+                React.createElement("span", { className: "row-amt num" }, v)))))));
 }
 function AccountListPanel({ kinds, title }) {
     const { data, accounts, openSheet } = useApp();
@@ -23046,23 +23336,24 @@ function TxRow({ t, showDate }) {
     const acc = t.accountId && data.account[t.accountId];
     const toAcc = t.toAccountId && data.account[t.toAccountId];
     const title = t.memo || t.source || t.category || TYPE_LABEL[t.type];
-    const subParts = [t.type === 'expense' || t.type === 'income' || t.type === 'saving' || t.type === 'tax' ? (t.type === 'tax' ? `세금 · ${t.category}` : t.category) : TYPE_LABEL[t.type]];
+    const catName = t.type === 'expense' || t.type === 'income' || t.type === 'saving' ? t.category : t.type === 'tax' ? `세금 · ${t.category}` : TYPE_LABEL[t.type];
+    const parts = [title === catName ? null : catName];
     if (acc && !acc.deleted)
-        subParts.push(acc.name + (toAcc && !toAcc.deleted ? ` → ${toAcc.name}` : ''));
-    if (t.ruleId)
-        subParts.push('고정');
+        parts.push(acc.name + (toAcc && !toAcc.deleted ? ` → ${toAcc.name}` : ''));
+    if (t.inst)
+        parts.push(`${t.inst} 할부`);
     if (showDate)
-        subParts.unshift(`${+t.date.slice(5, 7)}/${+t.date.slice(8)}`);
-    const sign = t.type === 'income' || t.type === 'draw' ? 1 : t.type === 'expense' || t.type === 'tax' ? -1 : 0;
+        parts.unshift(`${+t.date.slice(5, 7)}/${+t.date.slice(8)}`);
+    const sign = t.type === 'income' || t.type === 'draw' ? '+' : t.type === 'expense' || t.type === 'tax' ? '−' : '';
+    const tag = t.scope === 'business' ? '사업' : t.ruleId ? '고정' : '';
     return (React.createElement("li", null,
-        React.createElement("button", { className: "row", onClick: () => openSheet('entry', { tx: t }) },
-            React.createElement("span", { className: cx('dot', 't-' + t.type) }),
+        React.createElement("button", { className: "row tx2", onClick: () => openSheet('entry', { tx: t }) },
             React.createElement("span", { className: "row-main" },
                 React.createElement("span", { className: "row-t" },
                     title,
-                    t.scope === 'business' && React.createElement("span", { className: "badge" }, "\uC0AC\uC5C5")),
-                React.createElement("span", { className: "row-s" }, subParts.filter(Boolean).join(' · '))),
-            React.createElement("span", { className: cx('row-amt num', (sign > 0 || t.amount < 0) && t.scope !== 'business' && 'pos') }, t.amount < 0 ? `+${won(-t.amount)}` : `${sign > 0 ? '+' : sign < 0 ? '−' : ''}${won(t.amount)}`))));
+                    tag && React.createElement("span", { className: "tx-tag" }, tag)),
+                parts.some(Boolean) && React.createElement("span", { className: "row-s" }, parts.filter(Boolean).join(' · '))),
+            React.createElement("span", { className: "row-amt num" }, t.amount < 0 ? `+${won(-t.amount)}` : `${sign}${won(t.amount)}`))));
 }
 /* ───────── 내역 ───────── */
 function TxListPage({ preset = 'all' }) {
@@ -23073,80 +23364,104 @@ function TxListPage({ preset = 'all' }) {
     const [cat, setCat] = useState('all');
     const [allTime, setAllTime] = useState(false);
     const [scope, setScope] = useState('all');
-    const list = useMemo(() => {
+    const [showF, setShowF] = useState(false);
+    const filt = (o) => {
         let l = live(data.tx);
-        if (!allTime)
+        if (!o.allTime)
             l = l.filter((t) => t.date.startsWith(month));
-        if (scope !== 'all')
-            l = l.filter((t) => (t.scope || 'personal') === scope);
-        if (type !== 'all')
-            l = l.filter((t) => (type === 'move' ? MOVE_TYPES.includes(t.type) || t.type === 'saving' : type === 'income' ? t.type === 'income' || t.type === 'draw' : t.type === type));
-        if (cat !== 'all')
-            l = l.filter((t) => t.category === cat);
+        if (o.scope !== 'all')
+            l = l.filter((t) => (t.scope || 'personal') === o.scope);
+        if (o.type !== 'all')
+            l = l.filter((t) => (o.type === 'move' ? MOVE_TYPES.includes(t.type) || t.type === 'saving' : o.type === 'income' ? t.type === 'income' || t.type === 'draw' : t.type === o.type));
+        if (o.cat !== 'all')
+            l = l.filter((t) => t.category === o.cat);
         const s = q.trim().toLowerCase();
         if (s)
             l = l.filter((t) => [t.memo, t.source, t.category, String(t.amount)].some((x) => x && String(x).toLowerCase().includes(s)));
         return l.sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || 0) - (a.createdAt || 0));
-    }, [data, month, q, type, cat, allTime, scope]);
+    };
+    const list = useMemo(() => filt({ allTime, scope, type, cat }), [data, month, q, type, cat, allTime, scope]);
     const groups = useMemo(() => {
         const g = [];
-        list.forEach((t) => {
-            let last = g[g.length - 1];
-            if (!last || last.date !== t.date) {
-                last = { date: t.date, items: [] };
-                g.push(last);
-            }
-            last.items.push(t);
-        });
+        list.forEach((t) => { let last = g[g.length - 1]; if (!last || last.date !== t.date) {
+            last = { date: t.date, items: [] };
+            g.push(last);
+        } last.items.push(t); });
         return g;
     }, [list]);
     const cats = type === 'income' ? [...incCats(), ...bizIncCats()] : type === 'saving' ? SAVING_CATS : [...expCats(), ...bizExpCats()];
     const inc = sum(list.filter((t) => t.type === 'income' || t.type === 'draw'), (t) => t.amount);
     const exp = sum(list.filter((t) => t.type === 'expense'), (t) => t.amount);
-    return (React.createElement("div", { className: "stack" },
-        React.createElement("div", { className: "toolbar" },
-            React.createElement("div", { className: "search" },
+    const td = today();
+    const ydD = new Date();
+    ydD.setDate(ydD.getDate() - 1);
+    const yd = ymd(ydD);
+    const dayName = (d) => { const dt = new Date(d + 'T00:00:00'); return `${dt.getMonth() + 1}월 ${dt.getDate()}일 ${'일월화수목금토'[dt.getDay()]}`; };
+    const nF = (allTime ? 1 : 0) + (scope !== 'all' ? 1 : 0) + (cat !== 'all' ? 1 : 0) + (preset === 'all' && typeSel !== 'all' ? 1 : 0);
+    const Chip = ({ on, children, onClick }) => React.createElement("button", { type: "button", className: cx('chip', on && 'on'), onClick: onClick }, children);
+    return (React.createElement("div", { className: "stack hist2" },
+        React.createElement("div", { className: "hs-bar" },
+            React.createElement("label", { className: "hs-search" },
                 React.createElement(Icon, { n: "search", s: 18 }),
-                React.createElement("input", { placeholder: "\uBA54\uBAA8\u00B7\uCE74\uD14C\uACE0\uB9AC\u00B7\uAE08\uC561 \uAC80\uC0C9", value: q, onChange: (e) => setQ(e.target.value) })),
-            React.createElement("div", { className: "row-gap" },
-                React.createElement("button", { className: "btn", onClick: () => openSheet('cardImport') },
-                    React.createElement(Icon, { n: "receipt", s: 18 }),
-                    "\uCE74\uB4DC \uBA85\uC138\uC11C"),
-                React.createElement("button", { className: "btn", onClick: () => openSheet('bulk') },
-                    React.createElement(Icon, { n: "rows", s: 18 }),
-                    "\uC77C\uAD04 \uC785\uB825"))),
-        React.createElement("div", { className: "filters" },
-            React.createElement(Seg, { small: true, value: scope, onChange: setScope, options: [['all', '전체'], ['personal', '개인'], ['business', '사업']] }),
-            preset === 'all' && React.createElement(Seg, { small: true, value: type, onChange: (v) => { setType(v); setCat('all'); }, options: [['all', '모든 유형'], ['expense', '지출'], ['income', '수입'], ['saving', '저축'], ['move', '이체·세금']] }),
-            type !== 'move' && (React.createElement("select", { className: "input sel-sm", value: cat, onChange: (e) => setCat(e.target.value), "aria-label": "\uCE74\uD14C\uACE0\uB9AC" },
-                React.createElement("option", { value: "all" }, "\uBAA8\uB4E0 \uCE74\uD14C\uACE0\uB9AC"),
-                cats.map((c) => React.createElement("option", { key: c }, c)))),
-            React.createElement("label", { className: "check" },
-                React.createElement("input", { type: "checkbox", checked: allTime, onChange: (e) => setAllTime(e.target.checked) }),
-                "\uC804\uCCB4 \uAE30\uAC04")),
-        React.createElement("div", { className: "sumline" },
+                React.createElement("input", { placeholder: "\uAC70\uB798 \uAC80\uC0C9", value: q, onChange: (e) => setQ(e.target.value), "aria-label": "\uAC70\uB798 \uAC80\uC0C9" })),
+            React.createElement("button", { className: cx('hs-fbtn', (showF || nF) && 'on'), onClick: () => setShowF(!showF), "aria-label": nF ? `필터 ${nF}개 적용됨` : '필터', "aria-expanded": showF },
+                React.createElement(Icon, { n: "filter", s: 19 }),
+                nF > 0 && React.createElement("span", { className: "hs-badge num" }, nF))),
+        React.createElement("div", { className: cx('hs-fold', showF && 'open'), inert: showF ? undefined : '' },
+            React.createElement("div", { className: "hs-filter" },
+            React.createElement("p", { className: "hs-fl" }, "\uAE30\uAC04"),
+            React.createElement("div", { className: "chips" },
+                React.createElement(Chip, { on: !allTime, onClick: () => setAllTime(false) }, mLabel(month)),
+                React.createElement(Chip, { on: allTime, onClick: () => setAllTime(true) }, "\uC804\uCCB4 \uAE30\uAC04")),
+            React.createElement("p", { className: "hs-fl" }, "\uAD6C\uBD84"),
+            React.createElement("div", { className: "chips" }, [['all', '전체'], ['personal', '개인'], ['business', '사업']].map(([v, l]) => React.createElement(Chip, { key: v, on: scope === v, onClick: () => setScope(v) }, l))),
+            preset === 'all' && React.createElement(React.Fragment, null,
+                React.createElement("p", { className: "hs-fl" }, "\uC720\uD615"),
+                React.createElement("div", { className: "chips" }, [['all', '전체'], ['expense', '지출'], ['income', '수입'], ['saving', '저축'], ['move', '이체·세금']].map(([v, l]) => React.createElement(Chip, { key: v, on: typeSel === v, onClick: () => { setType(v); setCat('all'); } }, l)))),
+            type !== 'move' && React.createElement(React.Fragment, null,
+                React.createElement("p", { className: "hs-fl" }, "\uCE74\uD14C\uACE0\uB9AC"),
+                React.createElement("select", { className: "input", value: cat, onChange: (e) => setCat(e.target.value), "aria-label": "\uCE74\uD14C\uACE0\uB9AC" },
+                    React.createElement("option", { value: "all" }, "\uC804\uCCB4 \uCE74\uD14C\uACE0\uB9AC"),
+                    cats.map((c) => React.createElement("option", { key: c }, c)))),
+            React.createElement("div", { className: "hs-fbtns" },
+                React.createElement("button", { className: "btn", onClick: () => { setAllTime(false); setScope('all'); setCat('all'); setType('all'); } }, "\uCD08\uAE30\uD654"),
+                React.createElement("button", { className: "btn primary grow", onClick: () => setShowF(false) },
+                    "\uACB0\uACFC ",
+                    list.length,
+                    "\uAC74 \uBCF4\uAE30")))),
+        React.createElement("div", { className: "hs-sum" },
             React.createElement("span", null,
+                allTime ? '전체 기간' : mLabel(month),
+                " \u00B7 ",
                 list.length,
                 "\uAC74"),
-            React.createElement("span", null,
-                "\uC218\uC785 ",
-                React.createElement("b", { className: "num pos" }, won(inc))),
-            React.createElement("span", null,
-                "\uC9C0\uCD9C ",
-                React.createElement("b", { className: "num" }, won(exp)))),
+            React.createElement("span", { className: "num" },
+                exp ? `−${won(exp)}` : '',
+                exp && inc ? ' · ' : '',
+                inc ? `+${won(inc)}` : '')),
+        React.createElement("div", { className: "hs-tools" },
+            React.createElement("button", { className: "btn ghost small", onClick: () => openSheet('cardImport') },
+                React.createElement(Icon, { n: "receipt", s: 15 }),
+                "\uCE74\uB4DC \uBA85\uC138\uC11C"),
+            React.createElement("button", { className: "btn ghost small", onClick: () => openSheet('bulk') },
+                React.createElement(Icon, { n: "rows", s: 15 }),
+                "\uC77C\uAD04 \uC785\uB825")),
         groups.length ? groups.map((g) => {
-            const gi = sum(g.items.filter((t) => t.type === 'income'), (t) => t.amount);
+            const gi = sum(g.items.filter((t) => t.type === 'income' || t.type === 'draw'), (t) => t.amount);
             const ge = sum(g.items.filter((t) => t.type === 'expense'), (t) => t.amount);
-            return (React.createElement("section", { key: g.date, className: "day" },
-                React.createElement("div", { className: "day-h" },
-                    React.createElement("span", null, dateLabel(g.date)),
-                    React.createElement("span", { className: "num muted small" },
-                        gi ? `+${won(gi)} ` : '',
-                        ge ? `−${won(ge)}` : '')),
-                React.createElement("ul", { className: "rows card" }, g.items.map((t) => React.createElement(TxRow, { key: t.id, t: t })))));
-        }) : (React.createElement(Empty, { title: q || type !== 'all' || cat !== 'all' ? '조건에 맞는 거래가 없어요.' : `${mLabel(month)} 기록이 없어요.`, action: React.createElement("button", { className: "btn primary", onClick: () => openSheet('entry') },
+            const rel = g.date === td ? '오늘' : g.date === yd ? '어제' : '';
+            return (React.createElement("section", { key: g.date, className: "hs-day" },
+                React.createElement("div", { className: "hs-dh" },
+                    React.createElement("span", null,
+                        rel && React.createElement("b", null,
+                            rel,
+                            " "),
+                        React.createElement("span", null, dayName(g.date))),
+                    React.createElement("span", { className: "num" }, [gi ? `${won(gi)} 수입` : '', ge ? `${won(ge)} 지출` : ''].filter(Boolean).join(' · '))),
+                React.createElement("ul", { className: "rows" }, g.items.map((t) => React.createElement(TxRow, { key: t.id, t: t })))));
+        }) : (React.createElement(Empty, { title: q || nF ? '조건에 맞는 거래가 없어요.' : `${mLabel(month)} 기록이 아직 없어요`, action: React.createElement("button", { className: "btn primary", onClick: () => openSheet('entry') },
                 React.createElement(Icon, { n: "plus", s: 18 }),
-                "\uAE30\uB85D\uD558\uAE30") }))));
+                "\uAE30\uB85D\uD558\uAE30") }, q || nF ? '검색어나 필터를 바꿔 보세요.' : '첫 거래를 기록하면 흐름을 계산해 드려요.'))));
 }
 /* ───────── 고정비 ───────── */
 function OccRow({ o, compact: cmp }) {
