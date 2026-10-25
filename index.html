@@ -994,18 +994,6 @@ body{background:var(--bg)}
 .acct-id{display:flex;flex-direction:column;gap:2px}
 .acct-id b{font-size:15px;font-weight:600}.acct-id span{font-size:13px;color:var(--ink2)}
 .side-login{margin-top:6px;background:none;border:0;padding:4px 12px;text-align:left;font-size:12.5px;color:var(--sage);cursor:pointer}
-/* 로그인 프로필 */
-.avatar{display:inline-flex;align-items:center;justify-content:center;flex:none;border-radius:50%;object-fit:cover;background:var(--chip);color:var(--ink);font-weight:600;font-family:Inter,"Noto Sans KR",sans-serif;box-shadow:0 0 0 1px var(--line)}
-.top-avatar{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:44px;height:44px;padding:0 7px;border:0;background:transparent;border-radius:22px;color:var(--ink);cursor:pointer}
-.top-avatar.on,.top-avatar:hover{background:var(--chip)}
-.top-avatar .top-name{display:none;font-size:13.5px;font-weight:500;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-@media (min-width:960px){ .top-avatar{display:inline-flex !important;padding:0 12px 0 6px} .top-avatar .top-name{display:inline} }
-.side-me{display:flex;align-items:center;gap:10px;width:100%;margin-top:6px;padding:8px 10px;border:0;border-radius:10px;background:transparent;text-align:left;color:var(--ink);cursor:pointer}
-.side-me:hover{background:var(--chip)}
-.side-me-t{display:flex;flex-direction:column;min-width:0}
-.side-me-t b{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.side-me-t span{font-size:12px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.k-who{font-weight:600;color:var(--ink)}
 
 </style>
 </head>
@@ -18643,15 +18631,7 @@ function useStore() {
                 const [db, u] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
                 if (cancelled || !db || !u)
                     return;
-                // Claude 계정 이름·프로필 사진 (표시용으로만 쓰고 저장하지 않아요)
-                let me = null;
-                try {
-                    me = u.me ? await u.me() : null;
-                }
-                catch (e) {
-                    me = null;
-                }
-                await connect(db, await u.id(), { provider: 'claude', name: (me && me.name) || '', photo: (me && me.avatarUrl) || '' });
+                await connect(db, await u.id(), { provider: 'claude' });
                 return;
             }
             if (!fbConfig())
@@ -19177,12 +19157,7 @@ function App() {
                     React.createElement(Icon, { n: "gear" }),
                     "\uC124\uC815"),
                 React.createElement(SyncBadge, null),
-                !store.user && fbConfig() && React.createElement("button", { className: "side-login", onClick: () => setPage('settings') }, "\uB85C\uADF8\uC778\uD558\uACE0 \uAE30\uAE30 \uAC04 \uB3D9\uAE30\uD654"),
-                store.user && (store.user.name || store.user.photo) && (React.createElement("button", { className: "side-me", onClick: () => setPage('settings'), "aria-label": "\uACC4\uC815\uACFC \uC124\uC815" },
-                    React.createElement(Avatar, { user: store.user, size: 32 }),
-                    React.createElement("span", { className: "side-me-t" },
-                        React.createElement("b", null, store.user.name || (store.user.provider === 'google' ? 'Google 계정' : 'Claude 계정')),
-                        React.createElement("span", null, store.user.email || (store.user.provider === 'claude' ? 'Claude 계정에 동기화됨' : '')))))),
+                !store.user && fbConfig() && React.createElement("button", { className: "side-login", onClick: () => setPage('settings') }, "\uB85C\uADF8\uC778\uD558\uACE0 \uAE30\uAE30 \uAC04 \uB3D9\uAE30\uD654")),
             React.createElement("main", { className: "main" },
                 React.createElement("header", { className: "topbar" },
                     React.createElement("div", { className: cx('top-l', (page === 'home' || page === 'history') && 'mo-month') },
@@ -19193,12 +19168,8 @@ function App() {
                         React.createElement("button", { className: "icon-btn theme-btn", onClick: () => setTheme(effTheme === 'dark' ? 'light' : 'dark'), "aria-label": effTheme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환', title: effTheme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환' },
                             React.createElement(Icon, { n: effTheme === 'dark' ? 'moon' : 'sun', s: 20 })),
                         React.createElement(AlertBell, null),
-                        store.user && (store.user.name || store.user.photo)
-                            ? React.createElement("button", { className: cx('top-my top-avatar', page === 'settings' && 'on'), onClick: () => setPage('settings'), "aria-label": `${store.user.name || store.user.email || '내 계정'} · 계정과 설정`, title: `${store.user.name || ''} ${store.user.email || ''}`.trim(), "aria-current": page === 'settings' ? 'page' : undefined },
-                                React.createElement(Avatar, { user: store.user, size: 30 }),
-                                React.createElement("span", { className: "top-name" }, store.user.name || store.user.email || '내 계정'))
-                            : React.createElement("button", { className: cx('icon-btn top-my', page === 'settings' && 'on'), onClick: () => setPage('settings'), "aria-label": "\uC124\uC815", "aria-current": page === 'settings' ? 'page' : undefined },
-                                React.createElement(Icon, { n: "gear", s: 20 })),
+                        React.createElement("button", { className: cx('icon-btn top-my', page === 'settings' && 'on'), onClick: () => setPage('settings'), "aria-label": "\uC124\uC815", "aria-current": page === 'settings' ? 'page' : undefined },
+                            React.createElement(Icon, { n: "gear", s: 20 })),
                         React.createElement("button", { className: "btn primary top-add", onClick: () => openSheet('entry') },
                             React.createElement(Icon, { n: "plus", s: 16 }),
                             "\uAE30\uB85D\uD558\uAE30"))),
@@ -19230,13 +19201,6 @@ function MonthPicker() {
             React.createElement("span", { className: "yr" }, month.slice(0, 4))),
         React.createElement("button", { className: "icon-btn", onClick: () => setMonth(addM(month, 1)), "aria-label": "\uB2E4\uC74C \uB2EC" },
             React.createElement(Icon, { n: "right" }))));
-}
-function Avatar({ user, size = 32 }) {
-    const [bad, setBad] = useState(false);
-    const label = (user.name || user.email || 'G').trim();
-    return user.photo && !bad
-        ? React.createElement("img", { className: "avatar", src: user.photo, alt: "", width: size, height: size, referrerPolicy: "no-referrer", onError: () => setBad(true), style: { width: size, height: size } })
-        : React.createElement("span", { className: "avatar", "aria-hidden": "true", style: { width: size, height: size, fontSize: Math.round(size * 0.44) } }, label.slice(0, 1).toUpperCase());
 }
 function GoogleButton({ onClick, busy }) {
     const { effTheme } = useApp();
@@ -19634,7 +19598,7 @@ function BasisSheet({ onClose }) {
             ".")));
 }
 function HomePage() {
-    const { data, month, statsOf, firstMonth, alerts, go, accounts, openSheet, user } = useApp();
+    const { data, month, statsOf, firstMonth, alerts, go, accounts, openSheet } = useApp();
     const { st, settings, flow, free, remainDays } = homeNumbers(data, month, statsOf);
     const tm = thisMonth(), t = today();
     const endOf = (m) => `${m}-${pad(dim(m))}`;
@@ -19658,11 +19622,6 @@ function HomePage() {
         React.createElement("div", { className: "h6-l" },
             React.createElement("section", { className: "h6-kpi" },
                 React.createElement("p", { className: "k-l" },
-                    user && user.name ? React.createElement(React.Fragment, null,
-                        React.createElement("b", { className: "k-who" },
-                            user.name,
-                            "\uB2D8"),
-                        ", ") : null,
                     month === tm ? '이번 달' : mShort(month),
                     " \uC790\uC720\uB86D\uAC8C \uC4F8 \uC218 \uC788\uB294 \uB3C8"),
                 React.createElement("p", { className: cx('k-v num hero-v', free < 0 && 'neg') },
