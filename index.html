@@ -766,6 +766,90 @@ html.theme-anim,html.theme-anim *{transition:background-color .22s ease,color .2
 @media (forced-colors:active){
   .seg button.on,.chip.on,.nav-btn.on,.side-nav button.on{outline:2px solid CanvasText}
 }
+/* ── 통합 수정: 기록 입력 · 모달 · 근무 · 분석 · 세금 · 부채 · 홈 ── */
+/* 모달 상단 탭: 같은 높이·간격으로 가로를 가득 채움 */
+.seg.seg-full{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);width:100%;overflow:hidden}
+.seg.seg-full button{min-width:0;display:flex;align-items:center;justify-content:center;padding:0 6px;text-align:center;overflow:hidden;text-overflow:ellipsis}
+.seg.seg-full:not(.seg-sm) button{height:40px}
+.seg.seg-full.seg-sm button{height:34px}
+/* 카테고리 버튼: 같은 크기 격자로 간격·정렬 통일 */
+.cat-pick{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cat-pick .field-l + .cat-grid{margin-top:-2px}
+.cat-pick .cat-grid + .field-l{margin-top:6px}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px;min-width:0}
+.cat-grid.wide{grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}
+.cat-grid .chip{justify-content:center;width:100%;min-width:0;height:38px;padding:0 8px;font-size:var(--fs-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-grid .chip.add:not(.on){border-style:dashed}
+.sheet .chips .chip{max-width:100%}
+/* 모달: 내용만 세로 스크롤, 하단 버튼 고정, 가로 넘침 방지, 키보드·Safe Area 대응 */
+.overlay{top:var(--vvtop,0px);bottom:auto;height:var(--vvh,100%)}
+.sheet{min-height:0;max-height:calc(var(--vvh,100dvh) - env(safe-area-inset-top,0px) - 10px);overflow:hidden}
+.sheet-h,.sheet-f{flex:none}
+.sheet-b{flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto}
+.sheet-b > *{max-width:100%}
+.sheet-f{background:var(--surface)}
+.kb-open .sheet{padding-bottom:0}
+.form-2 > *,.form-3 > *{min-width:0}
+.form-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+input.input[type=date],input.input[type=time]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;line-height:46px;text-align:left}
+input.input[type=date]::-webkit-date-and-time-value,input.input[type=time]::-webkit-date-and-time-value{text-align:left;margin:0}
+.sheet .row-gap{flex-wrap:wrap}
+.sheet .note,.sheet .small,.sheet .field-h{overflow-wrap:anywhere}
+@media (min-width:760px){.sheet{max-height:min(88vh,calc(var(--vvh,100vh) - 40px))}}
+/* 같은 크기의 두 버튼 (경비/매출 기록, 포커/근무 기록) */
+.dual-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+.dual-btns .btn{width:100%;min-width:0;height:44px;padding:0 12px;border-radius:var(--r-md);font-size:var(--fs-base);font-weight:500}
+@media (min-width:760px){.toolbar .dual-btns{width:auto;grid-template-columns:repeat(2,minmax(132px,auto))}}
+/* 근무 · 포커 */
+.work-sum{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid var(--line2);border-radius:var(--r-md);background:var(--surface2);font-size:var(--fs-sm)}
+.work-sum > div{display:flex;justify-content:space-between;align-items:baseline;gap:10px;min-width:0}
+.work-sum span{min-width:0;color:var(--ink2)}
+.work-sum b{font-weight:600;white-space:nowrap}
+.work-sum .tot{padding-top:6px;border-top:1px solid var(--line2);font-size:var(--fs-base)}
+.work-sum .tot b{font-size:var(--fs-lg)}
+.work-sum.muted b{color:var(--ink3)}
+.brk-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,auto);align-items:center;gap:6px}
+.work-total{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;overflow-wrap:anywhere}
+.hour-chips .chip{padding:0 12px}
+/* 분석 */
+.an-filter{padding-top:var(--sp-3)}
+.an-filter .seg{max-width:420px}
+.an-calc{max-width:560px;margin-top:var(--sp-2)}
+.calc dt{min-width:0}
+.an-calc .sub dt,.an-calc .sub dd{font-size:var(--fs-sm)}
+.an-calc .sum + .sub,.an-calc > .sub:first-child{margin-top:var(--sp-2);border-top:1px solid var(--line2)}
+.an-note{margin-top:var(--sp-2);line-height:1.55}
+/* 세금: 과세유형 변경 이력은 세로 타임라인, 카드 내용은 화면 폭 안에서 줄바꿈 */
+.profile-line .row-between{align-items:flex-start}
+.pl-main{flex:1;min-width:0}
+.row-s.wrap{white-space:normal;overflow:visible;text-overflow:clip;word-break:keep-all;overflow-wrap:anywhere;line-height:1.5}
+.tax-hist{display:flex;flex-direction:column;gap:8px;margin:12px 0 0 4px;padding:0 0 0 14px;list-style:none;border-left:2px solid var(--line)}
+.tax-hist li{position:relative;display:flex;flex-wrap:wrap;gap:2px 10px;min-width:0;font-size:var(--fs-sm);color:var(--ink2)}
+.tax-hist li::before{content:"";position:absolute;left:-20px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 2px var(--sage)}
+.tax-hist b{font-weight:500;color:var(--ink);word-break:keep-all}
+.hist-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 36px;align-items:center;gap:6px;width:100%}
+.hist-row .hist-date{grid-column:1 / 3;grid-row:1}
+.hist-row .hist-del{grid-column:3;grid-row:1}
+.hist-row select{grid-row:2}
+.card,.reserve,.grid-cards > *{min-width:0;overflow-wrap:anywhere}
+.mini-rows > div > span{min-width:0}
+.mini-rows b{min-width:0;overflow-wrap:anywhere}
+.stat-v{overflow-wrap:anywhere}
+/* 홈: 여백·계층·숫자 정렬 통일, 긴 금액도 화면 안에서 줄바꿈 */
+.home6 .io-l,.home6 .p-l,.home6 .r-l{font-size:var(--fs-sm);line-height:1.4;letter-spacing:-0.005em;color:var(--ink2)}
+.home6 .r-l{color:var(--ink);font-weight:500}
+.home6 .io-v,.home6 .p-v,.home6 .r-v{min-width:0;line-height:1.2;letter-spacing:-0.02em;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.home6 .io-v,.home6 .p-v{font-size:clamp(17px,5.2vw,var(--fs-xl))}
+.home6 .r-v{white-space:normal;text-align:right;font-size:clamp(19px,6vw,var(--fs-2xl))}
+.home6 .io-v small,.home6 .p-v small,.home6 .r-v small{margin-left:2px;font-size:var(--fs-sm);font-weight:500;color:var(--ink2)}
+.home6 .p-s,.home6 .r-l em{font-size:var(--fs-xs);line-height:1.45;color:var(--ink2)}
+.home6 .io,.h6-pos{gap:var(--sp-4)}
+.home6 .io-item,.h6-pos .p{gap:6px}
+.home6 .result{margin-top:var(--sp-5);padding-top:var(--sp-4)}
+.h6-kpi .k-s{row-gap:var(--sp-2)}
+.h6-kpi .k-s .lnk{min-height:32px}
+.h6-alerts .h-alert + .h-alert{margin-top:6px}
+.h-basis .calc-note{word-break:keep-all}
 </style>
 </head>
 <body>
@@ -18530,17 +18614,20 @@ function monthStats(data, m) {
     const subscription = sum(occs.filter((o) => o.rule.category === '구독 서비스'), (o) => o.effective);
     const sales = sum(by(biz, 'income'), amt), costs = sum(by(biz, 'expense'), amt);
     const worklogs = live(data.worklog).filter((w) => w.date && w.date.startsWith(m));
-    const bizLogs = worklogs.filter((w) => w.kind !== 'job');
+    const bizLogs = worklogs.filter((w) => w.kind !== 'job' && w.kind !== 'poker');
+    const pokerLogs = worklogs.filter((w) => w.kind === 'poker');
     const byType = {}, byJob = {};
     bizLogs.forEach((w) => { byType[w.type || '기타 업무'] = (byType[w.type || '기타 업무'] || 0) + (w.minutes || 0); });
     worklogs.filter((w) => w.kind === 'job').forEach((w) => {
-        const j = byJob[w.jobId] || (byJob[w.jobId] = { minutes: 0, pay: 0, dates: new Set() });
+        const j = byJob[w.jobId] || (byJob[w.jobId] = { minutes: 0, pay: 0, net: 0, dates: new Set() });
         j.minutes += w.minutes || 0;
         j.pay += w.pay || 0;
+        j.net += w.netPay != null ? w.netPay : netPay(w.pay, deductOf(w, data).rate);
         j.dates.add(w.date);
     });
     Object.values(byJob).forEach((j) => { j.days = j.dates.size; });
-    const work = { minutes: sum(bizLogs, (w) => w.minutes), days: new Set(bizLogs.map((w) => w.date)).size, byType, byJob, jobMinutes: sum(Object.values(byJob), (j) => j.minutes), jobPay: sum(Object.values(byJob), (j) => j.pay) };
+    const work = { minutes: sum(bizLogs, (w) => w.minutes), days: new Set(bizLogs.map((w) => w.date)).size, byType, byJob, jobMinutes: sum(Object.values(byJob), (j) => j.minutes), jobPay: sum(Object.values(byJob), (j) => j.pay), jobNet: sum(Object.values(byJob), (j) => j.net),
+        pokerMinutes: sum(pokerLogs, (w) => w.minutes), poker: { count: pokerLogs.length, buyin: sum(pokerLogs, (w) => w.buyin), fee: sum(pokerLogs, (w) => w.fee), prize: sum(pokerLogs, (w) => w.prize), profit: sum(pokerLogs, pokerProfit) } };
     return {
         m, all, txs, worklogs, work, txCount: all.length, income, drawn, expense, saving, invest, savingOnly: saving - invest, tax, fixedPaid, fixedUnpaid, fixedTotal, variable, byCat, occs, allOccs, subscription,
         remaining: income - expense - saving - tax,
@@ -18640,8 +18727,8 @@ const Money = ({ v, sign, className }) => (React.createElement("span", { classNa
     sign && v > 0 ? '+' : '',
     won(v),
     React.createElement("small", null, "\uC6D0")));
-function Seg({ value, onChange, options, small }) {
-    return (React.createElement("div", { className: cx('seg', small && 'seg-sm'), role: "tablist" }, options.map(([v, l]) => (React.createElement("button", { key: v, type: "button", role: "tab", "aria-selected": value === v, className: value === v ? 'on' : '', onClick: () => onChange(v) }, l)))));
+function Seg({ value, onChange, options, small, full }) {
+    return (React.createElement("div", { className: cx('seg', small && 'seg-sm', full && 'seg-full'), role: "tablist" }, options.map(([v, l]) => (React.createElement("button", { key: v, type: "button", role: "tab", "aria-selected": value === v, className: value === v ? 'on' : '', onClick: () => onChange(v) }, l)))));
 }
 const Field = ({ label, children, hint }) => (React.createElement("label", { className: "field" },
     React.createElement("span", { className: "field-l" }, label),
@@ -18714,6 +18801,25 @@ function unlockScroll() {
         window.scrollTo(0, lockY);
     });
 }
+// iOS 키보드: 실제로 보이는 영역(visualViewport) 높이를 CSS 변수로 넘겨 시트가 키보드 위에 맞춰지게 해요
+(function trackViewport() {
+    const vv = window.visualViewport;
+    const root = document.documentElement;
+    if (!vv)
+        return;
+    let raf = 0;
+    const upd = () => {
+        raf = 0;
+        root.style.setProperty('--vvh', `${Math.round(vv.height)}px`);
+        root.style.setProperty('--vvtop', `${Math.round(vv.offsetTop)}px`);
+        root.classList.toggle('kb-open', window.innerHeight - vv.height > 120);
+    };
+    const req = () => { if (!raf)
+        raf = requestAnimationFrame(upd); };
+    vv.addEventListener('resize', req);
+    vv.addEventListener('scroll', req);
+    upd();
+})();
 const FOCUSABLE = 'button:not([disabled]),[href],input:not([disabled]):not([type=hidden]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 function trapTab(e, root) {
     if (e.key !== 'Tab' || !root)
@@ -18839,6 +18945,23 @@ function Sheet({ title, onClose, children, footer, wide, dirty }) {
             requestAnimationFrame(() => { if (p && p.focus && document.contains(p) && !document.querySelector('.sheet'))
                 p.focus({ preventScroll: true }); });
         };
+    }, []);
+    // 입력칸에 포커스가 가면 키보드가 올라온 뒤 그 칸이 보이도록 시트 안에서만 스크롤
+    useEffect(() => {
+        const el = panelRef.current;
+        if (!el)
+            return;
+        const onFocus = (e) => {
+            const t = e.target;
+            if (!t || !t.matches || !t.matches('input:not([type=checkbox]):not([type=radio]),select,textarea'))
+                return;
+            setTimeout(() => { try {
+                t.scrollIntoView({ block: 'nearest', behavior: reduceMotion() ? 'auto' : 'smooth' });
+            }
+            catch (x) { } }, 320);
+        };
+        el.addEventListener('focusin', onFocus);
+        return () => el.removeEventListener('focusin', onFocus);
     }, []);
     // 닫힘 애니메이션이 끝나면 실제로 제거 (애니메이션이 없을 때를 대비한 안전장치 포함)
     useEffect(() => {
@@ -18973,7 +19096,7 @@ function LineChart({ labels, series, height = 170, fmt }) {
             React.createElement("i", { style: { background: s.color } }),
             s.name)))));
 }
-function Donut({ items, size = 150, center }) {
+function Donut({ items, size = 150, center, fmt }) {
     const total = sum(items, (i) => i.value);
     const r = size / 2 - 12, c = 2 * Math.PI * r;
     let acc = 0;
@@ -18992,7 +19115,7 @@ function Donut({ items, size = 150, center }) {
             React.createElement("i", { style: { background: it.color } }),
             React.createElement("span", null, it.label),
             React.createElement("b", { className: "num" }, fmtPct(ratio(it.value, total))),
-            React.createElement("span", { className: "num muted" }, won(it.value))))))));
+            React.createElement("span", { className: "num muted" }, fmt ? fmt(it.value) : won(it.value))))))));
 }
 /* ───────── 앱 ───────── */
 const PAGES = [
@@ -19141,14 +19264,13 @@ function App() {
     const activeTxId = sheet && !sheet.leaving && sheet.type === 'entry' && sheet.props.tx ? sheet.props.tx.id : null;
     const ctx = { ...store, activeTxId, data, commit, month, setMonth, statsOf, firstMonth, accounts, openSheet, closeSheet, finishSheet, toast, setPage, theme, setTheme, effTheme, histTab, setHistTab, anaTab, setAnaTab, planTab, setPlanTab, assetTab, setAssetTab, bizTab, setBizTab, alerts, go };
     const cur = PAGES.find((p) => p.id === page) || SETTINGS_PAGE;
+    // 일반 '+ 기록' 버튼은 거래를 기록하는 화면(홈·내역)에만, 전용 추가 버튼이 있는 탭(고정비·근무)에서는 숨겨요
+    const showAdd = page === 'home' || (page === 'history' && histTab !== 'fixed' && histTab !== 'work');
     const Page = { home: HomePage, history: HistoryPage, analysis: AnalysisPage, plan: PlanPage, assets: AssetsPage, settings: SettingsPage }[page] || HomePage;
     return (React.createElement(AppCtx.Provider, { value: ctx },
         React.createElement("div", { className: "app" },
             React.createElement("aside", { className: "sidebar" },
                 React.createElement("div", { className: "brand" }, "My Balance"),
-                React.createElement("button", { className: "btn primary block", onClick: () => openSheet('entry') },
-                    React.createElement(Icon, { n: "plus", s: 18 }),
-                    "\uAE30\uB85D\uD558\uAE30"),
                 React.createElement("nav", { className: "side-nav" }, PAGES.map((p) => (React.createElement("button", { key: p.id, className: page === p.id ? 'on' : '', onClick: () => setPage(p.id), "aria-current": page === p.id ? 'page' : undefined },
                     React.createElement(Icon, { n: p.icon }),
                     p.label)))),
@@ -19168,13 +19290,13 @@ function App() {
                         React.createElement("button", { className: cx('icon-btn top-acct', sheet && sheet.type === 'profile' && !sheet.leaving && 'on'), onClick: () => openSheet('profile'), "aria-haspopup": "dialog", "aria-label": store.user ? `${store.user.name || store.user.email || '내 계정'} · 계정 메뉴` : '로그인 · 계정 메뉴', title: store.user ? `${store.user.name || ''} ${store.user.email || ''}`.trim() : '로그인' },
                             store.user && (store.user.name || store.user.photo || store.user.email) ? React.createElement(Avatar, { user: store.user, size: 28 }) : React.createElement(Icon, { n: "user", s: 21 }),
                             store.user && React.createElement("i", { className: cx('acct-dot', store.status === 'error' || store.status === 'quota' ? 'bad' : store.status === 'syncing' ? 'warn' : ''), "aria-hidden": "true" })),
-                        React.createElement("button", { className: "btn primary top-add", onClick: () => openSheet('entry') },
+                        showAdd && React.createElement("button", { className: "btn primary top-add", onClick: () => openSheet('entry') },
                             React.createElement(Icon, { n: "plus", s: 16 }),
                             "\uAE30\uB85D\uD558\uAE30"))),
                 React.createElement("div", { className: "content" },
                     React.createElement(Page, null))),
             React.createElement("nav", { className: "bottomnav", "aria-label": "\uBA54\uB274" }, PAGES.map((p) => React.createElement(NavBtn, { key: p.id, p: p, on: page === p.id, onClick: () => setPage(p.id) }))),
-            React.createElement("button", { className: "fab", onClick: () => openSheet('entry'), "aria-label": "\uC218\uC785\u00B7\uC9C0\uCD9C \uAE30\uB85D\uD558\uAE30" },
+            showAdd && React.createElement("button", { className: "fab", onClick: () => openSheet('entry'), "aria-label": "\uC218\uC785\u00B7\uC9C0\uCD9C \uAE30\uB85D\uD558\uAE30" },
                 React.createElement(Icon, { n: "plus", s: 20 }),
                 React.createElement("span", null, "\uAE30\uB85D")),
             sheet && React.createElement(SheetRouter, { sheet: sheet }),
@@ -19369,7 +19491,7 @@ function SyncChoice() {
 }
 function SheetRouter({ sheet }) {
     const { closeSheet, finishSheet } = useApp();
-    const C = { profile: ProfileSheet, basis: BasisSheet, valuation: ValuationSheet, investFlow: InvestFlowSheet, emergency: EmergencySheet, categories: CategorySheet, sources: SourceSheet, cardImport: CardImportSheet, estimate: EstimateSheet, filing: FilingSheet, taxProfile: TaxProfileSheet, reserveRates: ReserveRatesSheet, work: WorkSheet, workPrefs: WorkPrefsSheet, jobs: JobsSheet, order: OrderSheet, alerts: AlertSheet, alertPrefs: AlertPrefsSheet, entry: EntrySheet, pay: PaySheet, bulk: BulkSheet, rule: RuleSheet, account: AccountSheet, budget: BudgetSheet, goal: GoalSheet, biz: BizSheet, target: TargetSheet, importer: ImportSheet }[sheet.type];
+    const C = { profile: ProfileSheet, basis: BasisSheet, valuation: ValuationSheet, investFlow: InvestFlowSheet, emergency: EmergencySheet, categories: CategorySheet, sources: SourceSheet, cardImport: CardImportSheet, estimate: EstimateSheet, filing: FilingSheet, taxProfile: TaxProfileSheet, reserveRates: ReserveRatesSheet, work: WorkSheet, workPrefs: WorkPrefsSheet, jobs: JobsSheet, order: OrderSheet, alerts: AlertSheet, alertPrefs: AlertPrefsSheet, entry: EntrySheet, pay: PaySheet, bulk: BulkSheet, rule: RuleSheet, account: AccountSheet, loan: LoanSheet, budget: BudgetSheet, goal: GoalSheet, biz: BizSheet, target: TargetSheet, importer: ImportSheet }[sheet.type];
     const value = useMemo(() => ({ leaving: !!sheet.leaving, swap: !!sheet.swap, done: () => finishSheet(sheet.k) }), [sheet, finishSheet]);
     return React.createElement(SheetCtx.Provider, { value }, React.createElement(C, { key: sheet.k, ...sheet.props, onClose: closeSheet }));
 }
@@ -19713,12 +19835,12 @@ function HomePage() {
                     React.createElement("button", { className: "io-item inc", onClick: () => go({ page: 'history', tab: 'income' }) },
                         React.createElement("span", { className: "io-l" }, "\uB4E4\uC5B4\uC628 \uB3C8"),
                         React.createElement("b", { className: "io-v num" },
-                            won(st.income),
+                            st.income > 0 ? `+${won(st.income)}` : won(st.income),
                             React.createElement("small", null, "\uC6D0"))),
                     React.createElement("button", { className: "io-item exp", onClick: () => go({ page: 'history', tab: 'expense' }) },
                         React.createElement("span", { className: "io-l" }, "\uB098\uAC04 \uB3C8"),
                         React.createElement("b", { className: "io-v num" },
-                            won(st.expense),
+                            st.expense > 0 ? `−${won(st.expense)}` : won(st.expense),
                             React.createElement("small", null, "\uC6D0")))),
                 React.createElement("button", { className: "result", onClick: () => go({ page: 'analysis', anaTab: 'flow' }) },
                     React.createElement("span", { className: "r-l" },
@@ -19777,115 +19899,100 @@ function HistoryPage() {
     const { histTab, setHistTab } = useApp();
     return (React.createElement("div", { className: "stack" },
         React.createElement("div", { className: "tabs-scroll ul-tabs" },
-            React.createElement(Seg, { value: histTab, onChange: setHistTab, options: [['all', '전체'], ['expense', '지출'], ['income', '수입'], ['fixed', '고정비'], ['work', '근무'], ['move', '이동·납부']] })),
+            React.createElement(Seg, { value: histTab, onChange: setHistTab, options: [['all', '전체'], ['expense', '지출'], ['income', '수입'], ['fixed', '고정비'], ['work', '근무'], ['move', '이체·저축']] })),
         histTab === 'fixed' ? React.createElement(FixedPage, null) : histTab === 'work' ? React.createElement(WorkPanel, { mode: "log" }) : React.createElement(TxListPage, { preset: histTab })));
 }
+// 한 달 돈의 흐름을 겹치지 않게 나눠요: 이체·저축·카드대금·사업 인출은 집계 제외, 대출 원금 상환과 세금은 따로,
+// 예상 급여(근무 기록)는 참고로만 보여주고 실제 입금(수입 기록)만 더해요. 포커 손익은 활동 기록 기준이에요.
+const LABOR_KINDS = ['salary', 'job', 'freelance'];
+function flowParts(data, statsOf, m) {
+    const s = statsOf(m);
+    const all = s.all;
+    const kindOf = (t) => { const id = sourceOf(t, data); const x = id && sourcesOf(data, true).find((o) => o.id === id); return x ? x.kind : id && id.startsWith('job_') ? 'job' : null; };
+    const inc = all.filter((t) => t.type === 'income');
+    const exp = all.filter((t) => t.type === 'expense');
+    const loanRepay = sum(exp.filter((t) => t.category === '대출 상환'), amt);
+    const income = sum(inc, amt);
+    const expense = sum(exp, amt) - loanRepay;
+    const tax = sum(all.filter((t) => t.type === 'tax'), amt);
+    const labor = sum(inc.filter((t) => t.scope !== 'business' && (LABOR_KINDS.includes(kindOf(t)) || ['salary', 'job'].includes(t.incType))), amt);
+    const moved = sum(all.filter((t) => t.type === 'transfer' || t.type === 'cardpay' || t.type === 'draw' || t.type === 'saving'), amt);
+    const W = s.work;
+    return {
+        income, expense, tax, loanRepay, moved, net: income - expense - tax - loanRepay,
+        sales: s.biz.sales, costs: s.biz.costs, bizProfit: s.biz.profit, bizMinutes: W.minutes,
+        labor, expected: W.jobNet, jobMinutes: W.jobMinutes,
+        poker: W.poker.profit, pokerIn: W.poker.buyin + W.poker.fee, pokerPrize: W.poker.prize, pokerMinutes: W.pokerMinutes, pokerCount: W.poker.count,
+    };
+}
+const AN_FILTERS = [['all', '전체'], ['biz', '사업'], ['labor', '근로'], ['poker', '포커']];
 function ProfitOverview() {
-    const { data, month, statsOf, firstMonth, go } = useApp();
+    const { data, month, statsOf, firstMonth } = useApp();
+    const h = React.createElement;
+    const [filter, setFilter] = useState('all');
     const series = [...Array(6)].map((_, i) => addM(month, i - 5));
-    const pts = series.map((m) => {
-        if (!firstMonth || m < firstMonth)
-            return null;
-        const s = statsOf(m);
-        const mins = sum(s.worklogs.filter((w) => w.kind !== 'job'), (w) => w.minutes || 0);
-        return { m, profit: s.biz.profit, sales: s.biz.sales, hourly: perHour(s.biz.profit, mins) };
-    });
-    const cur = pts[5] || { profit: 0, hourly: null }, prev = pts[4];
-    const valid = pts.filter(Boolean);
-    const best = valid.filter((p) => p.hourly != null).sort((a, b) => b.hourly - a.hourly)[0];
-    const ch = prev && prev.profit ? change(cur.profit, prev.profit) : null;
-    const mx = Math.max(1, ...valid.map((p) => Math.max(0, p.profit)));
-    const hmx = Math.max(1, ...valid.map((p) => p.hourly || 0));
-    // 실제 픽셀 폭으로 그려요 (viewBox 확대 금지) — 높이는 고정, 글자는 CSS의 12px 그대로
-    const [chartRef, chartW] = useWidth();
-    const W = chartW, H = 176, top = 24, bot = 26, chh = H - top - bot, gw = W / 6;
-    const bw = Math.max(14, Math.min(32, gw * 0.42));
-    const y = (v) => top + chh - (Math.max(0, v) / mx) * chh;
-    const hy = (v) => top + chh - (v / hmx) * chh * 0.9;
-    const line = pts.map((p, i) => (p && p.hourly != null ? [gw * i + gw / 2, hy(p.hourly)] : null)).filter(Boolean);
+    const parts = series.map((m) => (firstMonth && m >= firstMonth ? flowParts(data, statsOf, m) : null));
+    const cur = flowParts(data, statsOf, month);
+    const prevM = addM(month, -1);
+    const prev = firstMonth && prevM >= firstMonth ? flowParts(data, statsOf, prevM) : null;
     const rows = sourceEfficiency(data, statsOf, month);
-    let sentence = null;
-    if (cur.hourly != null && best && best.m === month && valid.filter((p) => p.hourly != null).length >= 2)
-        sentence = React.createElement(React.Fragment, null,
-            "\uC2DC\uAC04\uB2F9 \uC21C\uC774\uC775\uC774 ",
-            React.createElement("b", null,
-                won(cur.hourly),
-                "\uC6D0"),
-            "\uC73C\uB85C \uCD5C\uADFC ",
-            valid.length,
-            "\uAC1C\uC6D4 \uC911 \uAC00\uC7A5 \uB192\uC544\uC694.");
-    else if (cur.hourly != null && prev && prev.hourly != null)
-        sentence = React.createElement(React.Fragment, null,
-            "\uC2DC\uAC04\uB2F9 \uC21C\uC774\uC775\uC740 ",
-            React.createElement("b", null,
-                won(cur.hourly),
-                "\uC6D0"),
-            ", \uC9C0\uB09C\uB2EC\uBCF4\uB2E4 ",
-            Math.abs(Math.round(change(cur.hourly, prev.hourly))),
-            "% ",
-            cur.hourly >= prev.hourly ? '높아요' : '낮아요',
-            ".");
-    else if (cur.hourly != null)
-        sentence = React.createElement(React.Fragment, null,
-            "\uC2DC\uAC04\uB2F9 \uC21C\uC774\uC775\uC740 ",
-            React.createElement("b", null,
-                won(cur.hourly),
-                "\uC6D0"),
-            "\uC774\uC5D0\uC694.");
-    return (React.createElement("div", { className: "an-ov" },
-        React.createElement("section", { className: "an-hero" },
-            React.createElement("span", { className: "hm-lbl" },
-                +month.slice(5),
-                "\uC6D4 \uC0AC\uC5C5 \uC21C\uC774\uC775"),
-            React.createElement("span", { className: "an-hv" },
-                React.createElement("span", { className: cx('an-amt num', cur.profit < 0 && 'neg') },
-                    won(cur.profit),
-                    React.createElement("small", null, "\uC6D0")),
-                ch != null && React.createElement("span", { className: "as-chg num" },
-                    ch >= 0 ? '↑ +' : '↓ −',
-                    Math.abs(Math.round(ch)),
-                    "% \uC9C0\uB09C\uB2EC")),
-            sentence && React.createElement("p", { className: "an-sent" }, sentence)),
-        valid.length > 0 && (React.createElement("figure", { className: "an-chart", ref: chartRef },
-            React.createElement("svg", { width: W, height: H, role: "img", "aria-label": "\uCD5C\uADFC 6\uAC1C\uC6D4 \uC0AC\uC5C5 \uC21C\uC774\uC775 \uB9C9\uB300\uC640 \uC2DC\uAC04\uB2F9 \uC21C\uC774\uC775 \uC120" },
-                React.createElement("line", { x1: "0", x2: W, y1: top + chh, y2: top + chh, stroke: "var(--line)" }),
-                pts.map((p, i) => {
-                    const cx2 = gw * i + gw / 2;
-                    const last = i === 5;
-                    return (React.createElement("g", { key: i },
-                        p && React.createElement("rect", { x: cx2 - bw / 2, y: y(p.profit), width: bw, height: Math.max(1, top + chh - y(p.profit)), rx: "3", fill: last ? 'var(--sage)' : 'var(--seg3)' },
-                            React.createElement("title", null, `${mShort(series[i])} 순이익 ${won(p.profit)}원`)),
-                        React.createElement("text", { x: cx2, y: H - 6, textAnchor: "middle", className: "an-tick", style: last ? { fill: 'var(--ink)', fontWeight: 500 } : null }, mShort(series[i])),
-                        last && p && React.createElement("text", { x: cx2, y: y(p.profit) - 7, textAnchor: "middle", className: "an-top" }, compact(p.profit))));
-                }),
-                line.length > 1 && React.createElement("path", { d: line.map((q, i) => `${i ? 'L' : 'M'}${q[0].toFixed(1)},${q[1].toFixed(1)}`).join(' '), fill: "none", stroke: "var(--ink2)", strokeWidth: "1.5", strokeDasharray: "3 3" }),
-                line.map((q, i) => React.createElement("circle", { key: i, cx: q[0], cy: q[1], r: "3", fill: "var(--bg)", stroke: "var(--ink2)", strokeWidth: "1.5" }))),
-            React.createElement("figcaption", { className: "an-leg" },
-                React.createElement("span", null,
-                    React.createElement("i", { style: { background: 'var(--seg3)' } }),
-                    "\uC21C\uC774\uC775"),
-                React.createElement("span", null,
-                    React.createElement("i", { className: "dash" }),
-                    "\uC2DC\uAC04\uB2F9 \uC21C\uC774\uC775")))),
-        React.createElement("div", { className: "hm-sh" },
-            React.createElement("h2", null, "\uC218\uC785\uC6D0\uBCC4 \uC218\uC775\uC131"),
-            React.createElement("button", { className: "link", onClick: () => document.getElementById('an-detail') && document.getElementById('an-detail').scrollIntoView({ behavior: 'smooth' }) },
-                "\uC790\uC138\uD788",
-                React.createElement(Icon, { n: "right", s: 14 }))),
-        rows.length ? React.createElement("ul", { className: "rows an-rows" }, rows.map((r) => (React.createElement("li", { key: r.id, className: "an-row" },
-            React.createElement("span", { className: "row-main" },
-                React.createElement("span", { className: "row-t" }, r.name),
-                React.createElement("span", { className: "row-s" },
-                    r.basis,
-                    r.minutes ? ` · ${fmtMin(r.minutes)}` : '')),
-            React.createElement("span", { className: "an-c" },
-                React.createElement("span", { className: "num" }, won(r.earned)),
-                React.createElement("span", { className: "row-s" }, "\uBC88 \uB3C8")),
-            React.createElement("span", { className: "an-c w" },
-                React.createElement("span", { className: cx('num', r.hourly == null && 'faint') }, r.hourly == null ? '—' : won(r.hourly)),
-                React.createElement("span", { className: "row-s" }, "\uC2DC\uAC04\uB2F9")))))) : React.createElement("p", { className: "hm-empty" }, "\uC774 \uB2EC \uC218\uC785 \uAE30\uB85D\uC774 \uC5C6\uC5B4\uC694."),
-        React.createElement("div", { id: "an-detail", className: "hm-sh an-dh" },
-            React.createElement("h2", null, "\uC790\uC138\uD788"))));
+    const signed = (v) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${won(Math.abs(v))}`;
+    const pick = (f) => parts.map((p) => (p ? f(p) : null));
+    const pm = (v) => (v >= 0 ? 'var(--sage)' : 'var(--neg)');
+    const cfg = {
+        all: { label: '순현금흐름', key: 'net', sign: true,
+            chart: [{ name: '전체 수입', color: 'var(--sage)', values: pick((p) => p.income) }, { name: '전체 지출', color: 'var(--c-var)', values: pick((p) => p.expense) }, { name: '순현금흐름', color: 'var(--c-fixed)', values: pick((p) => p.net) }],
+            lines: [['전체 수입', '+', cur.income], ['전체 지출', '−', cur.expense], ['세금 납부', '−', cur.tax], ['대출 원금 상환', '−', cur.loanRepay]],
+            extra: [['사업 순수익 (세전)', `${signed(cur.bizProfit)}원`], ['근로 수입 (실제 입금)', `${won(cur.labor)}원`], ['포커 손익 (참고)', `${signed(cur.poker)}원`]],
+            note: `전체 수입·지출은 개인과 사업을 합친 금액이에요. 계좌 이체·저축·카드대금·사업 인출 ${won(cur.moved)}원은 돈의 위치만 바뀐 것이라 수입·지출에 넣지 않았어요. 예상 급여는 실제 입금이 아니라 더하지 않아요. 포커 손익은 ‘수입·지출에 자동 반영’한 기록만 포함돼요.` },
+        biz: { label: '사업 순수익 (세전)', key: 'bizProfit', sign: true,
+            chart: [{ name: '매출', color: 'var(--sage)', values: pick((p) => p.sales) }, { name: '경비', color: 'var(--c-var)', values: pick((p) => p.costs) }, { name: '순수익', color: 'var(--c-fixed)', values: pick((p) => p.bizProfit) }],
+            lines: [['매출', '+', cur.sales], ['사업 경비', '−', cur.costs]],
+            extra: [['근무시간', cur.bizMinutes ? fmtMin(cur.bizMinutes) : '—'], ['시간당 순수익', perHour(cur.bizProfit, cur.bizMinutes) == null ? '계산 불가' : `${won(perHour(cur.bizProfit, cur.bizMinutes))}원`]],
+            note: '매출·경비는 부가세 포함 금액 기준이에요. 사업 인출은 이미 순수익에 들어 있어 다시 더하지 않아요.' },
+        labor: { label: '근로 수입 (실제 입금)', key: 'labor', sign: false,
+            chart: [{ name: '실제 입금', color: 'var(--sage)', values: pick((p) => p.labor) }, { name: '예상 실수령', color: 'var(--c-var)', values: pick((p) => p.expected) }],
+            lines: [],
+            extra: [['예상 실수령 (근무 기록, 참고)', `${won(cur.expected)}원`], ['아르바이트 근무시간', cur.jobMinutes ? fmtMin(cur.jobMinutes) : '—'], ['입금 − 예상', cur.expected ? `${signed(cur.labor - cur.expected)}원` : '—']],
+            note: '급여·아르바이트·프리랜서로 실제 들어온 돈만 더해요. 근무 기록의 예상 금액은 비교용이라 수입에 중복으로 넣지 않아요.' },
+        poker: { label: '포커 손익', key: 'poker', sign: true,
+            chart: [{ name: '포커 손익', color: pm, values: pick((p) => p.poker) }],
+            lines: [['시상금', '+', cur.pokerPrize], ['바이인·추가 참가비', '−', cur.pokerIn]],
+            extra: [['참가', `${cur.pokerCount}회`], ['플레이 시간', cur.pokerMinutes ? fmtMin(cur.pokerMinutes) : '—'], ['시간당 손익', perHour(cur.poker, cur.pokerMinutes) == null ? '계산 불가' : `${signed(Math.round(perHour(cur.poker, cur.pokerMinutes)))}원`]],
+            note: '포커 활동 기록의 바이인·참가비·시상금으로 계산해요. 일반 급여·사업 수익과 따로 집계해요.' },
+    }[filter];
+    const v = cur[cfg.key];
+    const pv = prev ? prev[cfg.key] : null;
+    const ch = pv ? change(v, Math.abs(pv)) : null;
+    return (h("div", { className: "an-ov" },
+        h("div", { className: "an-filter" }, h(Seg, { small: true, full: true, value: filter, onChange: setFilter, options: AN_FILTERS })),
+        h("section", { className: "an-hero" },
+            h("span", { className: "hm-lbl" }, +month.slice(5), "월 ", cfg.label),
+            h("span", { className: "an-hv" },
+                h("span", { className: cx('an-amt num', v < 0 && 'neg') }, cfg.sign ? signed(v) : won(v), h("small", null, "원")),
+                ch != null && isFinite(ch) && h("span", { className: "as-chg num" }, ch >= 0 ? '↑ +' : '↓ −', Math.abs(Math.round(ch)), "% 지난달"))),
+        h("dl", { className: "calc an-calc" },
+            cfg.lines.map(([l, sg, val]) => h("div", { key: l }, h("dt", null, l), h("dd", { className: "num" }, val ? `${sg} ${won(val)}원` : '0원'))),
+            cfg.lines.length > 0 && h("div", { className: "sum" }, h("dt", null, cfg.label), h("dd", { className: cx('num', v < 0 && 'neg') }, cfg.sign ? signed(v) : won(v), "원")),
+            cfg.extra.map(([l, val]) => h("div", { key: l, className: "sub" }, h("dt", null, l), h("dd", { className: "num" }, val)))),
+        parts.some(Boolean) && h("figure", { className: "an-chart" }, h(BarChart, { labels: series.map(mShort), series: cfg.chart, height: 180 })),
+        h("p", { className: "small muted an-note" }, cfg.note),
+        filter !== 'poker' && h(React.Fragment, null,
+            h("div", { className: "hm-sh" },
+                h("h2", null, "수입원별 수익성"),
+                h("button", { className: "link", onClick: () => document.getElementById('an-detail') && document.getElementById('an-detail').scrollIntoView({ behavior: 'smooth' }) }, "자세히", h(Icon, { n: "right", s: 14 }))),
+            rows.length ? h("ul", { className: "rows an-rows" }, rows.map((r) => (h("li", { key: r.id, className: "an-row" },
+                h("span", { className: "row-main" },
+                    h("span", { className: "row-t" }, r.name),
+                    h("span", { className: "row-s" }, r.basis, r.minutes ? ` · ${fmtMin(r.minutes)}` : '')),
+                h("span", { className: "an-c" },
+                    h("span", { className: "num" }, won(r.earned)),
+                    h("span", { className: "row-s" }, "번 돈")),
+                h("span", { className: "an-c w" },
+                    h("span", { className: cx('num', r.hourly == null && 'faint') }, r.hourly == null ? '—' : won(r.hourly)),
+                    h("span", { className: "row-s" }, "시간당")))))) : h("p", { className: "hm-empty" }, "이 달 수입 기록이 없어요.")),
+        h("div", { id: "an-detail", className: "hm-sh an-dh" },
+            h("h2", null, "자세히"))));
 }
 function IncomePanel() {
     const { data, month, statsOf, firstMonth, openSheet } = useApp();
@@ -19968,9 +20075,7 @@ function AnalysisPage() {
             React.createElement(EfficiencyCompare, null),
             React.createElement(IncomePanel, null),
             React.createElement("h3", { className: "sec-t" }, "OAOC \uC0C1\uC138"),
-            React.createElement(WorkPanel, { mode: "eff" }),
-            React.createElement("h3", { className: "sec-t" }, "\uC8FC\uBB38\uBCC4 \uC218\uC775\uC131"),
-            React.createElement(OrdersPanel, null))
+            React.createElement(WorkPanel, { mode: "eff" }))
             : anaTab === 'spend' ? React.createElement(SpendAnalysis, { part: "spend" },
                 React.createElement(RecurringCard, null))
                 : anaTab === 'flow' ? React.createElement(SpendAnalysis, { part: "flow" },
@@ -20070,10 +20175,15 @@ function WorkPanel({ mode = 'log' }) {
         mode === 'log' && (React.createElement(React.Fragment, null,
             React.createElement("div", { className: "toolbar" },
                 React.createElement("p", { className: "muted small" }, "\uB300\uB7B5\uC801\uC778 \uC2DC\uAC04\uC73C\uB85C \uAE30\uB85D\uD574\uB3C4 \uAD1C\uCC2E\uC544\uC694."),
-                React.createElement("button", { className: "btn primary", onClick: () => openSheet('work') },
-                    React.createElement(Icon, { n: "plus", s: 18 }),
-                    "\uADFC\uBB34 \uAE30\uB85D")),
-            React.createElement(JobsCard, null))),
+                React.createElement("div", { className: "dual-btns" },
+                    React.createElement("button", { className: "btn", onClick: () => openSheet('work', { prefill: { kind: 'poker' } }) },
+                        React.createElement(Icon, { n: "plus", s: 16 }),
+                        "포커 기록"),
+                    React.createElement("button", { className: "btn primary", onClick: () => openSheet('work') },
+                        React.createElement(Icon, { n: "plus", s: 16 }),
+                        "근무 기록"))),
+            React.createElement(JobsCard, null),
+            React.createElement(ActivityTime, null))),
         mode === 'eff' && (React.createElement(React.Fragment, null,
             React.createElement("h3", { className: "sec-t" }, "\uC0AC\uC5C5(OAOC) \uADFC\uBB34 \uD6A8\uC728"),
             React.createElement("p", { className: "muted small" }, "\uC2DC\uAC04\uB2F9 \uC218\uC775\uC740 \uADFC\uB85C\uACC4\uC57D\uC0C1 \uC2DC\uAE09\uC774 \uC544\uB2C8\uB77C, \uC0AC\uC5C5 \uC21C\uC774\uC775(\uC138\uC804)\uC744 \uADFC\uBB34\uC2DC\uAC04\uC73C\uB85C \uB098\uB208 \uD6A8\uC728 \uC9C0\uD45C\uC608\uC694."),
@@ -20128,11 +20238,11 @@ function WorkPanel({ mode = 'log' }) {
                     const o = w.orderId && data.order[w.orderId] && !data.order[w.orderId].deleted ? data.order[w.orderId] : null;
                     return (React.createElement("li", { key: w.id },
                         React.createElement("button", { className: "row", onClick: () => openSheet('work', { log: w }) },
-                            React.createElement("span", { className: cx('dot', w.kind === 'job' ? 't-income' : 't-saving') }),
+                            React.createElement("span", { className: cx('dot', w.kind === 'job' ? 't-income' : w.kind === 'poker' ? 't-transfer' : 't-saving') }),
                             React.createElement("span", { className: "row-main" },
                                 React.createElement("span", { className: "row-t" },
-                                    w.kind === 'job' ? (jobById(data, w.jobId) || {}).name || '아르바이트' : w.type,
-                                    w.kind === 'job' && React.createElement("span", { className: "badge" }, "\uC544\uB974\uBC14\uC774\uD2B8"),
+                                    w.kind === 'job' ? (jobById(data, w.jobId) || {}).name || '아르바이트' : w.kind === 'poker' ? w.event || '포커' : w.type,
+                                    (w.kind === 'job' || w.kind === 'poker') && React.createElement("span", { className: "badge" }, w.kind === 'job' ? '아르바이트' : w.pokerMode === 'online' ? '포커 · 온라인' : '포커'),
                                     o ? ` · ${o.name}` : ''),
                                 React.createElement("span", { className: "row-s" },
                                     +w.date.slice(5, 7),
@@ -20144,23 +20254,42 @@ function WorkPanel({ mode = 'log' }) {
                             React.createElement("span", { className: "row-end" },
                                 React.createElement("span", { className: "row-amt num" }, fmtMin(w.minutes)),
                                 w.kind === 'job' && React.createElement("span", { className: "row-s num" },
-                                    won(w.pay),
-                                    "\uC6D0")))));
+                                    won(w.netPay != null ? w.netPay : w.pay),
+                                    "원"),
+                                w.kind === 'poker' && React.createElement("span", { className: cx('row-s num', pokerProfit(w) < 0 && 'neg') },
+                                    pokerProfit(w) > 0 ? '+' : pokerProfit(w) < 0 ? '−' : '',
+                                    won(Math.abs(pokerProfit(w))),
+                                    "원")))));
                 }))) : React.createElement(Empty, { title: "\uC774 \uB2EC \uADFC\uBB34 \uAE30\uB85D\uC774 \uC5C6\uC5B4\uC694." }, "\uCD1D \uC2DC\uAC04\uC774\uB098 \uC2DC\uC791\u00B7\uC885\uB8CC \uC2DC\uAC04\uC73C\uB85C \uAE30\uB85D\uD560 \uC218 \uC788\uC5B4\uC694."))))));
 }
+// 아르바이트 공제: 없음 / 원천징수 3.3% / 기타(직접 설정). 예전 기록은 근무처의 '3.3% 공제' 설정을 따라요
+const DEDUCT_OPTS = [['none', '없음'], ['withhold', '원천징수'], ['other', '기타']];
+function deductOf(w, data) {
+    const j = jobById(data, w.jobId) || {};
+    const mode = w.deduct || (j.deduct) || (j.withhold ? 'withhold' : 'none');
+    const rate = mode === 'withhold' ? 3.3 : mode === 'other' ? Math.max(0, Math.min(100, Number(w.deduct ? w.deductRate : j.deductRate) || 0)) : 0;
+    return { mode, rate };
+}
+const netPay = (pay, rate) => Math.round((pay || 0) * (1 - (rate || 0) / 100));
+const pokerProfit = (w) => (Number(w.prize) || 0) - (Number(w.buyin) || 0) - (Number(w.fee) || 0);
 function WorkSheet({ log, prefill, onClose }) {
     const { data, commit, toast } = useApp();
+    const h = React.createElement;
     const b = log || prefill || {};
     const bizSources = sourcesOf(data).filter((x) => x.kind === 'business');
     const [bizSrc, setBizSrc] = useState(b.sourceId || '');
     const types = workTypesOf(data);
     const jobs = jobsOf(data);
-    const orders = live(data.order).filter((o) => o.status !== 'cancel' || o.id === b.orderId).sort((a, c) => (c.date || '').localeCompare(a.date || '')).slice(0, 50);
+    const orders = b.orderId ? live(data.order).filter((o) => o.status !== 'cancel' || o.id === b.orderId).sort((a, c) => (c.date || '').localeCompare(a.date || '')).slice(0, 50) : [];
     const last = useMemo(() => live(data.worklog).sort((a, c) => (c.createdAt || 0) - (a.createdAt || 0))[0], []);
-    const [kind, setKind] = useState(b.kind || (!b.orderId && last && last.kind === 'job' && jobs.length ? 'job' : 'biz'));
+    const [kind, setKind] = useState(b.kind || (!b.orderId && last && (last.kind === 'poker' || (last.kind === 'job' && jobs.length)) ? last.kind : 'biz'));
     const [jobId, setJobId] = useState(b.jobId || (last && last.jobId && jobs.some((j) => j.id === last.jobId) ? last.jobId : jobs[0] ? jobs[0].id : 'new'));
     const curJob = jobById(data, jobId);
     const [wage, setWage] = useState(b.wage || (curJob && curJob.wage) || 0);
+    const d0 = b.kind === 'job' ? deductOf(b, data) : curJob ? deductOf({ jobId }, data) : { mode: 'none', rate: 0 };
+    const [deduct, setDeduct] = useState(d0.mode);
+    const [deductRate, setDeductRate] = useState(d0.mode === 'other' ? String(d0.rate) : '');
+    const [vatRelated, setVatRelated] = useState(b.kind === 'job' ? !!b.vatRelated : !!(curJob && curJob.vatRelated));
     const [newName, setNewName] = useState('');
     const [method, setMethod] = useState(b.method === 'range' || b.method === 'timer' ? 'range' : 'manual');
     const [date, setDate] = useState(b.date || today());
@@ -20169,24 +20298,49 @@ function WorkSheet({ log, prefill, onClose }) {
     const [brk, setBrk] = useState(b.breakMin || 0);
     const [hrs, setHrs] = useState(b.minutes ? Math.floor(b.minutes / 60) : '');
     const [mins, setMins] = useState(b.minutes ? b.minutes % 60 : '');
-    const [type, setType] = useState(b.type && b.kind !== 'job' ? b.type : last && last.kind !== 'job' && last.type ? last.type : types[0]);
+    const [type, setType] = useState(b.type && b.kind !== 'job' && b.kind !== 'poker' ? b.type : last && last.kind !== 'job' && last.kind !== 'poker' && last.type ? last.type : types[0]);
     const [orderId, setOrderId] = useState(b.orderId || '');
     const [memo, setMemo] = useState(b.memo || '');
+    // 포커
+    const [pokerMode, setPokerMode] = useState(b.pokerMode || (last && last.kind === 'poker' && last.pokerMode) || 'offline');
+    const [eventName, setEventName] = useState(b.event || '');
+    const [buyin, setBuyin] = useState(b.buyin || 0);
+    const [fee, setFee] = useState(b.fee || 0);
+    const [prize, setPrize] = useState(b.prize || 0);
+    // 포커 손익을 수입(이익)·지출(손실)에 자동 반영 — 별도로 수입을 입력하지 않아도 돼요
+    const [autoTx, setAutoTx] = useState(log && log.kind === 'poker' ? !!log.txId : true);
     const [err, setErr] = useState('');
     const minutes = method === 'range' ? rangeMinutes(start, end, brk) : (Number(hrs) || 0) * 60 + (Number(mins) || 0);
     const overnight = method === 'range' && start && end && toMin(end) <= toMin(start);
     const pay = kind === 'job' && minutes > 0 ? shiftPay(minutes, wage) : 0;
-    const pickJob = (id) => { setJobId(id); const j = jobById(data, id); if (j)
-        setWage(j.wage || 0); setErr(''); };
+    const rate = deduct === 'withhold' ? 3.3 : deduct === 'other' ? Math.max(0, Math.min(100, Number(deductRate) || 0)) : 0;
+    const net = netPay(pay, rate);
+    const pnl = (Number(prize) || 0) - (Number(buyin) || 0) - (Number(fee) || 0);
+    const pickJob = (id) => {
+        setJobId(id);
+        const j = jobById(data, id);
+        if (j) {
+            setWage(j.wage || 0);
+            const d = deductOf({ jobId: id }, data);
+            setDeduct(d.mode);
+            setDeductRate(d.mode === 'other' ? String(d.rate) : '');
+            setVatRelated(!!j.vatRelated);
+        }
+        setErr('');
+    };
     const save = () => {
         if (!date)
             return setErr('날짜를 입력해 주세요.');
         if (method === 'range' && (!start || !end))
             return setErr('시작·종료 시간을 입력해 주세요.');
         if (!(minutes > 0))
-            return setErr('근무시간이 0분보다 커야 해요.');
+            return setErr(kind === 'poker' ? '플레이 시간이 0분보다 커야 해요.' : '근무시간이 0분보다 커야 해요.');
         if (minutes > 24 * 60)
-            return setErr('하루 근무시간은 24시간을 넘을 수 없어요.');
+            return setErr('하루 기록은 24시간을 넘을 수 없어요.');
+        if (kind === 'poker' && !eventName.trim())
+            return setErr('이벤트명을 입력해 주세요.');
+        if (kind === 'job' && deduct === 'other' && !(Number(deductRate) >= 0 && Number(deductRate) <= 100 && deductRate !== ''))
+            return setErr('공제율을 0~100% 사이로 입력해 주세요.');
         const changes = [];
         let jid = jobId;
         if (kind === 'job') {
@@ -20198,88 +20352,140 @@ function WorkSheet({ log, prefill, onClose }) {
                 jid = newId();
                 const s0 = data.settings.settings || { id: 'settings' };
                 const wk = s0.work || {};
-                changes.push({ kind: 'settings', rec: { ...s0, id: 'settings', work: { ...wk, jobs: [...(wk.jobs || []), { id: jid, name: newName.trim(), wage, payCat: '부업·프리랜서', withhold: false }] } } });
+                changes.push({ kind: 'settings', rec: { ...s0, id: 'settings', work: { ...wk, jobs: [...(wk.jobs || []), { id: jid, name: newName.trim(), wage, payCat: '부업·프리랜서', withhold: deduct === 'withhold', deduct, deductRate: deduct === 'other' ? rate : null, vatRelated }] } } });
             }
             else if (!(wage > 0))
                 return setErr('시급을 입력해 주세요.');
         }
+        const isJob = kind === 'job', isPoker = kind === 'poker';
         const rec = {
             ...(log || {}), sourceId: kind === 'biz' ? bizSrc || null : null, id: log ? log.id : newId(), kind, date, method, start: method === 'range' ? start : '', end: method === 'range' ? end : '', breakMin: method === 'range' ? Number(brk) || 0 : 0, minutes,
-            type: kind === 'job' ? '아르바이트' : type, orderId: kind === 'job' ? '' : orderId, jobId: kind === 'job' ? jid : '', wage: kind === 'job' ? wage : null, pay: kind === 'job' ? shiftPay(minutes, wage) : null,
+            type: isJob ? '아르바이트' : isPoker ? '포커' : type, orderId: kind === 'biz' ? orderId : '', jobId: isJob ? jid : '', wage: isJob ? wage : null, pay: isJob ? shiftPay(minutes, wage) : null,
+            deduct: isJob ? deduct : null, deductRate: isJob && deduct === 'other' ? rate : null, vatRelated: isJob ? vatRelated : null, netPay: isJob ? net : null,
+            pokerMode: isPoker ? pokerMode : null, event: isPoker ? eventName.trim() : null, buyin: isPoker ? Number(buyin) || 0 : null, fee: isPoker ? Number(fee) || 0 : null, prize: isPoker ? Number(prize) || 0 : null, profit: isPoker ? pnl : null,
             memo: memo.trim(), createdAt: log ? log.createdAt || Date.now() : Date.now(), deleted: false,
         };
+        if (isPoker || (log && log.txId)) {
+            const old = log && log.txId && data.tx[log.txId] && !data.tx[log.txId].deleted ? data.tx[log.txId] : null;
+            if (isPoker && autoTx && pnl !== 0) {
+                const win = pnl > 0, tid = old ? old.id : newId();
+                rec.txId = tid;
+                changes.push({ kind: 'tx', rec: {
+                            ...(old || {}), id: tid, type: win ? 'income' : 'expense', scope: 'personal', date, amount: Math.abs(pnl),
+                            category: win ? '기타 수입' : '취미', sub: win ? '포커 상금' : '포커', group: win ? null : '여가', incType: win ? 'other' : null,
+                            memo: eventName.trim(), source: '', sourceId: null, pokerLogId: rec.id,
+                            createdAt: old ? old.createdAt || Date.now() : Date.now(), deleted: false,
+                        } });
+            }
+            else {
+                rec.txId = null;
+                if (old)
+                    changes.push({ kind: 'tx', rec: { ...old, deleted: true } });
+            }
+        }
         changes.push({ kind: 'worklog', rec });
         commit(changes);
-        toast(log ? '수정했어요' : kind === 'job' ? `${fmtMin(minutes)} · 예상 급여 ${won(rec.pay)}원 기록했어요` : `${type} ${fmtMin(minutes)} 기록했어요`);
+        toast(log ? '수정했어요' : isJob ? `${fmtMin(minutes)} · 예상 ${rate ? '실수령' : '급여'} ${won(net)}원 기록했어요` : isPoker ? `${eventName.trim()} ${pnl >= 0 ? '+' : '−'}${won(Math.abs(pnl))}원 기록했어요` : `${type} ${fmtMin(minutes)} 기록했어요`);
         onClose();
     };
-    const remove = async () => { if (!(await ask({ title: '이 근무 기록을 삭제할까요?', confirmLabel: '삭제', danger: true })))
-        return; commit([{ kind: 'worklog', rec: { ...log, deleted: true } }]); toast('삭제했어요'); onClose(); };
-    return (React.createElement(Sheet, { title: log ? '근무 기록 수정' : '근무 기록', onClose: onClose, footer: React.createElement(React.Fragment, null,
-            log && React.createElement("button", { className: "icon-btn", onClick: remove, "aria-label": "\uC0AD\uC81C" },
-                React.createElement(Icon, { n: "trash" })),
-            React.createElement("button", { className: "btn", onClick: onClose }, "\uCDE8\uC18C"),
-            React.createElement("button", { className: "btn primary grow", onClick: save }, "\uC800\uC7A5")) },
-        React.createElement("div", { className: "form" },
-            React.createElement(Seg, { value: kind, onChange: (v) => { setKind(v); setErr(''); }, options: [['biz', '사업'], ['job', '아르바이트']] }),
-            kind === 'job' && (React.createElement("div", { className: "biz-box" },
-                React.createElement(Field, { label: "\uADFC\uBB34\uCC98" },
-                    React.createElement("div", { className: "chips" },
-                        jobs.map((j) => React.createElement("button", { key: j.id, type: "button", className: cx('chip', jobId === j.id && 'on'), onClick: () => pickJob(j.id) }, j.name)),
-                        React.createElement("button", { type: "button", className: cx('chip', jobId === 'new' && 'on'), onClick: () => { setJobId('new'); setWage(0); } },
-                            React.createElement(Icon, { n: "plus", s: 13 }),
-                            "\uADFC\uBB34\uCC98 \uCD94\uAC00"))),
-                jobId === 'new' && React.createElement(Field, { label: "\uADFC\uBB34\uCC98 \uC774\uB984" },
-                    React.createElement("input", { className: "input", value: newName, onChange: (e) => setNewName(e.target.value), placeholder: "\uC608: OO\uCE74\uD398" })),
-                React.createElement(Field, { label: "\uC2DC\uAE09", hint: jobId !== 'new' && curJob && wage !== curJob.wage ? `이번 기록에만 적용돼요 (근무처 기본 시급 ${won(curJob.wage)}원)` : jobId === 'new' ? '다음부터는 자동으로 채워져요.' : null },
-                    React.createElement(AmountInput, { value: wage, onChange: setWage })))),
-            React.createElement(Field, { label: "\uB0A0\uC9DC" },
-                React.createElement("input", { className: "input", type: "date", value: date, onChange: (e) => setDate(e.target.value) })),
-            React.createElement(Seg, { small: true, value: method, onChange: (v) => { setMethod(v); setErr(''); }, options: [['manual', '총 시간'], ['range', '시작·종료 시간']] }),
-            method === 'manual' ? (React.createElement(React.Fragment, null,
-                React.createElement("div", { className: "chips" }, [1, 2, 3, 4, 5, 6, 8].map((h) => React.createElement("button", { key: h, type: "button", className: cx('chip', Number(hrs) === h && !Number(mins) && 'on'), onClick: () => { setHrs(h); setMins(0); } },
-                    h,
-                    "\uC2DC\uAC04"))),
-                React.createElement("div", { className: "form-2" },
-                    React.createElement(Field, { label: "\uC2DC\uAC04" },
-                        React.createElement("input", { className: "input num", type: "number", min: "0", max: "24", value: hrs, onChange: (e) => setHrs(e.target.value), placeholder: "0" })),
-                    React.createElement(Field, { label: "\uBD84" },
-                        React.createElement("input", { className: "input num", type: "number", min: "0", max: "59", step: "5", value: mins, onChange: (e) => setMins(e.target.value), placeholder: "0" }))))) : (React.createElement(React.Fragment, null,
-                React.createElement("div", { className: "form-2" },
-                    React.createElement(Field, { label: "\uC2DC\uC791" },
-                        React.createElement("input", { className: "input", type: "time", value: start, onChange: (e) => setStart(e.target.value) })),
-                    React.createElement(Field, { label: "\uC885\uB8CC", hint: overnight ? '다음 날 종료로 계산해요' : null },
-                        React.createElement("input", { className: "input", type: "time", value: end, onChange: (e) => setEnd(e.target.value) }))),
-                React.createElement(Field, { label: "\uD734\uC2DD \uC2DC\uAC04 (\uBD84)" },
-                    React.createElement("div", { className: "row-gap wrap" },
-                        React.createElement("input", { className: "input num short", type: "number", min: "0", value: brk, onChange: (e) => setBrk(e.target.value) }),
-                        [0, 30, 60].map((m) => React.createElement("button", { key: m, type: "button", className: cx('chip', Number(brk) === m && 'on'), onClick: () => setBrk(m) },
-                            m,
-                            "\uBD84")))))),
-            React.createElement("p", { className: cx('work-total', !(minutes > 0) && 'muted') },
-                "\uADFC\uBB34\uC2DC\uAC04 ",
-                React.createElement("b", { className: "num" }, minutes > 0 ? fmtMin(minutes) : '—'),
-                kind === 'job' && minutes > 0 && wage > 0 && React.createElement("span", { className: "pay-calc num" },
-                    " \u00D7 ",
-                    won(wage),
-                    "\uC6D0 = ",
-                    React.createElement("b", null,
-                        won(pay),
-                        "\uC6D0"))),
-            kind === 'biz' && (React.createElement(React.Fragment, null,
-                bizSources.length > 1 && React.createElement(Field, { label: "\uC5B4\uB290 \uC0AC\uC5C5" },
-                    React.createElement("div", { className: "chips" }, bizSources.map((x) => React.createElement("button", { key: x.id, type: "button", className: cx('chip', (bizSrc || bizSourceId(data)) === x.id && 'on'), onClick: () => setBizSrc(x.id) }, x.name)))),
-                React.createElement(Field, { label: "\uC5C5\uBB34" },
-                    React.createElement("div", { className: "chips" }, types.map((t) => React.createElement("button", { key: t, type: "button", className: cx('chip', type === t && 'on'), onClick: () => setType(t) }, t)))),
-                orders.length > 0 && (React.createElement(Field, { label: "\uC8FC\uBB38 \uC5F0\uACB0 (\uC120\uD0DD)" },
-                    React.createElement("select", { className: "input", value: orderId, onChange: (e) => setOrderId(e.target.value) },
-                        React.createElement("option", { value: "" }, "\uC5F0\uACB0 \uC548 \uD568"),
-                        orders.map((o) => React.createElement("option", { key: o.id, value: o.id },
-                            o.name,
-                            o.customer ? ` · ${o.customer}` : ''))))))),
-            React.createElement(Field, { label: "\uBA54\uBAA8 (\uC120\uD0DD)" },
-                React.createElement("input", { className: "input", value: memo, onChange: (e) => setMemo(e.target.value), placeholder: kind === 'job' ? '예: 마감' : '예: 청첩장 시안 3종' })),
-            err && React.createElement("p", { className: "err" }, err))));
+    const remove = async () => {
+        if (!(await ask({ title: '이 기록을 삭제할까요?', confirmLabel: '삭제', danger: true })))
+            return;
+        const linked = log.txId && data.tx[log.txId] && !data.tx[log.txId].deleted ? data.tx[log.txId] : null;
+        commit([{ kind: 'worklog', rec: { ...log, deleted: true } }, ...(linked ? [{ kind: 'tx', rec: { ...linked, deleted: true } }] : [])]);
+        toast('삭제했어요');
+        onClose();
+    };
+    const title = kind === 'poker' ? (log ? '포커 기록 수정' : '포커 활동 기록') : log ? '근무 기록 수정' : '근무 기록';
+    return (h(Sheet, { title, onClose, footer: h(React.Fragment, null,
+            log && h("button", { className: "icon-btn", onClick: remove, "aria-label": "삭제" }, h(Icon, { n: "trash" })),
+            h("button", { className: "btn", onClick: onClose }, "취소"),
+            h("button", { className: "btn primary grow", onClick: save }, "저장")) },
+        h("div", { className: "form work-form" },
+            h(Seg, { full: true, value: kind, onChange: (v) => { setKind(v); setErr(''); }, options: [['biz', '사업'], ['job', '아르바이트'], ['poker', '포커']] }),
+            kind === 'job' && (h("div", { className: "biz-box" },
+                h(Field, { label: "근무처" },
+                    h("div", { className: "chips" },
+                        jobs.map((j) => h("button", { key: j.id, type: "button", className: cx('chip', jobId === j.id && 'on'), onClick: () => pickJob(j.id) }, j.name)),
+                        h("button", { type: "button", className: cx('chip', jobId === 'new' && 'on'), onClick: () => { setJobId('new'); setWage(0); } }, h(Icon, { n: "plus", s: 13 }), "근무처 추가"))),
+                jobId === 'new' && h(Field, { label: "근무처 이름" },
+                    h("input", { className: "input", value: newName, onChange: (e) => setNewName(e.target.value), placeholder: "예: 러너펍" })),
+                h(Field, { label: "시급", hint: jobId !== 'new' && curJob && wage !== curJob.wage ? `이번 기록에만 적용돼요 (근무처 기본 시급 ${won(curJob.wage)}원)` : jobId === 'new' ? '다음부터는 자동으로 채워져요.' : null },
+                    h(AmountInput, { value: wage, onChange: setWage })),
+                h(Field, { label: "공제 방식" },
+                    h(Seg, { small: true, full: true, value: deduct, onChange: (v) => { setDeduct(v); setErr(''); }, options: DEDUCT_OPTS })),
+                deduct === 'withhold' && h("p", { className: "small muted" }, "사업소득 원천징수 3.3% (소득세 3% + 지방소득세 0.3%)를 빼고 받아요."),
+                deduct === 'other' && h(Field, { label: "공제율 (%)", hint: "4대보험 등 실제로 빠지는 비율을 넣어 주세요." },
+                    h("input", { className: "input num", type: "number", inputMode: "decimal", min: "0", max: "100", step: "0.1", value: deductRate, onChange: (e) => setDeductRate(e.target.value), placeholder: "예: 9.4" })),
+                h("label", { className: "check" },
+                    h("input", { type: "checkbox", checked: vatRelated, onChange: (e) => setVatRelated(e.target.checked) }),
+                    "부가세 관련 수입이에요 (원천징수와 별도로 표시)"))),
+            kind === 'poker' && (h("div", { className: "biz-box" },
+                h(Seg, { small: true, full: true, value: pokerMode, onChange: setPokerMode, options: [['offline', '오프라인'], ['online', '온라인']] }),
+                h(Field, { label: "이벤트명" },
+                    h("input", { className: "input", value: eventName, onChange: (e) => setEventName(e.target.value), placeholder: "예: 주말 GTD 토너먼트", maxLength: 40 })),
+                h("div", { className: "form-2" },
+                    h(Field, { label: "바이인" }, h(AmountInput, { value: buyin, onChange: setBuyin })),
+                    h(Field, { label: "추가 참가비 (리바이·애드온)" }, h(AmountInput, { value: fee, onChange: setFee }))),
+                h(Field, { label: "시상금" }, h(AmountInput, { value: prize, onChange: setPrize })),
+                h("p", { className: cx('work-total', pnl < 0 && 'neg-t') }, "손익", h("b", { className: cx('num', pnl < 0 && 'neg') }, `${pnl > 0 ? '+' : pnl < 0 ? '−' : ''}${won(Math.abs(pnl))}원`)),
+                h("label", { className: "check" },
+                    h("input", { type: "checkbox", checked: autoTx, onChange: (e) => setAutoTx(e.target.checked) }),
+                    "손익을 수입·지출에 자동 반영"),
+                h("p", { className: "small muted" }, autoTx ? (pnl > 0 ? `저장하면 수입(기타 수입 › 포커 상금) ${won(pnl)}원이 함께 기록돼요. 수입에 따로 입력하지 마세요.` : pnl < 0 ? `저장하면 지출(여가 › 포커) ${won(-pnl)}원이 함께 기록돼요.` : '손익이 0원이라 수입·지출에는 기록하지 않아요.') : '활동 기록에만 남기고 수입·지출에는 넣지 않아요. 급여와는 따로 집계해요.'))),
+            h(Field, { label: "날짜" },
+                h("input", { className: "input", type: "date", value: date, onChange: (e) => setDate(e.target.value) })),
+            h(Seg, { small: true, full: true, value: method, onChange: (v) => { setMethod(v); setErr(''); }, options: [['manual', '총 시간'], ['range', '시작·종료 시간']] }),
+            method === 'manual' ? (h(React.Fragment, null,
+                h("div", { className: "chips hour-chips" }, [1, 2, 3, 4, 5, 6, 8].map((hh) => h("button", { key: hh, type: "button", className: cx('chip', Number(hrs) === hh && !Number(mins) && 'on'), onClick: () => { setHrs(hh); setMins(0); } }, hh, "시간"))),
+                h("div", { className: "form-2" },
+                    h(Field, { label: "시간" },
+                        h("input", { className: "input num", type: "number", inputMode: "numeric", min: "0", max: "24", value: hrs, onChange: (e) => setHrs(e.target.value), placeholder: "0" })),
+                    h(Field, { label: "분" },
+                        h("input", { className: "input num", type: "number", inputMode: "numeric", min: "0", max: "59", step: "5", value: mins, onChange: (e) => setMins(e.target.value), placeholder: "0" }))))) : (h(React.Fragment, null,
+                h("div", { className: "form-2" },
+                    h(Field, { label: "시작" },
+                        h("input", { className: "input", type: "time", value: start, onChange: (e) => setStart(e.target.value) })),
+                    h(Field, { label: "종료", hint: overnight ? '다음 날 종료로 계산해요' : null },
+                        h("input", { className: "input", type: "time", value: end, onChange: (e) => setEnd(e.target.value) }))),
+                h(Field, { label: "휴식 시간 (분)" },
+                    h("div", { className: "brk-row" },
+                        h("input", { className: "input num", type: "number", inputMode: "numeric", min: "0", value: brk, onChange: (e) => setBrk(e.target.value) }),
+                        [0, 30, 60].map((m) => h("button", { key: m, type: "button", className: cx('chip', Number(brk) === m && 'on'), onClick: () => setBrk(m) }, m, "분")))))),
+            h("div", { className: cx('work-sum', !(minutes > 0) && 'muted') },
+                h("div", null, h("span", null, kind === 'poker' ? '플레이 시간' : '근무시간'), h("b", { className: "num" }, minutes > 0 ? fmtMin(minutes) : '—')),
+                kind === 'job' && minutes > 0 && wage > 0 && h(React.Fragment, null,
+                    h("div", null, h("span", null, "예상 급여 (시급 ", won(wage), "원)"), h("b", { className: "num" }, won(pay), "원")),
+                    rate > 0 && h("div", null, h("span", null, "공제 ", rate, "%"), h("b", { className: "num" }, "−", won(pay - net), "원")),
+                    h("div", { className: "tot" }, h("span", null, "예상 실수령"), h("b", { className: "num" }, won(net), "원")))),
+            kind === 'job' && h("p", { className: "small muted" }, "예상 금액은 수입에 더하지 않아요. 실제로 입금되면 ‘급여 입금 기록’으로 남겨야 수입에 한 번만 잡혀요."),
+            kind === 'biz' && (h(React.Fragment, null,
+                bizSources.length > 1 && h(Field, { label: "어느 사업" },
+                    h("div", { className: "chips" }, bizSources.map((x) => h("button", { key: x.id, type: "button", className: cx('chip', (bizSrc || bizSourceId(data)) === x.id && 'on'), onClick: () => setBizSrc(x.id) }, x.name)))),
+                h(Field, { label: "업무" },
+                    h("div", { className: "chips" }, types.map((t) => h("button", { key: t, type: "button", className: cx('chip', type === t && 'on'), onClick: () => setType(t) }, t)))),
+                orders.length > 0 && (h(Field, { label: "주문 연결" },
+                    h("select", { className: "input", value: orderId, onChange: (e) => setOrderId(e.target.value) },
+                        h("option", { value: "" }, "연결 안 함"),
+                        orders.map((o) => h("option", { key: o.id, value: o.id }, o.name, o.customer ? ` · ${o.customer}` : ''))))))),
+            h(Field, { label: "메모 (선택)" },
+                h("input", { className: "input", value: memo, onChange: (e) => setMemo(e.target.value), placeholder: kind === 'job' ? '예: 마감' : kind === 'poker' ? '예: 파이널 테이블 진출' : '예: 청첩장 시안 3종' })),
+            err && h("p", { className: "err", role: "alert" }, err))));
+}
+// 사업·아르바이트·포커 활동 시간 (기존 근무 기록을 그대로 합산)
+const ACT_COLORS = { biz: 'var(--sage)', job: 'var(--c-var)', poker: 'var(--c-fixed)' };
+function ActivityTime() {
+    const { month, statsOf } = useApp();
+    const W = statsOf(month).work;
+    const all = [['biz', '사업', W.minutes], ['job', '아르바이트', W.jobMinutes], ['poker', '포커', W.pokerMinutes]];
+    const items = all.filter(([, , v]) => v > 0).map(([k, l, v]) => ({ label: l, value: v, color: ACT_COLORS[k] }));
+    const total = sum(all, (x) => x[2]);
+    return (React.createElement("section", { className: "card" },
+        React.createElement("div", { className: "card-h" },
+            React.createElement("h3", null, mShort(month), " 활동 시간"),
+            React.createElement("span", { className: "muted small num" }, total ? fmtMin(total) : '')),
+        items.length ? React.createElement(Donut, { items, fmt: fmtMin, center: fmtMin(total).replace(/ ?\d+분$/, '') || fmtMin(total) })
+            : React.createElement("p", { className: "muted small" }, "이 달 근무·포커 기록이 없어요.")));
 }
 function JobsCard() {
     const { data, month, statsOf, openSheet } = useApp();
@@ -20302,8 +20508,8 @@ function JobsCard() {
             React.createElement("button", { className: "link", onClick: () => openSheet('jobs') }, "\uADFC\uBB34\uCC98 \uAD00\uB9AC")),
         React.createElement("ul", { className: "rows" }, ids.map((id) => {
             const j = jobById(data, id) || { name: '삭제된 근무처', wage: 0 };
-            const s = byJob[id] || { minutes: 0, pay: 0, days: 0 };
-            const net = j.withhold ? Math.round(s.pay * (1 - 0.033)) : s.pay;
+            const s = byJob[id] || { minutes: 0, pay: 0, net: 0, days: 0 };
+            const net = s.net != null ? s.net : s.pay;
             const got = st.txs.filter((t) => t.type === 'income' && t.jobPay && t.jobPay.jobId === id && t.jobPay.month === month);
             const gotSum = sum(got, (t) => t.amount);
             return (React.createElement("li", { key: id, className: "job" },
@@ -20321,7 +20527,7 @@ function JobsCard() {
                         React.createElement("p", { className: "num big" },
                             won(net),
                             "\uC6D0"),
-                        React.createElement("p", { className: "row-s" }, j.withhold ? `3.3% 공제 후 (공제 전 ${won(s.pay)})` : '예상 급여'))),
+                        React.createElement("p", { className: "row-s" }, s.pay !== net ? `예상 실수령 · 공제 전 ${won(s.pay)}` : '예상 급여'))),
                 s.minutes > 0 && (got.length ? (React.createElement("button", { className: "note job-got", onClick: () => openSheet('entry', { tx: got[0] }) },
                     "\uAE09\uC5EC \uC785\uAE08 ",
                     won(gotSum),
@@ -20694,18 +20900,23 @@ function TaxPanel() {
     return (React.createElement("div", { className: "stack" },
         React.createElement("section", { className: "card profile-line" },
             React.createElement("div", { className: "row-between" },
-                React.createElement("div", null,
+                React.createElement("div", { className: "pl-main" },
                     React.createElement("p", { className: "row-t" },
                         TAX_TYPES.find((x) => x[0] === profile.taxType)[1],
                         profile.industry ? ` · ${profile.industry}` : ''),
-                    React.createElement("p", { className: "row-s" },
-                        (profile.history || []).filter((h) => h.date).map((h) => `${h.date.replace(/-/g, '.')} ${TAX_TYPES.find((x) => x[0] === (h.from || (h.to === 'simple' ? 'general' : 'simple')))[1]} → ${TAX_TYPES.find((x) => x[0] === h.to)[1]}`).join(' · '),
-                        (profile.history || []).some((h) => h.date) ? ' · ' : '',
+                    React.createElement("p", { className: "row-s wrap" },
                         profile.taxYear || y,
                         "\uB144 \uAE30\uC900",
                         profile.sincere === 'yes' ? ' · 성실신고확인대상' : profile.sincere === 'unknown' ? ' · 성실신고 대상 여부 확인 필요' : '',
                         profile.hasAgent ? ' · 세무대리인 이용' : '')),
-                React.createElement("button", { className: "link", onClick: () => openSheet('taxProfile') }, "\uC0AC\uC5C5\uC790 \uC124\uC815"))),
+                React.createElement("button", { className: "link", onClick: () => openSheet('taxProfile') }, "\uC0AC\uC5C5\uC790 \uC124\uC815")),
+            (profile.history || []).some((h) => h.date) && React.createElement("ol", { className: "tax-hist", "aria-label": "과세 유형 변경 이력" }, (profile.history || []).filter((h) => h.date).sort((a, c) => a.date.localeCompare(c.date)).map((h, i) => {
+                const from = (TAX_TYPES.find((x) => x[0] === (h.from || (h.to === 'simple' ? 'general' : 'simple'))) || [, ''])[1];
+                const to = (TAX_TYPES.find((x) => x[0] === h.to) || [, ''])[1];
+                return React.createElement("li", { key: i },
+                    React.createElement("span", { className: "num" }, h.date.replace(/-/g, '.')),
+                    React.createElement("b", null, from, " → ", to));
+            }))),
         React.createElement("section", null,
             React.createElement("h3", { className: "sec-t" }, "\uC608\uC0C1 \uC138\uAE08"),
             React.createElement("div", { className: "grid-cards two" },
@@ -20939,15 +21150,15 @@ function TaxProfileSheet({ onClose }) {
                     React.createElement("input", { className: "input num", type: "number", min: "1", value: p.sites, onChange: set('sites') }))),
             React.createElement(Field, { label: "\uACFC\uC138 \uC720\uD615 \uBCC0\uACBD \uC774\uB825 (\uC120\uD0DD)" },
                 React.createElement("div", { className: "stack-sm", style: { alignItems: 'stretch' } },
-                    p.history.map((h, i) => (React.createElement("div", { key: i, className: "row-gap wrap" },
-                        React.createElement("input", { className: "input", type: "date", style: { width: 160 }, value: h.date, onChange: (e) => setP((x) => ({ ...x, history: x.history.map((o, n) => (n === i ? { ...o, date: e.target.value } : o)) })) }),
-                        React.createElement("select", { className: "input", style: { width: 'auto' }, value: h.from || (h.to === 'simple' ? 'general' : 'simple'), onChange: (e) => setP((x) => ({ ...x, history: x.history.map((o, n) => (n === i ? { ...o, from: e.target.value } : o)) })) }, TAX_TYPES.map(([v, l]) => React.createElement("option", { key: v, value: v },
+                    p.history.map((h, i) => (React.createElement("div", { key: i, className: "hist-row" },
+                        React.createElement("input", { className: "input hist-date", type: "date", "aria-label": "변경일", value: h.date, onChange: (e) => setP((x) => ({ ...x, history: x.history.map((o, n) => (n === i ? { ...o, date: e.target.value } : o)) })) }),
+                        React.createElement("select", { className: "input", "aria-label": "변경 전", value: h.from || (h.to === 'simple' ? 'general' : 'simple'), onChange: (e) => setP((x) => ({ ...x, history: x.history.map((o, n) => (n === i ? { ...o, from: e.target.value } : o)) })) }, TAX_TYPES.map(([v, l]) => React.createElement("option", { key: v, value: v },
                             l,
                             "\uC5D0\uC11C"))),
-                        React.createElement("select", { className: "input", style: { width: 'auto' }, value: h.to, onChange: (e) => setP((x) => ({ ...x, history: x.history.map((o, n) => (n === i ? { ...o, to: e.target.value } : o)) })) }, TAX_TYPES.map(([v, l]) => React.createElement("option", { key: v, value: v },
+                        React.createElement("select", { className: "input", "aria-label": "변경 후", value: h.to, onChange: (e) => setP((x) => ({ ...x, history: x.history.map((o, n) => (n === i ? { ...o, to: e.target.value } : o)) })) }, TAX_TYPES.map(([v, l]) => React.createElement("option", { key: v, value: v },
                             l,
                             "\uB85C \uBCC0\uACBD"))),
-                        React.createElement("button", { className: "icon-btn", "aria-label": "\uC0AD\uC81C", onClick: () => setP((x) => ({ ...x, history: x.history.filter((_, n) => n !== i) })) },
+                        React.createElement("button", { type: "button", className: "icon-btn hist-del", "aria-label": "\uC0AD\uC81C", onClick: (e) => { e.preventDefault(); setP((x) => ({ ...x, history: x.history.filter((_, n) => n !== i) })); } },
                             React.createElement(Icon, { n: "x", s: 16 }))))),
                     React.createElement("button", { className: "btn small", type: "button", onClick: () => setP((x) => ({ ...x, history: [...x.history, { date: `${today().slice(0, 4)}-07-01`, from: 'general', to: 'simple' }] })) }, "\uBCC0\uACBD \uC774\uB825 \uCD94\uAC00"))),
             React.createElement(Field, { label: "\uC0AC\uC5C5\uC18C\uB4DD \uB9D0\uACE0 \uB2E4\uB978 \uC885\uD569\uC18C\uB4DD" },
@@ -21901,7 +22112,7 @@ function essentialAvg(statsOf, month, firstMonth) {
 function sourceEfficiency(data, statsOf, m) {
     const tot = sourceTotals(data, statsOf, m);
     const mins = {}, expected = {};
-    statsOf(m).worklogs.forEach((w) => { const id = workSourceOf(w, data); mins[id] = (mins[id] || 0) + (w.minutes || 0); if (w.kind === 'job')
+    statsOf(m).worklogs.filter((w) => w.kind !== 'poker').forEach((w) => { const id = workSourceOf(w, data); mins[id] = (mins[id] || 0) + (w.minutes || 0); if (w.kind === 'job')
         expected[id] = (expected[id] || 0) + (w.pay || 0); });
     const ids = [...new Set([...Object.keys(tot).filter((id) => tot[id].earned || tot[id].sales), ...Object.keys(mins)])];
     return ids.map((id) => {
@@ -23171,36 +23382,100 @@ function InvestFlowSheet({ accId, mode, onClose }) {
                 React.createElement("p", { className: "small muted" }, "\uBC1B\uC740 \uAE08\uC561 \uC911 \uC2E4\uD604\uC190\uC775\uC744 \uBE80 \uB098\uBA38\uC9C0\uB294 \uC6D0\uAE08\uC774 \uB3CC\uC544\uC628 \uAC83\uC73C\uB85C \uACC4\uC0B0\uD574\uC694. \uB9E4\uB3C4\uB294 \uC18C\uBE44 \uC9C0\uCD9C\uC774 \uC544\uB2C8\uB77C \uC790\uC0B0 \uC774\uB3D9\uC774\uC5D0\uC694."))),
             mode === 'buy' && React.createElement("p", { className: "small muted" }, "\uD22C\uC790 \uB0A9\uC785\uC740 \uC18C\uBE44 \uC9C0\uCD9C\uC774 \uC544\uB2C8\uB77C \u2018\uC800\uCD95\u00B7\uD22C\uC790\u2019\uB85C \uC9D1\uACC4\uB3FC\uC694."))));
 }
+/* ───────── 대출(부채): 일반 계좌와 분리된 전용 입력 ─────────
+   저장은 기존처럼 kind 'loan' 계좌로 해요(남은 원금 = 음수 잔액) — 순자산·부채 비율 계산과 예전 대출 기록이 그대로 이어져요. */
+const LOAN_TYPES = ['학자금 대출', '신용대출', '전세자금 대출', '주택담보대출', '사업자 대출', '자동차 대출', '기타 대출'];
+const REPAY_METHODS = [['equal_pi', '원리금균등'], ['equal_p', '원금균등'], ['bullet', '만기일시'], ['other', '기타']];
+const repayLabel = (v) => (REPAY_METHODS.find((x) => x[0] === v) || [, ''])[1];
+function LoanSheet({ acc, onClose }) {
+    const { commit, toast, data } = useApp();
+    const h = React.createElement;
+    const cur = acc ? accountValuesAt(data, today())[acc.id] : null;
+    const [f, setF] = useState(() => ({
+        name: acc ? acc.name : '', loanType: (acc && acc.loanType) || '신용대출', lender: (acc && acc.lender) || '',
+        principal: (acc && acc.principal) || (acc ? Math.abs(acc.initial || 0) : 0), remaining: acc ? Math.abs(acc.initial || 0) : 0,
+        rate: acc && acc.rate != null ? String(acc.rate) : '', grace: acc && acc.graceMonths != null ? String(acc.graceMonths) : '', term: acc && acc.termMonths != null ? String(acc.termMonths) : '',
+        repay: (acc && acc.repayMethod) || 'equal_pi', memo: (acc && acc.memo) || '',
+    }));
+    const [err, setErr] = useState('');
+    const set = (k) => (v) => { setF((x) => ({ ...x, [k]: v && v.target ? v.target.value : v })); setErr(''); };
+    const num = (v) => (v === '' || v == null ? null : Number(v));
+    const save = () => {
+        const name = f.name.trim() || `${f.lender.trim() ? f.lender.trim() + ' ' : ''}${f.loanType}`;
+        if (!(f.remaining > 0) && !acc)
+            return setErr('남은 원금을 입력해 주세요.');
+        if (f.principal && f.remaining > f.principal)
+            return setErr('남은 원금이 최초 대출금보다 클 수 없어요.');
+        const r = num(f.rate);
+        if (r != null && !(r >= 0 && r <= 100))
+            return setErr('연이율은 0~100% 사이로 입력해 주세요.');
+        commit([{ kind: 'account', rec: {
+                    ...(acc || {}), id: acc ? acc.id : newId(), kind: 'loan', name, loanType: f.loanType, lender: f.lender.trim(),
+                    principal: Number(f.principal) || 0, initial: -(Number(f.remaining) || 0), rate: r, graceMonths: num(f.grace), termMonths: num(f.term), repayMethod: f.repay,
+                    scope: f.loanType === '사업자 대출' ? 'business' : (acc && acc.scope) || 'personal', memo: f.memo.trim(), deleted: false,
+                } }]);
+        toast(acc ? '대출 정보를 수정했어요' : '대출을 추가했어요');
+        onClose();
+    };
+    const del = async () => {
+        const used = live(data.tx).some((t) => t.accountId === acc.id || t.toAccountId === acc.id);
+        if (!(await ask({ title: '이 대출을 삭제할까요?', body: used ? '이 대출로 기록한 상환 이체가 있어요. 삭제해도 거래는 남지만 대출 연결은 사라져요.' : undefined, confirmLabel: '대출 삭제', danger: true })))
+            return;
+        commit([{ kind: 'account', rec: { ...acc, deleted: true } }]);
+        onClose();
+    };
+    return (h(Sheet, { title: acc ? '대출 수정' : '대출 추가', onClose, footer: h(React.Fragment, null,
+            acc && h("button", { className: "icon-btn", onClick: del, "aria-label": "삭제" }, h(Icon, { n: "trash" })),
+            h("button", { className: "btn", onClick: onClose }, "취소"),
+            h("button", { className: "btn primary grow", onClick: save }, "저장")) },
+        h("div", { className: "form" },
+            h(Field, { label: "대출 종류" },
+                h("div", { className: "cat-grid" }, LOAN_TYPES.map((t) => h("button", { key: t, type: "button", className: cx('chip', f.loanType === t && 'on'), onClick: () => set('loanType')(t) }, t)))),
+            h("div", { className: "form-2" },
+                h(Field, { label: "대출명" }, h("input", { className: "input", value: f.name, onChange: set('name'), placeholder: "예: 학자금 1차" })),
+                h(Field, { label: "금융기관" }, h("input", { className: "input", value: f.lender, onChange: set('lender'), placeholder: "예: 한국장학재단" }))),
+            h("div", { className: "form-2" },
+                h(Field, { label: "최초 대출금" }, h(AmountInput, { value: f.principal, onChange: set('principal') })),
+                h(Field, { label: acc ? '등록 시점 남은 원금' : '남은 원금' }, h(AmountInput, { value: f.remaining, onChange: set('remaining') }))),
+            acc && cur != null && h("p", { className: "small muted num" }, "상환 이체를 반영한 현재 남은 원금 ", won(Math.max(0, -cur)), "원"),
+            h("div", { className: "form-3" },
+                h(Field, { label: "연이율 (%)" }, h("input", { className: "input num", type: "number", inputMode: "decimal", step: "0.01", min: "0", value: f.rate, onChange: set('rate'), placeholder: "예: 4.5" })),
+                h(Field, { label: "거치 (개월)" }, h("input", { className: "input num", type: "number", inputMode: "numeric", min: "0", value: f.grace, onChange: set('grace'), placeholder: "0" })),
+                h(Field, { label: "상환 (개월)" }, h("input", { className: "input num", type: "number", inputMode: "numeric", min: "0", value: f.term, onChange: set('term'), placeholder: "예: 60" }))),
+            h(Field, { label: "상환 방식" },
+                h(Seg, { small: true, full: true, value: f.repay, onChange: set('repay'), options: REPAY_METHODS })),
+            h(Field, { label: "메모 (선택)" }, h("input", { className: "input", value: f.memo, onChange: set('memo') })),
+            h("p", { className: "small muted" }, "부채는 은행 계좌와 따로 관리하고 순자산에서 빼요. 원금을 갚을 때 ‘이체 › 계좌 이체’로 이 대출에 보내면 남은 원금이 줄어요."),
+            err && h("p", { className: "err", role: "alert" }, err))));
+}
 function DebtPanel() {
     const { data, accounts, statsOf, firstMonth, openSheet } = useApp();
+    const h = React.createElement;
     const W = wealthMetrics(data, statsOf, firstMonth);
-    const list = accounts.filter((a) => a.kind === 'loan' || a.kind === 'card');
+    const loans = accounts.filter((a) => a.kind === 'loan');
+    const cards = accounts.filter((a) => a.kind === 'card');
     const repayRules = occurrences(data, thisMonth()).filter((o) => o.rule.category === '대출 상환');
-    return (React.createElement("div", { className: "stack" },
-        React.createElement("section", { className: "card" },
-            React.createElement("div", { className: "card-h" },
-                React.createElement("h3", null, "\uBD80\uCC44"),
-                React.createElement("button", { className: "link", onClick: () => openSheet('account', { prefill: { kind: 'loan' } }) }, "\uB300\uCD9C \uCD94\uAC00")),
-            React.createElement("p", { className: "stat-v num" },
-                won(W.debt),
-                React.createElement("small", null, "\uC6D0")),
-            React.createElement("div", { className: "mini-rows" },
-                React.createElement("div", null,
-                    React.createElement("span", null, "\uBD80\uCC44 \uBE44\uC728 (\uBD80\uCC44 \u00F7 \uC790\uC0B0)"),
-                    React.createElement("b", { className: "num" }, W.debtRatio == null ? '계산 불가' : fmtPct(W.debtRatio))),
-                React.createElement("div", null,
-                    React.createElement("span", null, "\uC774\uBC88 \uB2EC \uB300\uCD9C \uC0C1\uD658 (\uACE0\uC815\uBE44)"),
-                    React.createElement("b", { className: "num" },
-                        won(W.repay),
-                        "\uC6D0")),
-                React.createElement("div", null,
-                    React.createElement("span", null, "\uC0C1\uD658 \uBD80\uB2F4 (\uC6D4 \uC0C1\uD658 \u00F7 \uCD5C\uADFC \uD3C9\uADE0 \uC218\uC785)"),
-                    React.createElement("b", { className: "num" }, W.repay ? fmtPct(W.repayBurden) : '—'))),
-            repayRules.length > 0 && React.createElement("p", { className: "small muted" },
-                "\uC0C1\uD658 \uACE0\uC815\uBE44: ",
-                repayRules.map((o) => `${o.rule.name} ${won(o.amount)}원`).join(' · ')),
-            React.createElement("p", { className: "small muted" }, "\uB300\uCD9C \uC6D0\uAE08\uC774 \uC904\uC5B4\uB4E0 \uB9CC\uD07C \uBC18\uC601\uD558\uB824\uBA74 \uC0C1\uD658\uD560 \uB54C \u2018\uC774\uCCB4\u00B7\uC138\uAE08 \u203A \uACC4\uC88C \uC774\uCCB4\u2019\uB85C \uB300\uCD9C \uACC4\uC88C\uC5D0 \uBCF4\uB0B4\uAC70\uB098, \uACC4\uC88C \uC218\uC815\uC5D0\uC11C \uB0A8\uC740 \uB300\uCD9C\uAE08\uC744 \uACE0\uCCD0 \uC8FC\uC138\uC694.")),
-        list.length ? React.createElement(AccountRows, { list: list, values: W.v, onOpen: (a) => openSheet('account', { acc: a }) }) : React.createElement(Empty, { title: "\uB4F1\uB85D\uB41C \uBD80\uCC44\uAC00 \uC5C6\uC5B4\uC694." })));
+    const loanDebt = -sum(loans, (a) => Math.min(0, W.v[a.id]));
+    return (h("div", { className: "stack" },
+        h("section", { className: "card" },
+            h("div", { className: "card-h" },
+                h("h3", null, "부채"),
+                h("button", { className: "btn small", onClick: () => openSheet('loan') }, h(Icon, { n: "plus", s: 16 }), "대출 추가")),
+            h("p", { className: "stat-v num" }, won(W.debt), h("small", null, "원")),
+            h("div", { className: "mini-rows" },
+                h("div", null, h("span", null, "대출 잔액"), h("b", { className: "num" }, won(loanDebt), "원")),
+                h("div", null, h("span", null, "카드 결제 예정"), h("b", { className: "num" }, won(W.debt - loanDebt), "원")),
+                h("div", null, h("span", null, "부채 비율 (부채 ÷ 자산)"), h("b", { className: "num" }, W.debtRatio == null ? '계산 불가' : fmtPct(W.debtRatio))),
+                h("div", null, h("span", null, "이번 달 대출 상환 (고정비)"), h("b", { className: "num" }, won(W.repay), "원")),
+                h("div", null, h("span", null, "상환 부담 (월 상환 ÷ 최근 평균 수입)"), h("b", { className: "num" }, W.repay ? fmtPct(W.repayBurden) : '—'))),
+            repayRules.length > 0 && h("p", { className: "small muted" }, "상환 고정비: ", repayRules.map((o) => `${o.rule.name} ${won(o.amount)}원`).join(' · ')),
+            h("p", { className: "small muted" }, "순자산은 자산에서 부채 잔액을 뺀 값이에요. 원금을 갚을 때 ‘이체 › 계좌 이체’로 대출에 보내거나, 대출 수정에서 남은 원금을 고쳐 주세요.")),
+        h("h3", { className: "sec-t" }, "대출 ", loans.length, "건"),
+        loans.length ? h(AccountRows, { list: loans, values: W.v, onOpen: (a) => openSheet('loan', { acc: a }), extra: (a) => [a.loanType && a.loanType !== ACC_KINDS.loan ? ` · ${a.loanType}` : '', a.lender ? ` · ${a.lender}` : '', a.rate != null && a.rate !== '' ? ` · 연 ${a.rate}%` : '', a.repayMethod ? ` · ${repayLabel(a.repayMethod)}` : ''].join('') })
+            : h(Empty, { title: "등록된 대출이 없어요.", action: h("button", { className: "btn", onClick: () => openSheet('loan') }, h(Icon, { n: "plus", s: 16 }), "대출 추가") }, "학자금·신용·전세자금 등 대출을 등록하면 순자산과 부채 비율에 반영돼요."),
+        cards.length > 0 && h(React.Fragment, null,
+            h("h3", { className: "sec-t" }, "신용카드 결제 예정"),
+            h(AccountRows, { list: cards, values: W.v, onOpen: (a) => openSheet('account', { acc: a }) }))));
 }
 function ScenarioPanel() {
     const { data, statsOf, firstMonth, commit, toast } = useApp();
@@ -23301,11 +23576,13 @@ function BizSummary() {
     return (React.createElement("div", { className: "stack" },
         React.createElement("div", { className: "toolbar" },
             React.createElement("p", { className: "muted small" }, "\uB9E4\uCD9C\u00B7\uACBD\uBE44\uB294 \uBD80\uAC00\uC138 \uD3EC\uD568 \uAE08\uC561 \uAE30\uC900\uC774\uC5D0\uC694."),
-            React.createElement("div", { className: "row-gap" },
-                React.createElement("button", { className: "btn", onClick: () => openSheet('entry', { prefill: { type: 'expense', scope: 'business' } }) }, "\uACBD\uBE44 \uAE30\uB85D"),
-                React.createElement("button", { className: "btn primary", onClick: () => openSheet('entry', { prefill: { type: 'income', scope: 'business' } }) },
-                    React.createElement(Icon, { n: "plus", s: 18 }),
-                    "\uB9E4\uCD9C \uAE30\uB85D"))),
+            React.createElement("div", { className: "dual-btns" },
+                React.createElement("button", { className: "btn", onClick: () => openSheet('entry', { prefill: { type: 'expense', scope: 'business' } }) },
+                    React.createElement(Icon, { n: "plus", s: 16 }),
+                    "경비 기록"),
+                React.createElement("button", { className: "btn", onClick: () => openSheet('entry', { prefill: { type: 'income', scope: 'business' } }) },
+                    React.createElement(Icon, { n: "plus", s: 16 }),
+                    "매출 기록"))),
         React.createElement("section", { className: "grid-cards four" }, cards.map((c) => (React.createElement("div", { key: c.label, className: "card stat" },
             React.createElement("p", { className: "stat-l" }, c.label),
             React.createElement("p", { className: cx('stat-v num', !c.pct && c.v < 0 && 'neg') }, c.pct ? fmtPct(c.v) : React.createElement(React.Fragment, null,
@@ -23353,15 +23630,15 @@ function BizSummary() {
                 bizTx.length,
                 "\uAC74"),
             bizTx.length ? React.createElement("ul", { className: "rows card" }, bizTx.map((t) => React.createElement(TxRow, { key: t.id, t: t, showDate: true })))
-                : React.createElement(Empty, { title: "\uC774 \uB2EC \uC0AC\uC5C5 \uAC70\uB798\uAC00 \uC5C6\uC5B4\uC694." }, "\uB9E4\uCD9C\uACFC \uACBD\uBE44\uB97C \uAE30\uB85D\uD558\uBA74 \uC21C\uC774\uC775\uACFC \uC21C\uC774\uC775\uB960\uC744 \uACC4\uC0B0\uD574\uC694. \uC0AC\uC5C5 \uACC4\uC88C\uC5D0\uC11C \uAC1C\uC778 \uACC4\uC88C\uB85C \uC62E\uAE34 \uB3C8\uC740 \u2018\uC774\uCCB4\u00B7\uC138\uAE08 \u203A \uC0AC\uC5C5 \uC778\uCD9C\u2019\uB85C \uAE30\uB85D\uD558\uC138\uC694."))));
+                : React.createElement(Empty, { title: "\uC774 \uB2EC \uC0AC\uC5C5 \uAC70\uB798\uAC00 \uC5C6\uC5B4\uC694." }, "\uB9E4\uCD9C\uACFC \uACBD\uBE44\uB97C \uAE30\uB85D\uD558\uBA74 \uC21C\uC774\uC775\uACFC \uC21C\uC774\uC775\uB960\uC744 \uACC4\uC0B0\uD574\uC694. \uC0AC\uC5C5 \uACC4\uC88C\uC5D0\uC11C \uAC1C\uC778 \uACC4\uC88C\uB85C \uC62E\uAE34 \uB3C8\uC740 \u2018\uC774\uCCB4 \u203A \uC0AC\uC5C5 \uC778\uCD9C\u2019\uB85C \uAE30\uB85D\uD558\uC138\uC694."))));
 }
 /* ───────── 거래 행 ───────── */
 function TxRow({ t, showDate }) {
     const { openSheet, data, activeTxId } = useApp();
     const acc = t.accountId && data.account[t.accountId];
     const toAcc = t.toAccountId && data.account[t.toAccountId];
-    const title = t.memo || t.source || t.category || TYPE_LABEL[t.type];
-    const catName = t.type === 'expense' || t.type === 'income' || t.type === 'saving' ? t.category : t.type === 'tax' ? `세금 · ${t.category}` : TYPE_LABEL[t.type];
+    const title = t.memo || t.source || t.sub || t.category || TYPE_LABEL[t.type];
+    const catName = t.type === 'expense' || t.type === 'income' || t.type === 'saving' ? t.sub || t.category : t.type === 'tax' ? `세금 · ${t.sub || t.category}` : TYPE_LABEL[t.type];
     // 보조 줄: 제목과 같은 카테고리는 반복하지 않고, 실제로 있는 정보(카테고리·계좌·결제수단·할부)만 보여줘요
     const parts = [catName !== title ? catName : ''];
     if (t.memo && t.source && t.source !== t.memo)
@@ -23369,7 +23646,9 @@ function TxRow({ t, showDate }) {
     const rule = t.ruleId && data.rule && data.rule[t.ruleId];
     if (acc && !acc.deleted)
         parts.push(acc.name + (toAcc && !toAcc.deleted ? ` → ${toAcc.name}` : ''));
-    if (rule && !rule.deleted && rule.payMethod)
+    if (t.payMethod)
+        parts.push(t.payMethod);
+    else if (rule && !rule.deleted && rule.payMethod)
         parts.push(rule.payMethod);
     if (t.inst)
         parts.push(`${t.inst} 할부`);
@@ -23407,7 +23686,7 @@ function TxListPage({ preset = 'all' }) {
         if (o.scope !== 'all')
             l = l.filter((t) => (t.scope || 'personal') === o.scope);
         if (o.type !== 'all')
-            l = l.filter((t) => (o.type === 'move' ? MOVE_TYPES.includes(t.type) || t.type === 'saving' : o.type === 'income' ? t.type === 'income' || t.type === 'draw' : t.type === o.type));
+            l = l.filter((t) => (o.type === 'move' ? (MOVE_TYPES.includes(t.type) && t.type !== 'tax') || t.type === 'saving' : o.type === 'income' ? t.type === 'income' || t.type === 'draw' : o.type === 'expense' ? t.type === 'expense' || t.type === 'tax' : t.type === o.type));
         if (o.cat !== 'all')
             l = l.filter((t) => t.category === o.cat);
         const s = q.trim().toLowerCase();
@@ -23424,9 +23703,9 @@ function TxListPage({ preset = 'all' }) {
         } last.items.push(t); });
         return g;
     }, [list]);
-    const cats = type === 'income' ? [...incCats(), ...bizIncCats()] : type === 'saving' ? SAVING_CATS : [...expCats(), ...bizExpCats()];
+    const cats = type === 'income' ? [...incCats(), ...bizIncCats()] : type === 'saving' ? SAVING_CATS : [...expCats(), ...bizExpCats(), ...TAX_KINDS];
     const inc = sum(list.filter((t) => t.type === 'income' || t.type === 'draw'), (t) => t.amount);
-    const exp = sum(list.filter((t) => t.type === 'expense'), (t) => t.amount);
+    const exp = sum(list.filter((t) => t.type === 'expense' || t.type === 'tax'), (t) => t.amount);
     const td = today();
     const ydD = new Date();
     ydD.setDate(ydD.getDate() - 1);
@@ -23453,7 +23732,7 @@ function TxListPage({ preset = 'all' }) {
             React.createElement("div", { className: "chips" }, [['all', '전체'], ['personal', '개인'], ['business', '사업']].map(([v, l]) => React.createElement(Chip, { key: v, on: scope === v, onClick: () => setScope(v) }, l))),
             preset === 'all' && React.createElement(React.Fragment, null,
                 React.createElement("p", { className: "hs-fl" }, "\uC720\uD615"),
-                React.createElement("div", { className: "chips" }, [['all', '전체'], ['expense', '지출'], ['income', '수입'], ['saving', '저축'], ['move', '이체·세금']].map(([v, l]) => React.createElement(Chip, { key: v, on: typeSel === v, onClick: () => { setType(v); setCat('all'); } }, l)))),
+                React.createElement("div", { className: "chips" }, [['all', '전체'], ['expense', '지출'], ['income', '수입'], ['saving', '저축'], ['move', '이체·저축']].map(([v, l]) => React.createElement(Chip, { key: v, on: typeSel === v, onClick: () => { setType(v); setCat('all'); } }, l)))),
             type !== 'move' && React.createElement(React.Fragment, null,
                 React.createElement("p", { className: "hs-fl" }, "\uCE74\uD14C\uACE0\uB9AC"),
                 React.createElement("select", { className: "input", value: cat, onChange: (e) => setCat(e.target.value), "aria-label": "\uCE74\uD14C\uACE0\uB9AC" },
@@ -23484,7 +23763,7 @@ function TxListPage({ preset = 'all' }) {
                 "\uC77C\uAD04 \uC785\uB825")),
         groups.length ? groups.map((g) => {
             const gi = sum(g.items.filter((t) => t.type === 'income' || t.type === 'draw'), (t) => t.amount);
-            const ge = sum(g.items.filter((t) => t.type === 'expense'), (t) => t.amount);
+            const ge = sum(g.items.filter((t) => t.type === 'expense' || t.type === 'tax'), (t) => t.amount);
             const rel = g.date === td ? '오늘' : g.date === yd ? '어제' : '';
             return (React.createElement("section", { key: g.date, className: "hs-day" },
                 React.createElement("div", { className: "hs-dh" },
@@ -23931,58 +24210,196 @@ function RuleSheet({ rule, kind = 'expense', prefill, onClose }) {
                     "\uC0AD\uC81C"))))));
 }
 /* ───────── 빠른 입력 ───────── */
+/* ───────── 기록 입력: 대분류(탭) → 중분류 → 소분류 ─────────
+   소분류는 [표시 이름, 저장 카테고리]예요. 저장 카테고리는 기존 카테고리라 예산·고정비·분석이 그대로 연결되고,
+   표시 이름은 tx.sub, 중분류는 tx.group(지출)·tx.incType(수입)으로 함께 저장해요. 예전 기록은 카테고리로 중분류를 찾아요. */
+const EXP_GROUPS = ['식비', '교통', '쇼핑', '주거비', '생활비', '건강·미용', '여가', '금융', '세금 납부', '사업 경비', '기타'];
+const EXP_SUBS = {
+    '식비': [['식사', '식비'], ['배달', '식비'], ['장보기', '식비'], ['카페·간식', '카페'], ['술·모임', '식비']],
+    '교통': [['대중교통', '교통'], ['택시', '교통'], ['주유·충전', '교통'], ['주차·통행료', '교통'], ['정기 교통비', '교통비']],
+    '쇼핑': [['의류·잡화', '쇼핑'], ['온라인 쇼핑', '쇼핑'], ['전자기기', '쇼핑'], ['선물', '쇼핑']],
+    '주거비': [['월세', '주거비'], ['관리비', '관리비'], ['공과금', '관리비'], ['수리·인테리어', '주거비']],
+    '생활비': [['생활용품', '생활용품'], ['통신비', '통신비'], ['구독 서비스', '구독 서비스'], ['반려동물', '반려동물'], ['경조사', '경조사']],
+    '건강·미용': [['병원·약국', '의료'], ['미용', '미용'], ['운동', '취미']],
+    '여가': [['여행', '여행'], ['취미', '취미'], ['문화·공연', '취미'], ['모임·회비', '정기 회비']],
+    '금융': [['보험료', '보험료'], ['대출 상환', '대출 상환'], ['대출 이자', '대출 이자'], ['금융 수수료', '기타']],
+    '기타': [['기타', '기타'], ['기타 고정비', '기타 고정비']],
+};
+const INC_TYPES = ['biz', 'job', 'salary', 'support', 'other'];
+const INC_LABEL = { biz: '사업체', job: '파트타이머', salary: '급여', support: '생활비·지원금', other: '기타 수입' };
+const INC_SUBS = {
+    salary: [['월급', '급여'], ['상여금', '급여'], ['수당', '급여']],
+    support: [['가족 지원', '기타 수입'], ['정부 지원금', '기타 수입'], ['용돈', '기타 수입'], ['환급', '기타 수입']],
+    other: [['부업·프리랜서', '부업·프리랜서'], ['이자·배당', '기타 수입'], ['중고 판매', '기타 수입'], ['기타', '기타 수입']],
+};
+const MOVE_TABS = ['transfer', 'cardpay', 'draw'];
+const offCats = (g) => new Set(((CATS && CATS[g]) || []).filter((c) => c.active === false).map((c) => c.name));
+function subsFor(data, tab, group, jobId) {
+    const mk = (arr) => arr.map(([name, cat]) => ({ name, cat }));
+    const keep = (list, g) => { const off = offCats(g); const k = list.filter(([, c]) => !off.has(c)); return k.length ? k : list; };
+    if (tab === 'saving')
+        return mk(SAVING_CATS.map((n) => [n, n]));
+    if (tab === 'expense') {
+        if (group === '세금 납부')
+            return mk(TAX_KINDS.map((n) => [n, n]));
+        if (group === '사업 경비')
+            return mk(bizExpCats().map((n) => [n, n]));
+        const list = keep(EXP_SUBS[group] || [], 'expense');
+        if (group === '기타') {
+            const used = new Set(Object.values(EXP_SUBS).flat().map((x) => x[1]));
+            expCats().filter((c) => !used.has(c)).forEach((c) => list.push([c, c]));
+        }
+        return mk(list);
+    }
+    if (tab === 'income') {
+        if (group === 'biz')
+            return mk(bizIncCats().map((n) => [n, n]));
+        if (group === 'job') {
+            const j = jobById(data, jobId);
+            const pc = (j && j.payCat) || '부업·프리랜서';
+            return mk([['근무 급여', pc], ['주휴·추가 수당', pc], ['기타', pc]]);
+        }
+        const list = keep(INC_SUBS[group] || [], 'income');
+        if (group === 'other') {
+            const used = new Set(['급여', '사업 수익', '부업·프리랜서', '기타 수입']);
+            incCats().filter((c) => !used.has(c)).forEach((c) => list.push([c, c]));
+        }
+        return mk(list);
+    }
+    return [];
+}
+// 직접 입력한 소분류를 묶을 카테고리 ('기타…' 소분류가 있으면 그쪽, 없으면 중분류의 첫 소분류)
+const EXP_DEFAULT = { '금융': '기타', '여가': '취미' };
+function customCatFor(tab, group, subs) {
+    if (tab === 'expense' && EXP_DEFAULT[group])
+        return EXP_DEFAULT[group];
+    const x = subs.find((s) => /^기타/.test(s.name)) || subs[0];
+    return x ? x.cat : tab === 'income' ? '기타 수입' : '기타';
+}
+function expGroupOf(t) {
+    if (t.type === 'tax')
+        return '세금 납부';
+    if (t.scope === 'business')
+        return '사업 경비';
+    if (t.group && EXP_GROUPS.includes(t.group))
+        return t.group;
+    const c = t.category;
+    if (!c)
+        return '';
+    const g = Object.keys(EXP_SUBS);
+    return g.find((k) => EXP_SUBS[k].some(([n]) => n === c)) || g.find((k) => EXP_SUBS[k].some(([, x]) => x === c)) || '기타';
+}
+function incTypeOf(t, data) {
+    if (t.incType && INC_TYPES.includes(t.incType))
+        return t.incType;
+    if (t.scope === 'business')
+        return 'biz';
+    const sid = t.sourceId || (t.jobPay && t.jobPay.jobId ? 'job_' + t.jobPay.jobId : '');
+    if (sid && sid.startsWith('job_'))
+        return 'job';
+    const src = sid ? sourcesOf(data, true).find((x) => x.id === sid) : null;
+    if (src && src.kind === 'salary')
+        return 'salary';
+    if (!t.category)
+        return '';
+    return t.category === '급여' ? 'salary' : 'other';
+}
+// 직접 저장한 결제수단 (예: 카카오페이)
+const payMethodsOf = (data) => (((data.settings.settings || {}).payMethods) || []).filter(Boolean);
 function EntrySheet({ tx, prefill, onClose }) {
     const { data, commit, toast, accounts, openSheet } = useApp();
+    const h = React.createElement;
     const isEdit = !!tx;
     const b = tx || prefill || {};
-    const [tab, setTab] = useState(MOVE_TYPES.includes(b.type) ? 'transfer' : b.type || 'expense');
-    const [moveType, setMoveType] = useState(MOVE_TYPES.includes(b.type) ? b.type : 'transfer');
-    const [scope, setScope] = useState(b.scope === 'business' && (b.type === 'income' || b.type === 'expense') ? 'business' : 'personal');
+    const jobs = jobsOf(data);
+    const tab0 = b.type === 'tax' ? 'expense' : MOVE_TABS.includes(b.type) ? 'transfer' : b.type || 'expense';
+    const group0 = tab0 === 'expense' ? expGroupOf({ type: b.type || 'expense', ...b }) : tab0 === 'income' ? incTypeOf(b, data) : '';
+    const sid0 = b.sourceId || (b.jobPay && b.jobPay.jobId ? 'job_' + b.jobPay.jobId : '');
+    const jobId0 = sid0 && sid0.startsWith('job_') ? sid0.slice(4) : jobs[0] ? jobs[0].id : '';
+    const [tab, setTab] = useState(tab0);
+    const [moveType, setMoveType] = useState(MOVE_TABS.includes(b.type) ? b.type : 'transfer');
+    const [group, setGroup] = useState(group0);
+    const [jobId, setJobId] = useState(jobId0);
+    const [sel, setSel] = useState(() => {
+        if (tab0 === 'transfer' || (tab0 !== 'saving' && !group0) || !b.category)
+            return tab0 === 'income' && group0 === 'job' ? subsFor(data, 'income', 'job', jobId0)[0] || null : null;
+        if (b.sub)
+            return { name: b.sub, cat: b.category };
+        const list = subsFor(data, tab0, group0, jobId0);
+        if (tab0 === 'income' && group0 === 'job' && !list.some((s) => s.name === b.category))
+            return list[0] || null;
+        return { name: b.category, cat: b.category };
+    });
+    const [custom, setCustom] = useState(false);
+    const [customText, setCustomText] = useState('');
     const [amt, setAmt] = useState(b.amount ? String(b.amount) : '');
-    const [cat, setCat] = useState(b.type === 'tax' || b.type === 'draw' ? '' : b.category || '');
     const [date, setDate] = useState(tx ? tx.date : today());
     const [memo, setMemo] = useState(b.memo || '');
     const [source, setSource] = useState(b.source || '');
     const [accountId, setAccountId] = useState(b.accountId || '');
+    const [payMethod, setPayMethod] = useState(b.payMethod || '');
+    const [pmNew, setPmNew] = useState(false);
+    const [pmText, setPmText] = useState('');
     const [toAccountId, setToAccountId] = useState(b.toAccountId || '');
     const [goalId, setGoalId] = useState(b.goalId || '');
     const [vatType, setVatType] = useState(b.vatType || 'taxable');
     const [evidence, setEvidence] = useState(b.evidence || 'card');
     const [nonDeductible, setNonDeductible] = useState(!!b.nonDeductible);
     const [orderId, setOrderId] = useState(b.orderId || '');
-    const [sourceId, setSourceId] = useState(b.sourceId || '');
-    const [taxKind, setTaxKind] = useState(b.type === 'tax' ? b.category || '종합소득세' : '종합소득세');
+    const [sourceId, setSourceId] = useState(sid0 && !sid0.startsWith('job_') ? sid0 : '');
     const [repeat, setRepeat] = useState(false);
-    const [more, setMore] = useState(isEdit || !!(b.memo || b.accountId));
+    const [more, setMore] = useState(isEdit || !!(b.memo || b.accountId || b.payMethod));
     const [err, setErr] = useState('');
     const touch = useMemo(() => window.matchMedia && window.matchMedia('(pointer: coarse)').matches, []);
-    const catsFor = (t, s) => (t === 'income' ? (s === 'business' ? bizIncCats() : incCats()) : t === 'expense' ? (s === 'business' ? bizExpCats() : expCats()) : t === 'saving' ? SAVING_CATS : []);
-    const hasScope = tab === 'income' || tab === 'expense';
-    const sc = hasScope ? scope : 'personal';
-    const isBiz = hasScope && scope === 'business';
+    const isTax = tab === 'expense' && group === '세금 납부';
+    const isBiz = (tab === 'expense' && group === '사업 경비') || (tab === 'income' && group === 'biz');
+    const sc = isBiz ? 'business' : 'personal';
+    const subs = tab === 'transfer' ? [] : subsFor(data, tab, group, jobId);
+    const subList = sel && !subs.some((s) => s.name === sel.name) ? [sel, ...subs] : subs;
+    const catVal = custom ? customCatFor(tab, group, subs) : sel ? sel.cat : '';
+    const subName = custom ? customText.trim() : sel ? sel.name : '';
     const accOf = (id) => accounts.find((a) => a.id === id);
     const isBizAcc = (a) => !!(a && a.scope === 'business');
     const autoDraw = tab === 'transfer' && moveType === 'transfer' && isBizAcc(accOf(accountId)) && accOf(toAccountId) && !isBizAcc(accOf(toAccountId));
-    const type = tab === 'transfer' ? (autoDraw ? 'draw' : moveType) : tab;
-    const recentCats = useMemo(() => {
-        const seen = [];
-        live(data.tx).filter((t) => t.type === tab && (t.scope || 'personal') === sc).sort((a, b2) => (b2.createdAt || 0) - (a.createdAt || 0)).forEach((t) => {
-            if (t.category && !seen.includes(t.category) && seen.length < 4)
-                seen.push(t.category);
-        });
-        return seen;
-    }, [data, tab, sc]);
-    const baseCats = catsFor(tab, sc);
-    const cats = [...recentCats.filter((c) => baseCats.includes(c)), ...baseCats.filter((c) => !recentCats.includes(c))];
-    const favs = live(data.fav).filter((f) => f.type === tab && (f.scope || 'personal') === sc);
+    const type = tab === 'transfer' ? (autoDraw ? 'draw' : moveType) : isTax ? 'tax' : tab;
+    const favs = live(data.fav).filter((f) => f.type === tab);
     const goals = live(data.goal);
     const linkedRule = tx && tx.ruleId ? data.rule[tx.ruleId] : null;
+    const pokerLog = tx && tx.pokerLogId && data.worklog[tx.pokerLogId] && !data.worklog[tx.pokerLogId].deleted ? data.worklog[tx.pokerLogId] : null;
     const n = Number(amt) || 0;
     const split = vatSplit(n, vatType);
-    const switchTab = (v) => { setTab(v); if (!catsFor(v, v === 'income' || v === 'expense' ? scope : 'personal').includes(cat))
-        setCat(''); setErr(''); };
-    const switchScope = (v) => { setScope(v); if (!catsFor(tab, v).includes(cat))
-        setCat(''); setErr(''); };
+    const bizSources = sourcesOf(data).filter((x) => x.kind === 'business');
+    const pickList = group === 'biz' ? bizSources : group === 'salary' ? sourcesOf(data).filter((x) => x.kind === 'salary') : group === 'other' ? sourcesOf(data).filter((x) => x.kind === 'freelance' || x.kind === 'other') : [];
+    const incLabel = (k) => (k === 'biz' && bizSources.length === 1 ? `사업체 (${bizSources[0].name})` : k === 'job' && jobs.length === 1 ? `파트타이머 (${jobs[0].name})` : INC_LABEL[k]);
+    // 최상위 탭을 바꾸면 금액·분류를 처음 상태로 (다른 종류의 금액이 그대로 저장되는 실수 방지)
+    const switchTab = (v) => {
+        if (v === tab)
+            return;
+        setTab(v);
+        setAmt('');
+        setGroup('');
+        setSel(v === 'saving' ? subsFor(data, 'saving')[0] : null);
+        setCustom(false);
+        setCustomText('');
+        setSourceId('');
+        setAccountId('');
+        setToAccountId('');
+        setPayMethod('');
+        setPmNew(false);
+        setErr('');
+    };
+    // 중분류(수입 유형)를 바꾸면 소분류를 그 분류의 첫 항목으로 바꿔요
+    const pickGroup = (g) => {
+        setGroup(g);
+        setCustom(false);
+        setSourceId('');
+        setErr('');
+        const jid = g === 'job' ? jobId || (jobs[0] ? jobs[0].id : '') : jobId;
+        if (g === 'job')
+            setJobId(jid);
+        setSel(subsFor(data, tab, g, jid)[0] || null);
+    };
+    const pickJob = (id) => { setJobId(id); const first = subsFor(data, 'income', 'job', id)[0]; if (sel && first) setSel({ name: sel.name, cat: first.cat }); };
     const press = (k) => setAmt((a) => {
         if (k === 'del')
             return a.slice(0, -1);
@@ -23993,14 +24410,22 @@ function EntrySheet({ tx, prefill, onClose }) {
     const check = () => {
         if (!(n > 0))
             return '금액을 입력해 주세요.';
-        if (tab !== 'transfer' && !cat)
-            return '카테고리를 골라 주세요.';
+        if (tab === 'expense' || tab === 'income') {
+            if (!group)
+                return tab === 'income' ? '수입 유형을 골라 주세요.' : '분류를 골라 주세요.';
+            if (custom ? !customText.trim() : !sel)
+                return custom ? '항목 이름을 입력해 주세요.' : '세부 항목을 골라 주세요.';
+        }
+        if (tab === 'saving' && !sel)
+            return '항목을 골라 주세요.';
         if (tab === 'transfer' && (type === 'transfer' || type === 'cardpay')) {
             if (!accountId || !toAccountId)
                 return '보내는 계좌와 받는 계좌를 골라 주세요.';
         }
         if (accountId && toAccountId && accountId === toAccountId && tab === 'transfer')
             return '서로 다른 계좌를 골라 주세요.';
+        if (pmNew && !pmText.trim())
+            return '결제수단 이름을 입력해 주세요.';
         if (!date)
             return '날짜를 입력해 주세요.';
         return '';
@@ -24011,41 +24436,52 @@ function EntrySheet({ tx, prefill, onClose }) {
             setErr(e);
             return;
         }
-        const recScope = tab === 'transfer' ? (type === 'tax' && taxKind === '부가가치세' ? 'business' : 'personal') : sc;
+        const recScope = isTax ? (catVal === '부가가치세' ? 'business' : 'personal') : tab === 'transfer' ? 'personal' : sc;
+        const pm = tab === 'expense' ? (pmNew ? pmText.trim() : payMethod) : '';
+        const incSource = tab !== 'income' ? null : group === 'job' ? (jobId ? 'job_' + jobId : null) : sourceId || null;
         const rec = {
             ...(tx || {}), id: tx ? tx.id : newId(), type, scope: recScope, date, amount: n,
-            category: tab === 'transfer' ? (type === 'tax' ? taxKind : type === 'draw' ? '사업 인출' : '') : cat,
+            category: tab === 'transfer' ? (type === 'draw' ? '사업 인출' : '') : catVal,
+            sub: (tab === 'expense' || tab === 'income') && subName && subName !== catVal ? subName : null,
+            group: tab === 'expense' && !isTax && !isBiz ? group : null,
+            incType: tab === 'income' ? group : null,
             memo: memo.trim(), source: tab === 'income' ? source.trim() : '',
-            accountId, toAccountId: (tab === 'transfer' && type !== 'tax') || tab === 'saving' ? toAccountId : '',
+            accountId: pm ? '' : accountId, payMethod: pm || null,
+            toAccountId: tab === 'transfer' || tab === 'saving' ? toAccountId : '',
             goalId: tab === 'saving' ? goalId : '',
-            jobPay: tab === 'income' ? b.jobPay || null : null,
-            sourceId: tab === 'income' || tab === 'expense' ? sourceId || null : null,
+            jobPay: tab === 'income' && group === 'job' ? b.jobPay || null : null,
+            sourceId: tab === 'income' ? incSource : tab === 'expense' && !isTax ? sourceId || null : null,
             vatType: null, supply: null, vat: null, orderId: null, evidence: null, nonDeductible: null, vatDeductible: null,
             createdAt: tx ? tx.createdAt || Date.now() : Date.now(), deleted: false,
         };
         if (isBiz) {
-            Object.assign(rec, { vatType, supply: split.supply, vat: split.vat, orderId });
+            Object.assign(rec, { vatType, supply: split.supply, vat: split.vat, orderId: orderId || null });
             if (tab === 'expense')
                 Object.assign(rec, { evidence, nonDeductible, vatDeductible: vatType === 'taxable' && QUALIFY.includes(evidence) && !nonDeductible });
         }
         const changes = [{ kind: 'tx', rec }];
-        if (repeat && !isEdit && hasScope) {
+        if (repeat && !isEdit && (tab === 'income' || tab === 'expense') && !isTax) {
             const rid = newId(), m = date.slice(0, 7);
             rec.ruleId = rid;
             rec.occMonth = m;
-            changes.push({ kind: 'rule', rec: { id: rid, kind: tab, scope: tab === 'expense' ? sc : 'personal', name: rec.memo || rec.source || cat, amount: n, day: +date.slice(8), category: cat, accountId, payMethod: '', interval: 1, startMonth: m, endMonth: '', auto: true } });
+            changes.push({ kind: 'rule', rec: { id: rid, kind: tab, scope: tab === 'expense' ? sc : 'personal', name: rec.memo || rec.source || subName || catVal, amount: n, day: +date.slice(8), category: catVal, accountId: rec.accountId, payMethod: pm || '', interval: 1, startMonth: m, endMonth: '', auto: true } });
             changes.push({ kind: 'occ', rec: { id: rid + '_' + m, ruleId: rid, month: m, payments: [{ id: rec.id, txId: rec.id }] } });
+        }
+        const undoable = changes.slice();
+        if (pm && !payMethodsOf(data).includes(pm)) {
+            const s0 = data.settings.settings || { id: 'settings' };
+            changes.push({ kind: 'settings', rec: { ...s0, id: 'settings', payMethods: [...payMethodsOf(data), pm] } });
         }
         commit(changes);
         onClose();
         if (isEdit)
             toast('수정했어요');
         else
-            toast(repeat ? '저장하고 매월 반복으로 등록했어요' : `${isBiz ? '사업 ' : ''}${TYPE_LABEL[type]} ${won(n)}원 저장했어요`, {
-                label: '되돌리기', run: () => commit(changes.map((c) => ({ kind: c.kind, rec: { ...c.rec, deleted: true } }))),
+            toast(repeat ? '저장하고 매월 반복으로 등록했어요' : `${isBiz ? '사업 ' : ''}${isBiz && tab === 'income' ? '매출' : isBiz ? '경비' : TYPE_LABEL[type]} ${won(n)}원 저장했어요`, {
+                label: '되돌리기', run: () => commit(undoable.map((c) => ({ kind: c.kind, rec: { ...c.rec, deleted: true } }))),
             });
     };
-    // 삭제는 확인창 대신 '되돌리기'로 복구 (확인창 + 되돌리기 이중 단계 제거). 삭제는 deleted 표시라 되돌리면 원래 거래 그대로 복원돼요.
+    // 삭제는 확인창 대신 '되돌리기'로 복구 (삭제는 deleted 표시라 되돌리면 원래 거래 그대로 복원돼요)
     const remove = () => {
         commit([{ kind: 'tx', rec: { ...tx, deleted: true } }]);
         toast(linkedRule ? '삭제했어요 · 연결된 고정비는 미납으로 돌아가요' : '거래를 삭제했어요', { label: '되돌리기', run: () => commit([{ kind: 'tx', rec: { ...tx, deleted: false } }]) });
@@ -24053,146 +24489,163 @@ function EntrySheet({ tx, prefill, onClose }) {
     };
     const copy = () => {
         const { id, ruleId, occMonth, createdAt, updatedAt, date: _d, ...rest } = tx;
-        // 닫고 다시 여는 대신 바로 새 입력 시트로 전환 (배경 유지)
         openSheet('entry', { prefill: rest });
     };
     const saveFav = () => {
-        if (!(n > 0) || !cat) {
-            setErr('즐겨찾기로 저장하려면 금액과 카테고리를 먼저 입력해 주세요.');
+        if (!(n > 0) || !catVal) {
+            setErr('즐겨찾기로 저장하려면 금액과 항목을 먼저 입력해 주세요.');
             return;
         }
-        commit([{ kind: 'fav', rec: { id: newId(), type: tab, scope: sc, amount: n, category: cat, memo: memo.trim(), accountId, label: memo.trim() || cat } }]);
+        commit([{ kind: 'fav', rec: { id: newId(), type: tab, scope: isTax ? 'personal' : sc, group, sub: subName && subName !== catVal ? subName : null, amount: n, category: catVal, memo: memo.trim(), accountId, label: memo.trim() || subName || catVal } }]);
         toast('즐겨찾기에 추가했어요');
     };
-    const useFav = (f) => { setAmt(String(f.amount)); setCat(f.category); setMemo(f.memo || ''); setAccountId(f.accountId || ''); };
-    const nonCard = accounts.filter((a) => a.kind !== 'card');
-    const fromOpts = type === 'draw' ? nonCard.filter(isBizAcc) : tab === 'transfer' ? (type === 'tax' ? accounts : nonCard) : accounts;
+    const useFav = (f) => {
+        const g = tab === 'expense' ? expGroupOf({ ...f, type: 'expense' }) : tab === 'income' ? incTypeOf({ ...f, incType: f.incType || (INC_TYPES.includes(f.group) ? f.group : '') }, data) : '';
+        setGroup(g);
+        setSel({ name: f.sub || f.category, cat: f.category });
+        setCustom(false);
+        setAmt(String(f.amount));
+        setMemo(f.memo || '');
+        setAccountId(f.accountId || '');
+        setErr('');
+    };
+    const nonCard = accounts.filter((a) => a.kind !== 'card' && a.kind !== 'loan');
+    const payAccs = accounts.filter((a) => a.kind !== 'loan');
+    const fromOpts = type === 'draw' ? nonCard.filter(isBizAcc) : nonCard;
     const toOpts = tab === 'saving' ? accounts.filter((a) => a.kind === 'deposit' || a.kind === 'invest')
-        : type === 'cardpay' ? accounts.filter((a) => a.kind === 'card') : type === 'draw' ? nonCard.filter((a) => !isBizAcc(a)) : nonCard;
+        : type === 'cardpay' ? accounts.filter((a) => a.kind === 'card') : type === 'draw' ? nonCard.filter((a) => !isBizAcc(a)) : accounts.filter((a) => a.kind !== 'card');
     const moveNote = {
-        transfer: '내 계좌끼리 옮긴 돈은 수입·지출에 포함되지 않아요.',
+        transfer: '내 계좌끼리 옮긴 돈은 수입·지출에 포함되지 않아요. 대출 계좌로 보내면 남은 원금이 줄어요.',
         cardpay: '카드 사용액은 쓴 날 지출로 이미 잡혀 있어요. 카드대금 납부는 지출로 다시 세지 않고 카드 빚을 갚는 이동으로만 기록해요.',
         draw: '사업에서 개인으로 가져온 돈이에요. 개인 수입에는 잡히고, 사업 매출로는 다시 세지 않아요.',
-        tax: '세금 납부는 생활 지출과 따로 집계하고, 남은 돈(현금흐름)에서만 빠져요. 부가가치세는 사업 쪽 납부로 기록돼요.',
     }[type];
-    // 입력 중 보호: 새 기록은 금액·메모·출처를 입력했을 때, 수정은 주요 값이 바뀌었을 때 닫기 전에 확인
-    const [init0] = useState(() => ({ amt, memo, date, cat, source }));
-    const dirty = isEdit ? (amt !== init0.amt || memo !== init0.memo || date !== init0.date || cat !== init0.cat || source !== init0.source)
+    const methods = payMethodsOf(data);
+    const payVal = pmNew ? '__new' : payMethod ? 'pm:' + payMethod : accountId;
+    const onPay = (v) => {
+        setErr('');
+        if (v === '__new') {
+            setPmNew(true);
+            setAccountId('');
+            setPayMethod('');
+        }
+        else if (v.startsWith('pm:')) {
+            setPmNew(false);
+            setPayMethod(v.slice(3));
+            setAccountId('');
+        }
+        else {
+            setPmNew(false);
+            setPayMethod('');
+            setAccountId(v);
+        }
+    };
+    const [init0] = useState(() => ({ amt, memo, date, sub: sel ? sel.name : '', source }));
+    const curSub = custom ? customText : sel ? sel.name : '';
+    const dirty = isEdit ? (amt !== init0.amt || memo !== init0.memo || date !== init0.date || curSub !== init0.sub || source !== init0.source)
         : !!((amt && amt !== init0.amt) || (memo.trim() && memo !== init0.memo) || (source.trim() && source !== init0.source));
-    return (React.createElement(Sheet, { title: isEdit ? '거래 수정' : '기록하기', onClose: onClose, dirty: dirty, footer: (React.createElement(React.Fragment, null,
-            isEdit && React.createElement("button", { className: "icon-btn", onClick: remove, "aria-label": "\uC0AD\uC81C" },
-                React.createElement(Icon, { n: "trash" })),
-            isEdit && React.createElement("button", { className: "btn", onClick: copy },
-                React.createElement(Icon, { n: "copy", s: 16 }),
-                "\uBCF5\uC0AC"),
-            React.createElement("button", { className: "btn primary grow", onClick: save }, isEdit ? '수정 저장' : '저장'))) },
-        React.createElement("div", { className: "entry" },
-            React.createElement(Seg, { value: tab, onChange: switchTab, options: [['expense', '지출'], ['income', '수입'], ['saving', '저축·투자'], ['transfer', '이체·세금']] }),
-            hasScope && React.createElement(Seg, { small: true, value: scope, onChange: switchScope, options: [['personal', '개인'], ['business', tab === 'income' ? '사업 매출' : '사업 경비']] }),
-            linkedRule && React.createElement("p", { className: "note" },
-                "\uACE0\uC815\uBE44 \u2018",
-                linkedRule.name,
-                "\u2019 ",
-                mLabel(tx.occMonth || tx.date.slice(0, 7)),
+    const Chip = (on, label, onClick, key, extra) => h("button", { key: key || label, type: "button", className: cx('chip', on && 'on', extra), onClick, "aria-pressed": !!on }, label);
+    const showOrder = isBiz && !!orderId && live(data.order).length > 0;
+    return (h(Sheet, { title: isEdit ? '거래 수정' : '기록하기', onClose, dirty, footer: (h(React.Fragment, null,
+            isEdit && h("button", { className: "icon-btn", onClick: remove, "aria-label": "삭제" }, h(Icon, { n: "trash" })),
+            isEdit && h("button", { className: "btn", onClick: copy }, h(Icon, { n: "copy", s: 16 }), "복사"),
+            h("button", { className: "btn primary grow", onClick: save }, isEdit ? '수정 저장' : '저장'))) },
+        h("div", { className: "entry" },
+            h(Seg, { full: true, value: tab, onChange: switchTab, options: [['expense', '지출'], ['income', '수입'], ['saving', '저축·투자'], ['transfer', '이체']] }),
+            pokerLog && h("p", { className: "note" }, "포커 기록 ‘", pokerLog.event || '포커', "’에서 자동으로 만든 기록이에요. 금액을 바꾸려면 내역 › 근무에서 포커 기록을 고쳐 주세요."),
+            linkedRule && h("p", { className: "note" }, "고정비 ‘", linkedRule.name, "’ ", mLabel(tx.occMonth || tx.date.slice(0, 7)), " ", tx.type === 'income' ? '입금' : '납부', " 기록이에요. 금액을 고치면 납부 상태와 통계에 바로 반영돼요."),
+            h("div", { className: cx('amount', type === 'income' && !isBiz && 'pos') },
+                touch ? (h("p", { className: "amount-v num", "aria-live": "polite" }, n ? n.toLocaleString('ko-KR') : h("span", { className: "ph" }, "0"), h("small", null, "원")))
+                    : (h("input", { className: "amount-in num", autoFocus: true, inputMode: "numeric", placeholder: "0", value: n ? n.toLocaleString('ko-KR') : '', "aria-label": "금액", onChange: (e) => setAmt(e.target.value.replace(/[^0-9]/g, '').slice(0, 12)), onKeyDown: (e) => { if (e.key === 'Enter') save(); } })),
+                h("div", { className: "quick" },
+                    [10000, 50000, 100000].map((v) => h("button", { key: v, type: "button", onClick: () => addQuick(v) }, "+", v / 10000, "만")),
+                    h("button", { type: "button", onClick: () => setAmt('') }, "지우기"))),
+            favs.length > 0 && (h("div", { className: "favs" }, favs.map((f) => h("button", { key: f.id, type: "button", className: "chip fav", onClick: () => useFav(f) }, h(Icon, { n: "star", s: 13 }), f.label, " ", h("span", { className: "num" }, won(f.amount)))))),
+            tab === 'transfer' ? (h("div", { className: "form" },
+                h(Seg, { small: true, full: true, value: moveType, onChange: (v) => { setMoveType(v); setAccountId(''); setToAccountId(''); }, options: [['transfer', '계좌 이체'], ['cardpay', '카드대금'], ['draw', '사업 인출']] }),
+                h("p", { className: "note" }, autoDraw ? '사업 계좌에서 개인 계좌로 옮기는 돈이라 ‘사업 인출’로 기록할게요. ' : '', moveNote),
+                (type === 'transfer' || type === 'cardpay') && accounts.length < 2 ? h("p", { className: "err" }, "자산 › 계좌에서 계좌를 2개 이상 먼저 추가해 주세요.") : (h("div", { className: "form-2" },
+                    h(Field, { label: type === 'draw' ? '사업 계좌 (선택)' : '보내는 계좌' },
+                        h("select", { className: "input", value: accountId, onChange: (e) => setAccountId(e.target.value) },
+                            h("option", { value: "" }, type === 'draw' ? '선택 안 함' : '선택'),
+                            fromOpts.map((a) => h("option", { key: a.id, value: a.id }, a.name)))),
+                    h(Field, { label: type === 'cardpay' ? '납부할 카드' : type === 'draw' ? '받은 개인 계좌 (선택)' : '받는 계좌' },
+                        h("select", { className: "input", value: toAccountId, onChange: (e) => setToAccountId(e.target.value) },
+                            h("option", { value: "" }, type === 'draw' ? '선택 안 함' : '선택'),
+                            toOpts.map((a) => h("option", { key: a.id, value: a.id }, a.name, a.kind === 'loan' ? ' (대출)' : '')))))))) :
+                tab === 'saving' ? (h("div", { className: "cat-grid", role: "group", "aria-label": "항목" }, subs.map((s) => Chip(sel && sel.name === s.name, s.name, () => { setSel(s); setErr(''); })))) :
+                    (h("div", { className: "cat-pick" },
+                        h("p", { className: "field-l" }, tab === 'income' ? '수입 유형' : '분류'),
+                        h("div", { className: cx('cat-grid', tab === 'income' && 'wide'), role: "group", "aria-label": tab === 'income' ? '수입 유형' : '분류' },
+                            (tab === 'income' ? INC_TYPES : EXP_GROUPS).map((g) => Chip(group === g, tab === 'income' ? incLabel(g) : g, () => pickGroup(g), g))),
+                        group === 'job' && (jobs.length ? (jobs.length > 1 && h(React.Fragment, null,
+                            h("p", { className: "field-l" }, "근무처"),
+                            h("div", { className: "cat-grid" }, jobs.map((j) => Chip(jobId === j.id, j.name, () => pickJob(j.id), j.id)))))
+                            : h("p", { className: "note" }, "등록된 근무처가 없어요. 내역 › 근무 › 아르바이트에서 근무처를 추가하면 여기서 바로 연결돼요.")),
+                        pickList.length > (group === 'other' ? 2 : 1) && h(React.Fragment, null,
+                            h("p", { className: "field-l" }, group === 'biz' ? '사업체' : '수입처'),
+                            h("div", { className: "cat-grid" }, pickList.map((x) => Chip((sourceId || sourceOf({ type: 'income', scope: sc, category: catVal }, data)) === x.id, x.name, () => setSourceId(x.id), x.id)))),
+                        group && h(React.Fragment, null,
+                            h("p", { className: "field-l" }, "세부 항목"),
+                            h("div", { className: "cat-grid", role: "group", "aria-label": "세부 항목" },
+                                subList.map((s) => Chip(!custom && sel && sel.name === s.name, s.name, () => { setSel(s); setCustom(false); setErr(''); }, s.name)),
+                                Chip(custom, '직접 입력', () => { setCustom(true); setErr(''); }, '__custom', 'add')),
+                            custom && h("input", { className: "input", autoFocus: !touch, value: customText, onChange: (e) => setCustomText(e.target.value), placeholder: tab === 'income' ? '예: 강의료, 원고료' : '예: 세탁, 주차 정기권', maxLength: 30, "aria-label": "직접 입력한 항목" })))),
+            isTax && h("p", { className: "note" }, "세금 납부는 생활 지출과 따로 집계하고, 남은 돈(현금흐름)에서만 빠져요. 부가가치세는 사업 쪽 납부로 기록돼요."),
+            isBiz && (h("div", { className: "biz-box" },
+                showOrder && (h(Field, { label: "주문 연결" },
+                    h("select", { className: "input", value: orderId, onChange: (e) => setOrderId(e.target.value) },
+                        h("option", { value: "" }, "연결 안 함"),
+                        live(data.order).filter((o) => o.status !== 'cancel' || o.id === orderId).sort((a, c) => (c.date || '').localeCompare(a.date || '')).slice(0, 50).map((o) => h("option", { key: o.id, value: o.id }, o.name))))),
+                h(Seg, { small: true, full: true, value: vatType, onChange: setVatType, options: tab === 'income' ? [['taxable', '과세 매출'], ['exempt', '면세 매출']] : [['taxable', '부가세 포함'], ['exempt', '면세·부가세 없음']] }),
+                tab === 'expense' && (h(Field, { label: "증빙" },
+                    h("select", { className: "input", value: evidence, onChange: (e) => setEvidence(e.target.value) }, EVIDENCE.map(([v, l]) => h("option", { key: v, value: v }, l))))),
+                n > 0 && h("p", { className: "small muted num" }, vatType === 'taxable' ? `공급가액 ${won(split.supply)} · 부가세 ${won(split.vat)} (입력 금액을 부가세 10% 포함으로 보고 나눴어요)` : '부가세 없는 금액으로 기록해요.'),
+                tab === 'expense' && vatType === 'taxable' && h("label", { className: "check" },
+                    h("input", { type: "checkbox", checked: nonDeductible, onChange: (e) => setNonDeductible(e.target.checked) }),
+                    "매입세액 공제가 안 되는 항목 (접대비 등)"),
+                tab === 'expense' && !QUALIFY.includes(evidence) && h("p", { className: "small warn-t" }, "적격증빙(세금계산서·사업용 카드·지출증빙 현금영수증)이 아니면 매입세액 공제 대상에서 빠져요. 세금 화면에서 ‘증빙 확인 필요’로 모아 보여드릴게요."))),
+            touch && (h("div", { className: "keypad" }, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map((k) => (h("button", { key: k, type: "button", onClick: () => press(k), "aria-label": k === 'del' ? '한 자리 지우기' : k }, k === 'del' ? h(Icon, { n: "del" }) : k))))),
+            err && h("p", { className: "err", role: "alert" }, err),
+            h("button", { type: "button", className: "more-t", onClick: () => setMore(!more), "aria-expanded": more },
+                more ? '간단히' : tab === 'expense' ? '날짜·메모·결제수단' : '날짜·메모·계좌',
                 " ",
-                tx.type === 'income' ? '입금' : '납부',
-                " \uAE30\uB85D\uC774\uC5D0\uC694. \uAE08\uC561\uC744 \uACE0\uCE58\uBA74 \uB0A9\uBD80 \uC0C1\uD0DC\uC640 \uD1B5\uACC4\uC5D0 \uBC14\uB85C \uBC18\uC601\uB3FC\uC694."),
-            React.createElement("div", { className: cx('amount', type === 'income' && !isBiz && 'pos') },
-                touch ? (React.createElement("p", { className: "amount-v num", "aria-live": "polite" },
-                    n ? n.toLocaleString('ko-KR') : React.createElement("span", { className: "ph" }, "0"),
-                    React.createElement("small", null, "\uC6D0"))) : (React.createElement("input", { className: "amount-in num", autoFocus: true, inputMode: "numeric", placeholder: "0", value: n ? n.toLocaleString('ko-KR') : '', "aria-label": "\uAE08\uC561", onChange: (e) => setAmt(e.target.value.replace(/[^0-9]/g, '').slice(0, 12)), onKeyDown: (e) => { if (e.key === 'Enter')
-                        save(); } })),
-                React.createElement("div", { className: "quick" },
-                    [10000, 50000, 100000].map((v) => React.createElement("button", { key: v, type: "button", onClick: () => addQuick(v) },
-                        "+",
-                        v / 10000,
-                        "\uB9CC")),
-                    React.createElement("button", { type: "button", onClick: () => setAmt('') }, "\uC9C0\uC6B0\uAE30"))),
-            favs.length > 0 && (React.createElement("div", { className: "favs" }, favs.map((f) => React.createElement("button", { key: f.id, type: "button", className: "chip fav", onClick: () => useFav(f) },
-                React.createElement(Icon, { n: "star", s: 13 }),
-                f.label,
-                " ",
-                React.createElement("span", { className: "num" }, won(f.amount)))))),
-            tab === 'transfer' ? (React.createElement("div", { className: "form" },
-                React.createElement(Seg, { small: true, value: moveType, onChange: (v) => { setMoveType(v); setAccountId(''); setToAccountId(''); }, options: [['transfer', '계좌 이체'], ['cardpay', '카드대금'], ['draw', '사업 인출'], ['tax', '세금 납부']] }),
-                React.createElement("p", { className: "note" },
-                    autoDraw ? '사업 계좌에서 개인 계좌로 옮기는 돈이라 ‘사업 인출’로 기록할게요. ' : '',
-                    moveNote),
-                type === 'tax' && React.createElement("div", { className: "chips" }, TAX_KINDS.map((k) => React.createElement("button", { key: k, type: "button", className: cx('chip', taxKind === k && 'on'), onClick: () => setTaxKind(k) }, k))),
-                (type === 'transfer' || type === 'cardpay') && accounts.length < 2 ? React.createElement("p", { className: "err" }, "MY \u203A \uC790\uC0B0\u00B7\uACC4\uC88C\uC5D0\uC11C \uACC4\uC88C\uB97C 2\uAC1C \uC774\uC0C1 \uBA3C\uC800 \uCD94\uAC00\uD574 \uC8FC\uC138\uC694.") : (React.createElement("div", { className: "form-2" },
-                    React.createElement(Field, { label: type === 'tax' ? '납부한 계좌·카드 (선택)' : type === 'draw' ? '사업 계좌 (선택)' : '보내는 계좌' },
-                        React.createElement("select", { className: "input", value: accountId, onChange: (e) => setAccountId(e.target.value) },
-                            React.createElement("option", { value: "" }, type === 'tax' || type === 'draw' ? '선택 안 함' : '선택'),
-                            fromOpts.map((a) => React.createElement("option", { key: a.id, value: a.id }, a.name)))),
-                    type !== 'tax' && (React.createElement(Field, { label: type === 'cardpay' ? '납부할 카드' : type === 'draw' ? '받은 개인 계좌 (선택)' : '받는 계좌' },
-                        React.createElement("select", { className: "input", value: toAccountId, onChange: (e) => setToAccountId(e.target.value) },
-                            React.createElement("option", { value: "" }, type === 'draw' ? '선택 안 함' : '선택'),
-                            toOpts.map((a) => React.createElement("option", { key: a.id, value: a.id }, a.name))))))))) : (React.createElement("div", { className: "chips cats", role: "group", "aria-label": "\uCE74\uD14C\uACE0\uB9AC" }, cats.map((c) => React.createElement("button", { key: c, type: "button", className: cx('chip', cat === c && 'on', recentCats.includes(c) && 'recent'), onClick: () => { setCat(c); setErr(''); } }, c)))),
-            tab === 'income' && (() => {
-                const opts = sourcesOf(data).filter((x) => (isBiz ? x.kind === 'business' : x.kind !== 'business'));
-                if (opts.length < 2 && isBiz)
-                    return null;
-                const cur = sourceId || sourceOf({ type: 'income', scope: sc, category: cat, jobPay: b.jobPay }, data);
-                return (React.createElement("div", { className: "src-row", role: "group", "aria-label": "\uC218\uC785\uC6D0" },
-                    React.createElement("span", { className: "field-l" }, "\uC218\uC785\uC6D0"),
-                    React.createElement("div", { className: "chips" }, opts.map((x) => React.createElement("button", { key: x.id, type: "button", className: cx('chip', cur === x.id && 'on'), onClick: () => setSourceId(x.id) }, x.name)))));
-            })(),
-            isBiz && (React.createElement("div", { className: "biz-box" },
-                live(data.order).length > 0 && (React.createElement(Field, { label: "\uC8FC\uBB38 \uC5F0\uACB0 (\uC120\uD0DD)" },
-                    React.createElement("select", { className: "input", value: orderId, onChange: (e) => setOrderId(e.target.value) },
-                        React.createElement("option", { value: "" }, "\uC5F0\uACB0 \uC548 \uD568"),
-                        live(data.order).filter((o) => o.status !== 'cancel' || o.id === orderId).sort((a, c) => (c.date || '').localeCompare(a.date || '')).slice(0, 50).map((o) => React.createElement("option", { key: o.id, value: o.id }, o.name))))),
-                React.createElement(Seg, { small: true, value: vatType, onChange: setVatType, options: tab === 'income' ? [['taxable', '과세 매출'], ['exempt', '면세 매출']] : [['taxable', '부가세 포함'], ['exempt', '면세·부가세 없음']] }),
-                tab === 'expense' && (React.createElement(Field, { label: "\uC99D\uBE59" },
-                    React.createElement("select", { className: "input", value: evidence, onChange: (e) => setEvidence(e.target.value) }, EVIDENCE.map(([v, l]) => React.createElement("option", { key: v, value: v }, l))))),
-                n > 0 && React.createElement("p", { className: "small muted num" }, vatType === 'taxable' ? `공급가액 ${won(split.supply)} · 부가세 ${won(split.vat)} (입력 금액을 부가세 10% 포함으로 보고 나눴어요)` : '부가세 없는 금액으로 기록해요.'),
-                tab === 'expense' && vatType === 'taxable' && React.createElement("label", { className: "check" },
-                    React.createElement("input", { type: "checkbox", checked: nonDeductible, onChange: (e) => setNonDeductible(e.target.checked) }),
-                    "\uB9E4\uC785\uC138\uC561 \uACF5\uC81C\uAC00 \uC548 \uB418\uB294 \uD56D\uBAA9 (\uC811\uB300\uBE44 \uB4F1)"),
-                tab === 'expense' && !QUALIFY.includes(evidence) && React.createElement("p", { className: "small warn-t" }, "\uC801\uACA9\uC99D\uBE59(\uC138\uAE08\uACC4\uC0B0\uC11C\u00B7\uC0AC\uC5C5\uC6A9 \uCE74\uB4DC\u00B7\uC9C0\uCD9C\uC99D\uBE59 \uD604\uAE08\uC601\uC218\uC99D)\uC774 \uC544\uB2C8\uBA74 \uB9E4\uC785\uC138\uC561 \uACF5\uC81C \uB300\uC0C1\uC5D0\uC11C \uBE60\uC838\uC694. \uC138\uAE08 \uD654\uBA74\uC5D0\uC11C \u2018\uC99D\uBE59 \uD655\uC778 \uD544\uC694\u2019\uB85C \uBAA8\uC544 \uBCF4\uC5EC\uB4DC\uB9B4\uAC8C\uC694."))),
-            touch && (React.createElement("div", { className: "keypad" }, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map((k) => (React.createElement("button", { key: k, type: "button", onClick: () => press(k), "aria-label": k === 'del' ? '한 자리 지우기' : k }, k === 'del' ? React.createElement(Icon, { n: "del" }) : k))))),
-            err && React.createElement("p", { className: "err" }, err),
-            React.createElement("button", { type: "button", className: "more-t", onClick: () => setMore(!more), "aria-expanded": more },
-                more ? '간단히' : '날짜·메모·결제수단',
-                " ",
-                React.createElement("span", { className: "muted" }, !more && date !== today() ? dateLabel(date) : '')),
-            more && (React.createElement("div", { className: "form" },
-                React.createElement("div", { className: "form-2" },
-                    React.createElement(Field, { label: "\uB0A0\uC9DC" },
-                        React.createElement("input", { className: "input", type: "date", value: date, onChange: (e) => setDate(e.target.value) })),
-                    tab !== 'transfer' && (React.createElement(Field, { label: tab === 'income' ? '입금 계좌' : tab === 'saving' ? '출금 계좌' : '결제수단' },
-                        React.createElement("select", { className: "input", value: accountId, onChange: (e) => setAccountId(e.target.value) },
-                            React.createElement("option", { value: "" }, "\uC120\uD0DD \uC548 \uD568"),
-                            (tab === 'expense' ? accounts : nonCard).map((a) => React.createElement("option", { key: a.id, value: a.id },
-                                a.name,
-                                a.kind === 'card' ? ' (카드)' : '',
-                                a.scope === 'business' ? ' · 사업' : '')))))),
-                tab === 'expense' && !isBiz && (React.createElement(Field, { label: "\uAD00\uB828 \uC218\uC785\uC6D0 (\uC120\uD0DD)", hint: "\uD504\uB9AC\uB79C\uC11C\u00B7\uC54C\uBC14 \uC77C\uC5D0 \uB4E0 \uBE44\uC6A9\uC774\uBA74 \uACE8\uB77C \uC8FC\uC138\uC694. \uC218\uC785\uC6D0\uBCC4 \uC21C\uC218\uC775\uC5D0 \uBC18\uC601\uB3FC\uC694." },
-                    React.createElement("select", { className: "input", value: sourceId, onChange: (e) => setSourceId(e.target.value) },
-                        React.createElement("option", { value: "" }, "\uD574\uB2F9 \uC5C6\uC74C (\uC0DD\uD65C\uBE44)"),
-                        sourcesOf(data).filter((x) => x.kind !== 'business').map((x) => React.createElement("option", { key: x.id, value: x.id }, x.name))))),
-                tab === 'income' && React.createElement(Field, { label: isBiz ? '거래처·고객' : '수입처' },
-                    React.createElement("input", { className: "input", value: source, onChange: (e) => setSource(e.target.value), placeholder: isBiz ? '예: 고객 이름, 스마트스토어' : '예: 회사, 거래처 이름' })),
-                tab === 'saving' && (React.createElement("div", { className: "form-2" },
-                    React.createElement(Field, { label: "\uB123\uC740 \uACC4\uC88C (\uC120\uD0DD)" },
-                        React.createElement("select", { className: "input", value: toAccountId, onChange: (e) => setToAccountId(e.target.value) },
-                            React.createElement("option", { value: "" }, "\uC120\uD0DD \uC548 \uD568"),
-                            toOpts.map((a) => React.createElement("option", { key: a.id, value: a.id }, a.name)))),
-                    React.createElement(Field, { label: "\uC800\uCD95 \uBAA9\uD45C (\uC120\uD0DD)" },
-                        React.createElement("select", { className: "input", value: goalId, onChange: (e) => setGoalId(e.target.value) },
-                            React.createElement("option", { value: "" }, "\uC120\uD0DD \uC548 \uD568"),
-                            goals.map((g) => React.createElement("option", { key: g.id, value: g.id }, g.name)))))),
-                React.createElement(Field, { label: "\uBA54\uBAA8" },
-                    React.createElement("input", { className: "input", value: memo, onChange: (e) => setMemo(e.target.value), placeholder: "\uC608: \uC810\uC2EC, \uCFE0\uD321" })),
-                tab === 'income' && !isBiz && cat === '사업 수익' && React.createElement("p", { className: "note" }, "\uC0AC\uC5C5 \uACC4\uC88C\uB97C \uB530\uB85C \uC4F0\uACE0 \uC788\uB2E4\uBA74 \u2018\uC774\uCCB4\u00B7\uC138\uAE08 \u203A \uC0AC\uC5C5 \uC778\uCD9C\u2019\uB85C \uAE30\uB85D\uD558\uB294 \uAC8C \uB354 \uC815\uD655\uD574\uC694. \uB458 \uB2E4 \uAE30\uB85D\uD558\uBA74 \uAC1C\uC778 \uC218\uC785\uC774 \uB450 \uBC88 \uC7A1\uD600\uC694."),
-                !isEdit && hasScope && (React.createElement("label", { className: "check" },
-                    React.createElement("input", { type: "checkbox", checked: repeat, onChange: (e) => setRepeat(e.target.checked) }),
-                    "\uB9E4\uC6D4 \uAC19\uC740 \uB0A0 \uBC18\uBCF5 (",
-                    tab === 'income' ? '정기수입' : '고정비',
-                    "\uC73C\uB85C \uB4F1\uB85D)")),
-                tab !== 'transfer' && React.createElement("button", { type: "button", className: "btn small", onClick: saveFav },
-                    React.createElement(Icon, { n: "star", s: 15 }),
-                    "\uC9C0\uAE08 \uC785\uB825\uC744 \uC990\uACA8\uCC3E\uAE30\uB85C \uC800\uC7A5"))))));
+                h("span", { className: "muted" }, !more && date !== today() ? dateLabel(date) : '')),
+            more && (h("div", { className: "form" },
+                h(Field, { label: "날짜" },
+                    h("input", { className: "input", type: "date", value: date, onChange: (e) => setDate(e.target.value) })),
+                tab !== 'transfer' && (h(Field, { label: tab === 'income' ? '입금 계좌' : tab === 'saving' ? '출금 계좌' : isTax ? '납부한 계좌·카드 (선택)' : '결제수단' },
+                    h("select", { className: "input", value: payVal, onChange: (e) => onPay(e.target.value) },
+                        h("option", { value: "" }, "선택 안 함"),
+                        (tab === 'expense' ? payAccs : nonCard).map((a) => h("option", { key: a.id, value: a.id }, a.name, a.kind === 'card' ? ' (카드)' : '', a.scope === 'business' ? ' · 사업' : '')),
+                        tab === 'expense' && methods.map((m) => h("option", { key: 'pm:' + m, value: 'pm:' + m }, m)),
+                        tab === 'expense' && payMethod && !methods.includes(payMethod) && h("option", { value: 'pm:' + payMethod }, payMethod),
+                        tab === 'expense' && h("option", { value: "__new" }, "+ 직접 입력 (예: 카카오페이)")))),
+                pmNew && h(Field, { label: "결제수단 이름", hint: "저장하면 다음부터 목록에서 바로 고를 수 있어요." },
+                    h("input", { className: "input", value: pmText, onChange: (e) => setPmText(e.target.value), placeholder: "예: 카카오페이, 네이버페이, 현금", maxLength: 20 })),
+                tab === 'expense' && !isBiz && !isTax && (h(Field, { label: "관련 수입원 (선택)", hint: "프리랜서·알바 일에 든 비용이면 골라 주세요. 수입원별 순수익에 반영돼요." },
+                    h("select", { className: "input", value: sourceId, onChange: (e) => setSourceId(e.target.value) },
+                        h("option", { value: "" }, "해당 없음 (생활비)"),
+                        sourcesOf(data).filter((x) => x.kind !== 'business').map((x) => h("option", { key: x.id, value: x.id }, x.name))))),
+                tab === 'income' && h(Field, { label: isBiz ? '거래처·고객' : '보낸 곳' },
+                    h("input", { className: "input", value: source, onChange: (e) => setSource(e.target.value), placeholder: isBiz ? '예: 고객 이름, 스마트스토어' : '예: 회사, 거래처 이름' })),
+                tab === 'saving' && (h("div", { className: "form-2" },
+                    h(Field, { label: "넣은 계좌 (선택)" },
+                        h("select", { className: "input", value: toAccountId, onChange: (e) => setToAccountId(e.target.value) },
+                            h("option", { value: "" }, "선택 안 함"),
+                            toOpts.map((a) => h("option", { key: a.id, value: a.id }, a.name)))),
+                    h(Field, { label: "저축 목표 (선택)" },
+                        h("select", { className: "input", value: goalId, onChange: (e) => setGoalId(e.target.value) },
+                            h("option", { value: "" }, "선택 안 함"),
+                            goals.map((g) => h("option", { key: g.id, value: g.id }, g.name)))))),
+                h(Field, { label: "메모" },
+                    h("input", { className: "input", value: memo, onChange: (e) => setMemo(e.target.value), placeholder: "예: 점심, 쿠팡" })),
+                tab === 'income' && !isBiz && catVal === '사업 수익' && h("p", { className: "note" }, "사업 계좌를 따로 쓰고 있다면 ‘이체 › 사업 인출’로 기록하는 게 더 정확해요. 둘 다 기록하면 개인 수입이 두 번 잡혀요."),
+                !isEdit && (tab === 'income' || tab === 'expense') && !isTax && (h("label", { className: "check" },
+                    h("input", { type: "checkbox", checked: repeat, onChange: (e) => setRepeat(e.target.checked) }),
+                    "매월 같은 날 반복 (", tab === 'income' ? '정기수입' : '고정비', "으로 등록)")),
+                tab !== 'transfer' && h("button", { type: "button", className: "btn small", onClick: saveFav },
+                    h(Icon, { n: "star", s: 15 }),
+                    "지금 입력을 즐겨찾기로 저장"))))));
 }
 const baseCatsFor = (t) => (t === 'income' ? incCats() : t === 'saving' ? SAVING_CATS : t === 'expense' ? expCats() : []);
 function BulkSheet({ onClose }) {
@@ -24688,7 +25141,7 @@ function DataSection({ busy, setBusy }) {
                 ...live(data.rule).map((r) => [r.name, r.kind === 'income' ? '정기수입' : '고정지출', r.amount, r.day, r.category, r.interval || 1, r.startMonth, r.endMonth || ''])]), '고정비');
             const bal = accountBalances(data);
             X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet([['날짜', '구분', '근무처·업무', '시작', '종료', '휴식(분)', '근무(분)', '시급', '예상 급여', '주문', '메모'],
-                ...live(data.worklog).sort((a, c) => a.date.localeCompare(c.date)).map((w) => [w.date, w.kind === 'job' ? '아르바이트' : '사업', w.kind === 'job' ? (jobById(data, w.jobId) || {}).name || '' : w.type, w.start || '', w.end || '', w.breakMin || 0, w.minutes, w.wage || '', w.pay || '', w.orderId && data.order[w.orderId] ? data.order[w.orderId].name : '', w.memo || ''])]), '근무');
+                ...live(data.worklog).sort((a, c) => a.date.localeCompare(c.date)).map((w) => [w.date, w.kind === 'job' ? '아르바이트' : w.kind === 'poker' ? '포커' : '사업', w.kind === 'job' ? (jobById(data, w.jobId) || {}).name || '' : w.kind === 'poker' ? `${w.event || ''}${w.pokerMode === 'online' ? ' (온라인)' : ''} · 손익 ${pokerProfit(w)}` : w.type, w.start || '', w.end || '', w.breakMin || 0, w.minutes, w.wage || '', w.pay || '', w.orderId && data.order[w.orderId] ? data.order[w.orderId].name : '', w.memo || ''])]), '근무');
             X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet([['계좌', '종류', '현재 잔액'], ...live(data.account).map((a) => [a.name, ACC_KINDS[a.kind], bal[a.id]])]), '계좌');
             await download(`mybalance-${stamp}.xlsx`, new Blob([X.write(wb, { bookType: 'xlsx', type: 'array' })], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), '', toast);
         }
@@ -24804,7 +25257,11 @@ function ImportSheet({ res, name, onClose }) {
             React.createElement("span", { className: "row-amt num" }, won(t.amount)))))));
 }
 /* ───────── 작은 시트들 ───────── */
-function AccountSheet({ acc, prefill, onClose }) {
+// 대출은 전용 '대출 추가' 시트로 열어요 (예전 경로로 열어도 같은 시트)
+function AccountSheet(p) {
+    return (p.acc && p.acc.kind === 'loan') || (p.prefill && p.prefill.kind === 'loan') ? React.createElement(LoanSheet, { acc: p.acc, onClose: p.onClose }) : React.createElement(AccountSheetBase, p);
+}
+function AccountSheetBase({ acc, prefill, onClose }) {
     const { commit, toast, data } = useApp();
     const signOf = (k) => (k === 'loan' || k === 'card' ? -1 : 1);
     const [f, setF] = useState(() => acc ? { ...acc, initialAbs: Math.abs(acc.initial || 0), neg: (acc.initial || 0) < 0 } : { name: '', kind: 'cash', initialAbs: 0, memo: '', scope: 'personal', ...(prefill || {}) });
@@ -24838,7 +25295,7 @@ function AccountSheet({ acc, prefill, onClose }) {
                 React.createElement("input", { className: "input", value: f.name, onChange: (e) => setF({ ...f, name: e.target.value }), placeholder: "\uC608: \uAD6D\uBBFC \uC785\uCD9C\uAE08, \uD604\uB300\uCE74\uB4DC" })),
             React.createElement(Seg, { small: true, value: f.scope || 'personal', onChange: (v) => setF({ ...f, scope: v }), options: [['personal', '개인 계좌'], ['business', '사업 계좌']] }),
             React.createElement(Field, { label: "\uC885\uB958" },
-                React.createElement("div", { className: "chips" }, Object.entries(ACC_KINDS).map(([k, l]) => React.createElement("button", { key: k, type: "button", className: cx('chip', f.kind === k && 'on'), onClick: () => setF({ ...f, kind: k }) }, l)))),
+                React.createElement("div", { className: "chips" }, Object.entries(ACC_KINDS).filter(([k]) => k !== 'loan' || f.kind === 'loan').map(([k, l]) => React.createElement("button", { key: k, type: "button", className: cx('chip', f.kind === k && 'on'), onClick: () => setF({ ...f, kind: k }) }, l)))),
             f.kind === 'invest' && React.createElement(Field, { label: "\uC790\uC0B0\uAD70" },
                 React.createElement("div", { className: "chips" }, ASSET_CLASSES.map((c) => React.createElement("button", { key: c, type: "button", className: cx('chip', (f.assetClass || '기타') === c && 'on'), onClick: () => setF({ ...f, assetClass: c }) }, c)))),
             f.kind === 'reserve' && React.createElement(Field, { label: "\uBB34\uC5C7\uC744 \uC704\uD55C \uC900\uBE44\uAE08" },
