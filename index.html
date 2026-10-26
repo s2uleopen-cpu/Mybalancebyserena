@@ -1191,6 +1191,28 @@ html,body,#root{height:100%;overflow:hidden}
 .home7 .h6-kpi,.home7 .hcard{padding:20px}.home7 .h6-kpi .k-v{font-size:30px}
 }
 
+
+.monthly-review .card{margin-top:12px}.monthly-review .check{align-items:flex-start}.monthly-review .hs-t b{font-size:13px;overflow-wrap:anywhere}.monthly-review .hs-row{flex-wrap:wrap}.monthly-review .mini-rows b{font-variant-numeric:tabular-nums}
+/* Compact input area: amount stays adjacent to keypad on small screens. */
+.entry .amount{padding:6px 0 10px}.entry .amount-v{margin:0 0 4px;font-size:clamp(28px,8vw,42px)}
+.entry .keypad{margin:6px 0;gap:6px}.entry .keypad button{height:44px;min-height:44px;padding:4px;font-size:23px}
+.entry .quick{margin:6px 0}.entry-save-date{flex-basis:100%;font-size:12px}.sheet-f{flex-wrap:wrap}
+.save-status{display:flex;gap:8px;flex-wrap:wrap;padding:6px 2px 12px;font-size:11px}
+@media(max-height:700px){.entry .keypad button{height:40px;min-height:40px}.entry .amount-v{font-size:28px}}
+.money-bar{display:flex;align-items:center;border:1px solid var(--line);border-radius:14px;background:var(--surface);gap:2px;padding:4px 6px;min-width:0}.money-message{flex:1;display:flex;align-items:center;gap:9px;border:0;background:none;color:var(--ink);text-align:left;padding:8px;min-width:0;min-height:44px;font:inherit;font-size:13px;cursor:pointer}.money-title{flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45}.money-settings{width:40px;min-height:44px;background:none;color:var(--ink2);border:0;cursor:pointer;display:grid;place-items:center}.money-bar.good{border-left:3px solid var(--sage,#6f9078)}.money-bar.warn{border-left:3px solid var(--accent,#3268df)}.money-detail{padding:14px 0;border-bottom:1px solid var(--line)}.money-detail h3{font-size:16px;margin:0 0 8px}.money-detail p{line-height:1.6}.money-message:focus-visible,.money-settings:focus-visible{outline:2px solid var(--accent,#3268df);outline-offset:1px}
+/* Friendly, compact notification treatment; no flashing or auto rotation. */
+.money-bar{--hint-bg:var(--sage-soft);--hint-fg:var(--primary);background:var(--surface);border-left:3px solid var(--hint-fg)}
+.money-bar.good,.money-detail.good{--hint-bg:rgba(51,153,112,.12);--hint-fg:#27815e}
+.money-bar.warn,.money-detail.warn{--hint-bg:var(--warn-soft);--hint-fg:#986b20}
+.money-detail.info{--hint-bg:var(--sage-soft);--hint-fg:var(--primary)}
+.money-message{padding:5px 7px;gap:10px;min-height:48px}
+.money-emoji{flex:none;display:inline-grid;place-items:center;width:34px;height:34px;font-size:23px;line-height:1;background:var(--hint-bg,var(--sage-soft));border-radius:11px;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.money-copy{flex:1;min-width:0}.money-kicker{display:block;font-size:10px;font-weight:650;line-height:1.3;letter-spacing:.02em;color:var(--hint-fg,var(--ink2));margin-bottom:2px}
+.money-title{font-size:13px;line-height:1.4;font-weight:500}.money-chevron{color:var(--ink3);font-size:20px;flex:none}
+.money-detail-heading{display:flex;gap:10px;align-items:center}.money-detail-heading h3{margin:0;font-size:15px;line-height:1.45}
+[data-theme="dark"] .money-bar.good,[data-theme="dark"] .money-detail.good{--hint-fg:#79cca8}
+[data-theme="dark"] .money-bar.warn,[data-theme="dark"] .money-detail.warn{--hint-fg:#e3bc77}
+@media(max-width:360px){.money-message{gap:7px;padding:5px}.money-emoji{width:30px;height:30px;font-size:21px}.money-settings{width:34px}}
 </style>
 </head>
 <body>
@@ -18437,7 +18459,7 @@ const userKey = (uid) => 'mb_user_v1_' + uid;
 /* ───────── 유틸 ───────── */
 const pad = (n) => String(n).padStart(2, '0');
 const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-const today = () => ymd(new Date());
+const today = (instant = new Date()) => new Intl.DateTimeFormat('sv-SE', {timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(instant);
 const thisMonth = () => today().slice(0, 7);
 const addM = (m, k) => {
     let [y, mo] = m.split('-').map(Number);
@@ -18502,13 +18524,25 @@ function saveLocal(key, d) {
         return false;
     }
 }
+const safeTheme = () => {try{return localStorage.getItem('mb_theme');}catch(e){return 'light';}};
+const revisionActor = newId();
+const compareRec = (a, b) => {
+    const ar = a && a._rev, br = b && b._rev;
+    if (!!ar !== !!br) return ar ? 1 : -1;
+    if (ar && br) return (ar.n - br.n) || String(ar.actor).localeCompare(String(br.actor));
+    return ((a && a.updatedAt) || 0) - ((b && b.updatedAt) || 0);
+};
+function stampChanges(data, changes, actor = revisionActor, now = Date.now()) {
+    const n = 1 + Math.max(0, ...KINDS.map(k => Object.values(data[k] || {}).reduce((v,r) => Math.max(v, r._rev ? r._rev.n : 0),0)));
+    return changes.map(c => ({kind:c.kind, rec:{...c.rec, updatedAt:now, _rev:{n,actor}}}));
+}
 function mergeData(a, b) {
     const out = emptyData();
     KINDS.forEach((k) => {
         out[k] = { ...(a[k] || {}) };
         Object.values(b[k] || {}).forEach((r) => {
             const cur = out[k][r.id];
-            if (!cur || (r.updatedAt || 0) > (cur.updatedAt || 0))
+            if (!cur || compareRec(r, cur) > 0)
                 out[k][r.id] = r;
         });
     });
@@ -18540,7 +18574,7 @@ function mergeDocsInto(target, docs) {
             if (!rec || !rec.id)
                 return;
             const cur = target[body.kind][rec.id];
-            if (!cur || (rec.updatedAt || 0) > (cur.updatedAt || 0)) {
+            if (!cur || compareRec(rec, cur) > 0) {
                 target[body.kind] = { ...target[body.kind], [rec.id]: rec };
                 changed = true;
             }
@@ -18614,16 +18648,13 @@ function fbAdapter(fdb) {
                     const d = c.doc(id);
                     return {
                         // 바뀐 항목만 통째로 교체 (다른 항목은 그대로) — 문서가 없으면 invalid_argument로 알려 새로 만들게 해요
-                        update: (o) => {
-                            const FP = window.firebase.firestore.FieldPath;
-                            const args = [];
-                            Object.entries(o.items || {}).forEach(([k, v]) => { args.push(new FP('items', k), v); });
-                            if (!args.length)
-                                return Promise.resolve();
-                            return d.update(...args).catch((e) => { if (e && e.code === 'not-found')
-                                e.code = 'invalid_argument'; throw mapErr(e); });
-                        },
-                        set: (o) => d.set(o, { merge: true }).catch((e) => { throw mapErr(e); }),
+                        update: (o) => fdb.runTransaction(async tr => {
+                            const snap = await tr.get(d), old = snap.exists ? snap.data() : {items:{}};
+                            const items = {...(old.items || {})};
+                            Object.entries(o.items || {}).forEach(([id,r]) => { if (!items[id] || compareRec(r,items[id]) > 0) items[id] = r; });
+                            tr.set(d, {kind:id.split('_')[0],items}, {merge:true});
+                        }).catch(e => { throw mapErr(e); }),
+                        set: (o) => d.set(o, {merge:true}).catch(e => {throw mapErr(e);}),
                         get: () => d.get(),
                     };
                 },
@@ -18633,250 +18664,146 @@ function fbAdapter(fdb) {
     };
 }
 function useStore() {
-    const [user, setUser] = useState(null);
-    const [data, setData] = useState(() => loadLocal(GUEST_KEY) || emptyData());
-    const [status, setStatus] = useState('local');
-    const [choice, setChoice] = useState(null);
-    const keyRef = useRef(GUEST_KEY);
-    const dataRef = useRef(data);
-    const colRef = useRef(null);
-    const queueRef = useRef({});
-    const flushingRef = useRef(false);
-    const timerRef = useRef(null);
-    dataRef.current = data;
-    // 기기 저장: 이 탭에서 바뀐 게 있을 때만, 저장소의 최신 내용과 합쳐서 저장 (다른 탭 기록 보호)
-    const dirtyRef = useRef(false);
-    const persist = useCallback(() => {
-        if (!dirtyRef.current)
-            return true;
-        const key = keyRef.current;
-        const stored = loadLocal(key);
-        const ok = saveLocal(key, stored ? mergeData(stored, dataRef.current) : dataRef.current);
-        if (ok)
-            dirtyRef.current = false;
-        return ok;
-    }, []);
-    useEffect(() => {
-        if (!dirtyRef.current)
-            return;
-        const t = setTimeout(() => {
-            const ok = persist();
-            if (!ok)
-                setStatus('error');
-            else if (keyRef.current === GUEST_KEY)
-                setStatus('local');
-        }, 250);
-        return () => clearTimeout(t);
-    }, [data, persist]);
-    useEffect(() => {
-        const flush = () => { persist(); };
-        const onStorage = (e) => {
-            if (e.key !== keyRef.current)
-                return;
-            const other = loadLocal(keyRef.current);
-            if (other)
-                setData((prev) => mergeData(prev, other));
-        };
-        window.addEventListener('pagehide', flush);
-        document.addEventListener('visibilitychange', flush);
-        window.addEventListener('storage', onStorage);
-        return () => { window.removeEventListener('pagehide', flush); document.removeEventListener('visibilitychange', flush); window.removeEventListener('storage', onStorage); };
-    }, [persist]);
-    // 계정 저장소로 보내기: 문서마다 한 번에 하나씩, 바뀐 항목만 묶어서
-    const flushQueue = useCallback(async () => {
-        if (flushingRef.current || !colRef.current)
-            return;
-        flushingRef.current = true;
-        let failed = false;
-        try {
-            while (Object.keys(queueRef.current).length) {
-                const [bucket, items] = Object.entries(queueRef.current)[0];
-                delete queueRef.current[bucket];
-                const ref = colRef.current.doc(bucket);
-                const body = clean(items);
-                const kind = bucket.split('_')[0];
-                let tries = 0;
-                for (;;) {
-                    try {
-                        try {
-                            await ref.update({ items: body });
-                        }
-                        catch (e) {
-                            if (!e || e.code !== 'invalid_argument')
-                                throw e;
-                            const snap = await ref.get();
-                            if (snap.exists)
-                                throw e;
-                            await ref.set({ kind, items: body });
-                        }
-                        break;
-                    }
-                    catch (e) {
-                        if (e && e.code === 'unavailable' && tries < 2) {
-                            tries++;
-                            await sleep(600 + Math.random() * 900);
-                            continue;
-                        }
-                        queueRef.current[bucket] = { ...items, ...(queueRef.current[bucket] || {}) };
-                        throw e;
-                    }
-                }
-            }
+ const [data,setData]=useState(()=>loadLocal(GUEST_KEY)||emptyData());
+ const [user,setUser]=useState(null),[status,setStatus]=useState('local'),[choice,setChoice]=useState(null);
+ const [localState,setLocalState]=useState('saved'),[lastSaved,setLastSaved]=useState(null);
+ const ref=useRef({data,key:GUEST_KEY,col:null,epoch:0,queue:{},timer:null,unsub:null,connecting:null,choice:null,pending:null});
+ const saveDisk=useCallback((next,key=ref.current.key)=>{
+   if(!saveLocal(key,next)){setLocalState('error');return false;}
+   setLocalState('saved');setLastSaved(Date.now());return true;
+ },[]);
+ const apply=useCallback(next=>{ref.current.data=next;setData(next);},[]);
+ const flushQueue=useCallback(async()=>{
+   const R=ref.current, epoch=R.epoch, col=R.col;
+   if(!col || R.flushing===epoch)return;
+   R.flushing=epoch;setStatus('syncing');
+   try{
+    while(R.epoch===epoch && Object.keys(R.queue).length){
+     const [bucket,items]=Object.entries(R.queue)[0]; delete R.queue[bucket];
+     const doc=col.doc(bucket);let tries=0;
+     while(true){
+      if(R.epoch!==epoch)return;
+      try{
+       const snap=await doc.get(); if(R.epoch!==epoch)return;
+       const old=snap.exists?snap.data():null, body={};
+       Object.entries(items).forEach(([id,r])=>{if(!old?.items?.[id]||compareRec(r,old.items[id])>0)body[id]=r;});
+       if(Object.keys(body).length){
+        try{await doc.update({items:clean(body)});}catch(e){
+         if(R.epoch!==epoch)return;
+         if(e?.code!=='invalid_argument')throw e;
+         await doc.set({kind:bucket.split('_')[0],items:clean(body)});
         }
-        catch (e) {
-            failed = true;
-            console.error(e);
-            setStatus(e && e.code === 'quota_exceeded' ? 'quota' : 'error');
-        }
-        finally {
-            flushingRef.current = false;
-        }
-        if (!failed)
-            setStatus(Object.keys(queueRef.current).length ? 'syncing' : 'synced');
-        if (!failed && Object.keys(queueRef.current).length)
-            flushQueue();
-    }, []);
-    const enqueue = useCallback((items, delay = 400) => {
-        if (!colRef.current || !items.length)
-            return;
-        items.forEach(({ kind, rec }) => {
-            const b = bucketOf(kind, rec);
-            queueRef.current[b] = { ...(queueRef.current[b] || {}), [rec.id]: rec };
-        });
-        setStatus('syncing');
-        clearTimeout(timerRef.current);
-        timerRef.current = setTimeout(flushQueue, delay);
-    }, [flushQueue]);
-    const commit = useCallback((changes) => {
-        if (!changes.length)
-            return;
-        const now = Date.now();
-        const stamped = changes.map((c, i) => ({ kind: c.kind, rec: { ...c.rec, updatedAt: now + i } }));
-        dirtyRef.current = true;
-        setData((prev) => {
-            const next = { ...prev };
-            stamped.forEach(({ kind, rec }) => { next[kind] = { ...next[kind], [rec.id]: rec }; });
-            return next;
-        });
-        enqueue(stamped);
-    }, [enqueue]);
-    const retry = useCallback(() => { setStatus('syncing'); flushQueue(); }, [flushQueue]);
-    // 계정 저장소 연결: Claude 앱·claude.ai는 Claude 계정, GitHub 배포본은 Google 로그인(Firebase)
-    useEffect(() => {
-        let cancelled = false, unsub = null;
-        const connect = async (db, uid, info) => {
-            if (cancelled || !db || !uid)
-                return;
-            persist();
-            setUser({ uid, ...(info || {}) });
-            setStatus('syncing');
-            const col = db.collection('data/users/' + uid);
-            const snap = await col.limit(1000).get();
-            if (cancelled)
-                return;
-            const cloud = emptyData();
-            mergeDocsInto(cloud, snap.docs.map((d) => d.data()));
-            const cache = loadLocal(userKey(uid));
-            let merged = cloud;
-            if (cache)
-                merged = mergeData(cloud, cache);
-            else {
-                const guest = loadLocal(GUEST_KEY) || emptyData();
-                const gc = countLive(guest);
-                if (gc > 0) {
-                    const pick = countLive(cloud) === 0 ? 'merge' : await new Promise((resolve) => setChoice({ guestCount: gc, cloudCount: countLive(cloud), resolve }));
-                    setChoice(null);
-                    if (pick === 'merge')
-                        merged = mergeData(cloud, guest);
-                }
-            }
-            // 화면에서 이미 바뀐 내용(연결 중 입력)도 합치기
-            merged = mergeData(merged, dataRef.current === data ? emptyData() : dataRef.current);
-            keyRef.current = userKey(uid);
-            saveLocal(keyRef.current, merged);
-            dirtyRef.current = false;
-            setData(merged);
-            colRef.current = col;
-            const toPush = [];
-            KINDS.forEach((k) => Object.values(merged[k]).forEach((r) => {
-                const c = cloud[k][r.id];
-                if (!c || (r.updatedAt || 0) > (c.updatedAt || 0))
-                    toPush.push({ kind: k, rec: { ...r, updatedAt: r.updatedAt || Date.now() } });
-            }));
-            if (toPush.length)
-                enqueue(toPush, 50);
-            else
-                setStatus('synced');
-            unsub = col.onSnapshot((s) => {
-                const bodies = s.docChanges().filter((ch) => ch.type !== 'removed').map((ch) => ch.doc.data());
-                if (!bodies.length)
-                    return;
-                setData((prev) => {
-                    const next = { ...prev };
-                    const changed = mergeDocsInto(next, bodies);
-                    if (changed)
-                        dirtyRef.current = true;
-                    return changed ? next : prev;
-                });
-            }, (err) => { console.error(err); if (err && err.code !== 'revoked')
-                setStatus('error'); });
-        };
-        let unAuth = null;
-        (async () => {
-            if (window.claude && typeof window.claude.use === 'function') {
-                const [db, u] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
-                if (cancelled || !db || !u)
-                    return;
-                // Claude 계정 이름·프로필 사진 (표시용으로만 쓰고 저장하지 않아요)
-                let me = null;
-                try {
-                    me = u.me ? await u.me() : null;
-                }
-                catch (e) {
-                    me = null;
-                }
-                await connect(db, await u.id(), { provider: 'claude', name: (me && me.name) || '', photo: (me && me.avatarUrl) || '' });
-                return;
-            }
-            if (!fbConfig())
-                return;
-            const fb = await fbInit();
-            if (cancelled || !fb) {
-                if (!fb && fbConfig())
-                    setStatus('error');
-                return;
-            }
-            unAuth = fb.auth.onAuthStateChanged((fu) => {
-                if (cancelled)
-                    return;
-                if (fu) {
-                    if (colRef.current && keyRef.current === userKey(fu.uid))
-                        return;
-                    connect(fbAdapter(fb.db), fu.uid, { provider: 'google', name: fu.displayName || '', email: fu.email || '', photo: fu.photoURL || '' }).catch((e) => { console.error(e); setStatus('error'); });
-                }
-                else if (colRef.current) {
-                    // 로그아웃: 계정 연결을 끊고 이 브라우저의 기록(로그인 전 기록)으로 돌아가요
-                    if (unsub) {
-                        unsub();
-                        unsub = null;
-                    }
-                    colRef.current = null;
-                    queueRef.current = {};
-                    persist();
-                    keyRef.current = GUEST_KEY;
-                    dirtyRef.current = false;
-                    setUser(null);
-                    setData(loadLocal(GUEST_KEY) || emptyData());
-                    setStatus('local');
-                }
-            });
-        })().catch((e) => { console.error(e); setStatus('error'); });
-        return () => { cancelled = true; if (unsub)
-            unsub(); if (unAuth)
-            unAuth(); };
-    }, []);
-    return { data, commit, status, user, choice, retry };
+       }
+       break;
+      }catch(e){
+       if(R.epoch!==epoch)return;
+       if(e?.code==='unavailable' && tries++<2){await sleep(300*tries);continue;}
+       R.queue[bucket]={...items,...(R.queue[bucket]||{})};throw e;
+      }
+     }
+    }
+    if(R.epoch===epoch)setStatus('synced');
+   }catch(e){if(R.epoch===epoch){console.error(e);setStatus(e?.code==='quota_exceeded'?'quota':'error');}}
+   finally{if(R.flushing===epoch)R.flushing=null;}
+ },[]);
+ const enqueue=useCallback(changes=>{
+  const R=ref.current;if(!R.col)return;
+  changes.forEach(({kind,rec})=>{const b=bucketOf(kind,rec);R.queue[b]={...(R.queue[b]||{}),[rec.id]:rec};});
+  setStatus('syncing');clearTimeout(R.timer);R.timer=setTimeout(flushQueue,300);
+ },[flushQueue]);
+ const commit=useCallback(changes=>{
+  if(!changes.length)return true;
+  const R=ref.current;
+  const base=mergeData(R.data,loadLocal(R.key)||emptyData());
+  const stamped=stampChanges(base,changes),next=mergeData(base,emptyData());
+  stamped.forEach(({kind,rec})=>{if(!KINDS.includes(kind)||!rec.id)throw new Error('잘못된 저장 항목');next[kind][rec.id]=rec;});
+  // Durable commit before state/success UI. Failed operations stay in the form and must be saved again.
+  if(!saveDisk(next)) {R.pending=next;throw new Error('기기 저장 실패: 공간과 브라우저 저장 권한을 확인한 후 다시 저장해 주세요.');}
+  R.pending=null;
+  if(R.connecting)R.connecting.edits.push(...stamped);
+  apply(next);enqueue(stamped);return true;
+ },[saveDisk,apply,enqueue]);
+ const connectRef=useRef(null);
+ const retry=useCallback(()=>{
+  const R=ref.current;
+  // Do not auto-commit a failed form: it may have been edited since failure.
+  if(!saveDisk(R.data))return;
+  if(R.pending)setLocalState('retry');
+  if(R.col)flushQueue();else if(connectRef.current)connectRef.current();
+ },[saveDisk,flushQueue]);
+ useEffect(()=>{
+  const R=ref.current;
+  const storage=e=>{if(e.key===R.key){const other=loadLocal(R.key);if(other){const next=mergeData(R.data,other);if(KINDS.some(k=>Object.values(next[k]).some(r=>!other[k][r.id]||compareRec(r,other[k][r.id])>0)))saveDisk(next);apply(next);enqueue(KINDS.flatMap(kind=>Object.values(next[kind]).map(rec=>({kind,rec}))));}}};
+  window.addEventListener('storage',storage);
+  return()=>window.removeEventListener('storage',storage);
+ },[apply,enqueue,saveDisk]);
+ useEffect(()=>{
+  const R=ref.current;let stopped=false,unAuth=null;
+  const disconnect=()=>{
+   R.epoch++;clearTimeout(R.timer);R.initialUnsub?.();R.initialUnsub=null;R.cancelInitial?.();R.cancelInitial=null;R.unsub?.();R.unsub=null;R.col=null;R.queue={};R.flushing=null;
+   R.connecting=null;if(R.choice){R.choice('cancel');R.choice=null;}setChoice(null);
+  };
+  const connect=async(db,uid,info)=>{
+   disconnect();const epoch=R.epoch;const sourceKey=R.key;
+   const session={epoch,edits:[]};R.connecting=session;setStatus('syncing');
+   const valid=()=>!stopped&&R.epoch===epoch;
+   try{
+    const col=db.collection('data/users/'+uid);
+    // Full initial snapshot, no 1000-document truncation.
+    const snap=await new Promise((resolve,reject)=>{let off=null;R.cancelInitial=()=>reject(new Error('연결 취소'));off=col.onSnapshot(s=>{resolve(s);queueMicrotask(()=>off?.());},reject);R.initialUnsub=off;});
+    if(valid()){R.initialUnsub=null;R.cancelInitial=null;}
+    if(!valid())return;
+    const cloud=emptyData();mergeDocsInto(cloud,snap.docs.map(d=>d.data()));
+    const cache=loadLocal(userKey(uid));let merged=mergeData(cloud,cache||emptyData());
+    if(!cache && sourceKey===GUEST_KEY){
+     const guest=loadLocal(GUEST_KEY)||emptyData();
+     // exclude edits made during connection from baseline; apply these explicitly below
+     const edits=new Set(session.edits.map(c=>c.kind+'|'+c.rec.id));
+     KINDS.forEach(k=>Object.keys(guest[k]).forEach(id=>{if(edits.has(k+'|'+id))delete guest[k][id];}));
+     if(countLive(guest)>0){
+      const pick=await new Promise(resolve=>{R.choice=resolve;setChoice({guestCount:countLive(guest),cloudCount:countLive(cloud),resolve});});
+      if(!valid()||pick==='cancel')return;
+      R.choice=null;setChoice(null);if(pick==='merge')merged=mergeData(merged,guest);
+     }
+    }
+    if(!valid())return;
+    // Only new writes during this connection are eligible; never merge the entire prior account.
+    if(sourceKey===GUEST_KEY || sourceKey===userKey(uid)){
+     const updates=stampChanges(merged,session.edits);updates.forEach(({kind,rec})=>{merged[kind][rec.id]=rec;});
+    }
+    if(!saveDisk(merged,userKey(uid)))throw new Error('계정 데이터를 기기에 저장하지 못했어요');
+    R.key=userKey(uid);R.col=col;R.connecting=null;R.pending=null;apply(merged);setUser({uid,...info});
+    const push=[];KINDS.forEach(kind=>Object.values(merged[kind]).forEach(rec=>{const c=cloud[kind][rec.id];if(!c||compareRec(rec,c)>0)push.push({kind,rec});}));
+    if(push.length)enqueue(push);else setStatus('synced');
+    R.unsub=col.onSnapshot(s=>{
+     if(!valid())return;const next=mergeData(R.data,emptyData());
+     mergeDocsInto(next,s.docs.map(d=>d.data()));
+     if(saveDisk(next))apply(next);
+     // Repair stale writes on adapters without transactions; deterministic revision winner.
+     const remote=emptyData();mergeDocsInto(remote,s.docs.map(d=>d.data()));
+     const repair=[];KINDS.forEach(kind=>Object.values(next[kind]).forEach(rec=>{const c=remote[kind][rec.id];if(!c||compareRec(rec,c)>0)repair.push({kind,rec});}));
+     if(repair.length)enqueue(repair);
+    },e=>{if(valid()){console.error(e);setStatus('error');}});
+   }catch(e){if(valid()){R.connecting=null;console.error(e);setStatus('error');}}
+  };
+  (async()=>{
+   if(window.claude&&typeof window.claude.use==='function'){
+    const [db,u]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);if(stopped||!db||!u)return;
+    const uid=await u.id();if(stopped)return;
+    connectRef.current=()=>connect(db,uid,{provider:'claude'});await connectRef.current();return;
+   }
+   if(!fbConfig())return;const fb=await fbInit();if(stopped||!fb)return;
+   unAuth=fb.auth.onAuthStateChanged(fu=>{
+    if(stopped)return;
+    if(fu){connectRef.current=()=>connect(fbAdapter(fb.db),fu.uid,{provider:'google',name:fu.displayName||'',email:fu.email||'',photo:fu.photoURL||''});connectRef.current();}
+    else{disconnect();connectRef.current=null;R.key=GUEST_KEY;R.pending=null;apply(loadLocal(GUEST_KEY)||emptyData());setUser(null);setStatus('local');}
+   });
+  })().catch(e=>{if(!stopped){console.error(e);setStatus('error');}});
+  return()=>{stopped=true;disconnect();unAuth?.();};
+ },[apply,enqueue,saveDisk]);
+ return {data,user,status,choice,commit,retry,localState,lastSaved};
 }
+
 /* ───────── 계산 ───────── */
 function ruleActive(r, m) {
     if (!r.startMonth || m < r.startMonth)
@@ -18936,23 +18863,23 @@ const amt = (t) => t.amount;
    · 수입: 수입 거래 전체(개인·사업)
    · 지출: 지출 거래 전체(개인·사업, 카드 사용 포함) + 세금 실제 납부
            더치페이는 실제로 나간 돈 기준 (내가 결제: 전체 − 받은 정산금 / 상대방 결제: 보낸 정산금)
-   · 별도 분류(합계 제외): 저축·투자, 계좌 간 이체, 카드대금 납부(카드 사용 때 이미 지출), 대출 원금 상환
-           (대출 계좌로 이체·‘대출 상환’ 지출), 대출 실행(대출 계좌에서 이체), 세금 적립(적립 계좌로 이체), 사업 인출(사업→개인 이동) */
+   · 별도 분류(합계 제외): 저축·투자, 계좌 간 이체, 카드대금 납부(카드 사용 때 이미 지출)
+           대출 실행(대출 계좌에서 이체), 세금 적립(적립 계좌로 이체), 사업 인출(사업→개인 이동) */
 const LOAN_PRINCIPAL_CAT = '대출 상환';
 const dutchGot = (t) => sum(t.split.parts || [], (p) => Math.min(p.settled || 0, p.share || 0));
 const dutchCashOut = (t) => (t.split.payer === 'other' ? dutchGot(t) : (t.split.total || t.amount) - dutchGot(t));
 function cashFlowOf(data, txs) {
     const acc = {};
     live(data.account).forEach((a) => { acc[a.id] = a; });
-    const z = () => ({ income: 0, expense: 0, tax: 0, dutchAdj: 0, nIn: 0, nOut: 0 });
+    const z = () => ({ income: 0, expense: 0, tax: 0, dutchAdj: 0, loan: 0, interest: 0, nIn: 0, nOut: 0 });
     const P = z(), B = z();
     const sep = { saving: 0, transfer: 0, cardpay: 0, loan: 0, loanIn: 0, reserve: 0, draw: 0 };
     txs.forEach((t) => {
         const S = t.scope === 'business' ? B : P, a = t.amount || 0;
         if (t.type === 'income') { S.income += a; S.nIn++; }
         else if (t.type === 'expense') {
-            if (t.category === LOAN_PRINCIPAL_CAT) sep.loan += a;
-            else { S.expense += a; S.nOut++; if (t.split) S.dutchAdj += dutchCashOut(t) - a; }
+            if (t.category === LOAN_PRINCIPAL_CAT) { sep.loan += a; S.loan += a; }
+            else { S.expense += a; if (t.category === '대출 이자') S.interest += a; S.nOut++; if (t.split) S.dutchAdj += dutchCashOut(t) - a; }
         }
         else if (t.type === 'tax') { S.tax += a; S.nOut++; }
         else if (t.type === 'draw') sep.draw += a;
@@ -18960,14 +18887,14 @@ function cashFlowOf(data, txs) {
         else if (t.type === 'cardpay') sep.cardpay += a;
         else if (t.type === 'transfer') {
             const to = acc[t.toAccountId], from = acc[t.accountId];
-            if (to && to.kind === 'loan') sep.loan += a;
+            if (to && to.kind === 'loan') { sep.loan += a; S.loan += a; }
             else if (from && from.kind === 'loan') sep.loanIn += a;
             else if (to && to.kind === 'reserve') sep.reserve += a;
             else sep.transfer += a;
         }
     });
-    [P, B].forEach((S) => { S.in = S.income; S.out = S.expense + S.tax + S.dutchAdj; S.net = S.in - S.out; });
-    return { income: P.in + B.in, expense: P.out + B.out, net: P.net + B.net, personal: P, business: B, sep };
+    [P, B].forEach((S) => { S.in = S.income; S.consumption = S.expense + S.tax + S.dutchAdj; S.out = S.consumption + S.loan; S.net = S.in - S.out; });
+    return { consumption: P.consumption + B.consumption, interest: P.interest + B.interest, income: P.in + B.in, expense: P.out + B.out, net: P.net + B.net, personal: P, business: B, sep };
 }
 function monthStats(data, m) {
     const all = live(data.tx).filter((t) => t.date && t.date.startsWith(m));
@@ -19015,7 +18942,7 @@ function monthStats(data, m) {
     const work = { minutes: sum(bizLogs, (w) => w.minutes), days: new Set(bizLogs.map((w) => w.date)).size, byType, byJob, jobMinutes: sum(Object.values(byJob), (j) => j.minutes), jobPay: sum(Object.values(byJob), (j) => j.pay), jobNet: sum(Object.values(byJob), (j) => j.net),
         pokerMinutes: sum(pokerLogs, (w) => w.minutes), poker: { count: pokerLogs.length, buyin: sum(pokerLogs, (w) => w.buyin), fee: sum(pokerLogs, (w) => w.fee), prize: sum(pokerLogs, (w) => w.prize), profit: sum(pokerLogs, pokerProfit) } };
     return {
-        m, all, txs, worklogs, work, txCount: all.length, cf: cashFlowOf(data, all), income, persIncome, drawn, loanPaid, spendUnpaid, expense, saving, invest, savingOnly: saving - invest, tax, fixedPaid, fixedUnpaid, fixedTotal, variable, byCat, occs, allOccs, subscription,
+        m, reviewed:reviewState(data,m)==='done', all, txs, worklogs, work, txCount: all.length, cf: cashFlowOf(data, all), income, persIncome, drawn, loanPaid, spendUnpaid, expense, saving, invest, savingOnly: saving - invest, tax, fixedPaid, fixedUnpaid, fixedTotal, variable, byCat, occs, allOccs, subscription,
         remaining: income - expense - saving - tax,
         fixedRatio: ratio(fixedTotal, income), spendRatio: ratio(expense, income), savingRate: ratio(saving, income),
         biz: { count: biz.length, sales, costs, profit: sales - costs, vatPaid: sum(by(biz, 'tax'), amt), drawn, fixedTotal: sum(bizOccs, (o) => o.effective), fixedUnpaid: sum(bizOccs, (o) => o.remaining) },
@@ -19622,7 +19549,7 @@ function App() {
     const [sheet, setSheet] = useState(null);
     const [toastS, setToastS] = useState(null);
     // 테마: 계정 설정에 저장해 모든 기기에 같이 적용 (기기에는 깜빡임 방지용으로 마지막 값만 보관)
-    const themeChoice = ((data.settings.settings || {}).theme) || localStorage.getItem('mb_theme') || 'light';
+    const themeChoice = ((data.settings.settings || {}).theme) || safeTheme() || 'light';
     const [sysLight, setSysLight] = useState(() => window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
     useEffect(() => {
         if (!window.matchMedia)
@@ -19776,7 +19703,7 @@ function App() {
                             React.createElement(Icon, { n: "plus", s: 16 }),
                             "\uAE30\uB85D\uD558\uAE30"))),
                 React.createElement("div", { className: "content" },
-                    React.createElement(Page, null))),
+                    React.createElement(StorageNotice, null), React.createElement(Page, null))),
             React.createElement("nav", { className: "bottomnav", "aria-label": "\uBA54\uB274" }, [...PAGES.slice(0, 2).map((p) => React.createElement(NavBtn, { key: p.id, p: p, on: page === p.id, onClick: () => setPage(p.id) })), React.createElement("button", { key: "add", type: "button", className: "nav-add", onClick: () => openSheet('addPick'), "aria-label": "기록하기" }, React.createElement(Icon, { n: "plus", s: 24, strokeWidth: "2.2" })), ...PAGES.slice(2).map((p) => React.createElement(NavBtn, { key: p.id, p: p, on: page === p.id, onClick: () => setPage(p.id) }))]),
             sheet && React.createElement(SheetRouter, { sheet: sheet }),
             store.choice && React.createElement(SyncChoice, null),
@@ -19784,6 +19711,14 @@ function App() {
             React.createElement("div", { className: "toast-region", role: "status", "aria-live": "polite" }, toastS && (React.createElement("div", { className: "toast", key: toastS.k },
                 React.createElement("span", { className: "toast-m" }, toastS.msg),
                 toastS.action && React.createElement("button", { type: "button", onClick: () => { toastS.action.run(); clearTimeout(toastTimer.current); setToastS(null); } }, toastS.action.label)))))));
+}
+function StorageNotice() {
+ const {localState,lastSaved,status,retry,page}=useApp();
+ if(page==='home')return null;
+ return React.createElement('div',{className:'small muted save-status',role:'status'},
+  localState==='retry'?'기기 저장 가능 · 실패한 입력은 입력창에서 다시 저장해 주세요':localState==='error'?'기기 저장 실패 · 입력 내용은 아직 저장되지 않았어요':`기기 저장 ${lastSaved?new Date(lastSaved).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul'}):'대기'}`,
+  ' · 서버: ',{local:'로그인 전',synced:'동기화 완료',syncing:'동기화 중',error:'동기화 실패',quota:'용량 초과'}[status]||status,
+  React.createElement('button',{className:'link',onClick:retry},'다시 시도'));
 }
 const NavBtn = ({ p, on, onClick }) => (React.createElement("button", { className: cx('nav-btn', on && 'on'), onClick: onClick, "aria-current": on ? 'page' : undefined },
     React.createElement(Icon, { n: p.icon, s: 22 }),
@@ -19967,7 +19902,7 @@ function SyncChoice() {
                         choice.guestCount,
                         "\uAC74"),
                     " \uC788\uC5B4\uC694.",
-                    ` Claude 계정에는 이미 ${choice.cloudCount}건이 저장돼 있어요.`),
+                    ` 연결할 계정에는 이미 ${choice.cloudCount}건이 저장돼 있어요.`),
                 React.createElement("p", { className: "muted small" }, "\uC5B4\uB290 \uCABD\uC744 \uACE8\uB77C\uB3C4 \uC774 \uAE30\uAE30\uC758 \uAE30\uC874 \uAE30\uB85D\uC740 \uC9C0\uC6CC\uC9C0\uC9C0 \uC54A\uC544\uC694. \uB85C\uADF8\uC544\uC6C3\uD558\uBA74 \uB2E4\uC2DC \uBCFC \uC218 \uC788\uC5B4\uC694.")),
             React.createElement("div", { className: "sheet-f col" },
                 React.createElement("button", { className: "btn primary block", onClick: () => choice.resolve('merge') }, choice.cloudCount > 0 ? '계정 기록과 합치기' : '계정으로 올리기'),
@@ -19975,7 +19910,7 @@ function SyncChoice() {
 }
 function SheetRouter({ sheet }) {
     const { closeSheet, finishSheet } = useApp();
-    const C = { profile: ProfileSheet, basis: BasisSheet, valuation: ValuationSheet, investFlow: InvestFlowSheet, emergency: EmergencySheet, categories: CategorySheet, sources: SourceSheet, cardImport: CardImportSheet, estimate: EstimateSheet, filing: FilingSheet, taxProfile: TaxProfileSheet, reserveRates: ReserveRatesSheet, work: WorkSheet, workPrefs: WorkPrefsSheet, jobs: JobsSheet, order: OrderSheet, alerts: AlertSheet, alertPrefs: AlertPrefsSheet, entry: EntrySheet, addPick: AddPickSheet, pay: PaySheet, bulk: BulkSheet, rule: RuleSheet, account: AccountSheet, loan: LoanSheet, budget: BudgetSheet, goal: GoalSheet, biz: BizSheet, target: TargetSheet, importer: ImportSheet }[sheet.type];
+    const C = { moneyAdvisor: MoneyAdvisorSheet, profile: ProfileSheet, basis: BasisSheet, valuation: ValuationSheet, investFlow: InvestFlowSheet, emergency: EmergencySheet, categories: CategorySheet, sources: SourceSheet, cardImport: CardImportSheet, estimate: EstimateSheet, filing: FilingSheet, taxProfile: TaxProfileSheet, reserveRates: ReserveRatesSheet, work: WorkSheet, workPrefs: WorkPrefsSheet, jobs: JobsSheet, order: OrderSheet, alerts: AlertSheet, alertPrefs: AlertPrefsSheet, entry: EntrySheet, addPick: AddPickSheet, pay: PaySheet, bulk: BulkSheet, rule: RuleSheet, account: AccountSheet, loan: LoanSheet, loanPay: LoanPaymentSheet, budget: BudgetSheet, goal: GoalSheet, biz: BizSheet, target: TargetSheet, importer: ImportSheet }[sheet.type];
     const value = useMemo(() => ({ leaving: !!sheet.leaving, swap: !!sheet.swap, done: () => finishSheet(sheet.k) }), [sheet, finishSheet]);
     return React.createElement(SheetCtx.Provider, { value }, React.createElement(C, { key: sheet.k, ...sheet.props, onClose: closeSheet }));
 }
@@ -19997,7 +19932,7 @@ function computeAlerts(data, statsOf, firstMonth, prefs) {
     const day = +t.slice(8), D = dim(tm);
     const st = statsOf(tm), pv = statsOf(pm);
     const out = [];
-    const add = (a) => { if (!P.off[a.type])
+    const add = (a) => { if (!P.off[a.type] && (bizModeOf(data) || a.cat !== '세금'))
         out.push(a); };
     const has = (m) => !!firstMonth && m >= firstMonth;
     // 고정비: 결제 예정(D-7/3/1), 결제일 지남, 확인 필요 — 지난달·이번 달
@@ -20018,6 +19953,7 @@ function computeAlerts(data, statsOf, firstMonth, prefs) {
                 add({ type: 'fixedDue', key: `fdue:${o.key}:D${stage}`, level: dd <= 1 ? 'warn' : 'info', cat: '지출', title: `${name} ${dd === 0 ? '오늘 결제' : `결제 D-${dd}`}`, body: `${+o.date.slice(5, 7)}월 ${+o.date.slice(8)}일 · ${won(o.remaining)}원 예정`, target, sortDate: o.date });
         }
     }));
+    billPlans(data).forEach(b=>{const d=daysBetween(t,b.billDate);if(d<=7)add({type:'fixedDue',key:'cardbill:'+b.id,level:d<0?'warn':d<=1?'warn':'info',cat:'지출',title:d<0?'카드대금 납부 여부를 확인해 주세요':`카드대금 ${d===0?'오늘 결제':'D-'+d}`,body:`${b.billDate} · ${won(b.billAmount)}원 · 명세서 입력 기준`,target:{page:'analysis',anaTab:'flow',month:b.billDate.slice(0,7)},sortDate:b.billDate});});
     // 예산 80·90·100%
     const levels = [...P.budgetLevels].sort((a, b) => b - a);
     Object.entries(budgetMap(data)).forEach(([c, b]) => {
@@ -20032,37 +19968,39 @@ function computeAlerts(data, statsOf, firstMonth, prefs) {
     // 수입·지출·효율·현금흐름·자산 관련 항목은 인사이트 엔진에서 계산해 중요한 것만 알림으로 받아요
     buildInsights(data, statsOf, firstMonth, P).filter((x) => x.level !== 'info').forEach((x) => add({ ...x, sortDate: t }));
     // 세금
-    const tprof = taxProfileOf(data);
-    if (!tprof) {
-        if (st.biz.count > 0 || pv.biz.count > 0)
-            add({ type: 'taxSetup', key: 'taxsetup', level: 'info', cat: '세금', title: '사업자 설정을 하면 세금 일정을 알려드려요', body: '일반·간이·면세 여부에 따라 신고 일정과 계산 방식이 달라져요.', target: { page: 'business', bizTab: 'tax' }, sortDate: t });
-    }
-    else {
-        const tStages = [...P.taxDays].sort((a, b) => a - b);
-        taxSchedule(tprof, `${addM(tm, -6)}-01`, `${+t.slice(0, 4) + 1}-12-31`).forEach((it) => {
-            const f = filingOf(data, it.id);
-            const s1 = filingStatus(it, f, tprof.since);
-            if (s1[0] === 'done' || s1[0] === 'unknown')
-                return;
-            const dd = daysBetween(t, it.due);
-            const target = { page: 'business', bizTab: 'tax', sheet: ['filing', { itemId: it.id }] };
-            if (dd < 0)
-                add({ type: 'taxLate', key: `taxlate:${it.id}`, level: 'critical', cat: '세금', title: `${it.title} 기한이 지났어요`, body: `마감 ${it.due} · ${it.needsFiling && !(f && f.filing === 'filed') ? '신고·납부가 완료되지 않았어요' : '납부가 완료되지 않았어요'}${it.notice ? ' (고지서를 받은 경우)' : ''}`, target, sortDate: it.due });
-            else {
-                const stage = tStages.find((d) => dd <= d);
-                if (stage != null)
-                    add({ type: 'taxDue', key: `taxdue:${it.id}:D${stage}`, level: dd <= 3 ? 'warn' : 'info', cat: '세금', title: `${it.title} ${dd === 0 ? '오늘 마감' : `D-${dd}`}`, body: `마감 ${+it.due.slice(5, 7)}월 ${+it.due.slice(8)}일 · ${s1[1]}${it.notice ? ' · 고지서를 받은 경우' : ''}${it.verified ? '' : ' · 기한은 홈택스에서 확인'}`, target, sortDate: it.due });
-            }
-        });
-        const noEv = st.all.filter((x) => x.scope === 'business' && x.type === 'expense' && !QUALIFY.includes(x.evidence || 'none'));
-        if (noEv.length)
-            add({ type: 'taxEvidence', key: `taxev:${tm}:${noEv.length}`, level: 'info', cat: '세금', title: `필요경비 증빙 확인 필요 ${noEv.length}건`, body: `이번 달 적격증빙이 없는 사업 경비 ${won(sum(noEv, (x) => x.amount))}원`, target: { page: 'business', bizTab: 'tax' }, sortDate: t });
-        if (tprof.sincere === 'unknown')
-            add({ type: 'taxCheck', key: 'taxcheck:sincere', level: 'info', cat: '세금', title: '성실신고확인대상인지 확인이 필요해요', body: '대상이면 종합소득세 기한이 6월 30일이고 성실신고확인서를 내야 해요.', target: { page: 'business', bizTab: 'tax', sheet: ['taxProfile', {}] }, sortDate: t });
-        if ((tprof.history || []).some((h) => h.date && h.date.startsWith(t.slice(0, 4))))
-            add({ type: 'taxCheck', key: `taxcheck:type:${t.slice(0, 4)}`, level: 'warn', cat: '세금', title: '올해 과세 유형이 바뀌었어요', body: '바뀐 날을 기준으로 신고 일정과 세액을 나눠 계산했어요. 유형 전환에 따른 재고납부세액 등은 홈택스나 세무대리인에게 확인해 주세요.', target: { page: 'business', bizTab: 'tax' }, sortDate: t });
-        if (tprof.sites > 1)
-            add({ type: 'taxCheck', key: 'taxcheck:sites', level: 'info', cat: '세금', title: '사업장이 여러 곳이에요', body: '부가가치세는 사업장마다 신고하는 게 원칙이에요. 사업장별 일정을 확인해 주세요.', target: { page: 'business', bizTab: 'tax' }, sortDate: t });
+    if (bizModeOf(data)) {
+        const tprof = taxProfileOf(data);
+        if (!tprof) {
+            if (st.biz.count > 0 || pv.biz.count > 0)
+                add({ type: 'taxSetup', key: 'taxsetup', level: 'info', cat: '세금', title: '사업자 설정을 하면 세금 일정을 알려드려요', body: '일반·간이·면세 여부에 따라 신고 일정과 계산 방식이 달라져요.', target: { page: 'business', bizTab: 'tax' }, sortDate: t });
+        }
+        else {
+            const tStages = [...P.taxDays].sort((a, b) => a - b);
+            taxSchedule(tprof, `${addM(tm, -6)}-01`, `${+t.slice(0, 4) + 1}-12-31`).forEach((it) => {
+                const f = filingOf(data, it.id);
+                const s1 = filingStatus(it, f, tprof.since);
+                if (s1[0] === 'done' || s1[0] === 'unknown')
+                    return;
+                const dd = daysBetween(t, it.due);
+                const target = { page: 'business', bizTab: 'tax', sheet: ['filing', { itemId: it.id }] };
+                if (dd < 0)
+                    add({ type: 'taxLate', key: `taxlate:${it.id}`, level: 'critical', cat: '세금', title: `${it.title} 기한이 지났어요`, body: `마감 ${it.due} · ${it.needsFiling && !(f && f.filing === 'filed') ? '신고·납부가 완료되지 않았어요' : '납부가 완료되지 않았어요'}${it.notice ? ' (고지서를 받은 경우)' : ''}`, target, sortDate: it.due });
+                else {
+                    const stage = tStages.find((d) => dd <= d);
+                    if (stage != null)
+                        add({ type: 'taxDue', key: `taxdue:${it.id}:D${stage}`, level: dd <= 3 ? 'warn' : 'info', cat: '세금', title: `${it.title} ${dd === 0 ? '오늘 마감' : `D-${dd}`}`, body: `마감 ${+it.due.slice(5, 7)}월 ${+it.due.slice(8)}일 · ${s1[1]}${it.notice ? ' · 고지서를 받은 경우' : ''}${it.verified ? '' : ' · 기한은 홈택스에서 확인'}`, target, sortDate: it.due });
+                }
+            });
+            const noEv = st.all.filter((x) => x.scope === 'business' && x.type === 'expense' && !QUALIFY.includes(x.evidence || 'none'));
+            if (noEv.length)
+                add({ type: 'taxEvidence', key: `taxev:${tm}:${noEv.length}`, level: 'info', cat: '세금', title: `필요경비 증빙 확인 필요 ${noEv.length}건`, body: `이번 달 적격증빙이 없는 사업 경비 ${won(sum(noEv, (x) => x.amount))}원`, target: { page: 'business', bizTab: 'tax' }, sortDate: t });
+            if (tprof.sincere === 'unknown')
+                add({ type: 'taxCheck', key: 'taxcheck:sincere', level: 'info', cat: '세금', title: '성실신고확인대상인지 확인이 필요해요', body: '대상이면 종합소득세 기한이 6월 30일이고 성실신고확인서를 내야 해요.', target: { page: 'business', bizTab: 'tax', sheet: ['taxProfile', {}] }, sortDate: t });
+            if ((tprof.history || []).some((h) => h.date && h.date.startsWith(t.slice(0, 4))))
+                add({ type: 'taxCheck', key: `taxcheck:type:${t.slice(0, 4)}`, level: 'warn', cat: '세금', title: '올해 과세 유형이 바뀌었어요', body: '바뀐 날을 기준으로 신고 일정과 세액을 나눠 계산했어요. 유형 전환에 따른 재고납부세액 등은 홈택스나 세무대리인에게 확인해 주세요.', target: { page: 'business', bizTab: 'tax' }, sortDate: t });
+            if (tprof.sites > 1)
+                add({ type: 'taxCheck', key: 'taxcheck:sites', level: 'info', cat: '세금', title: '사업장이 여러 곳이에요', body: '부가가치세는 사업장마다 신고하는 게 원칙이에요. 사업장별 일정을 확인해 주세요.', target: { page: 'business', bizTab: 'tax' }, sortDate: t });
+        }
     }
     const state = data.alert || {};
     return out
@@ -20261,7 +20199,7 @@ function BasisSheet({ onClose }) {
     const T = view === 'personal' ? { inL: '개인 수입', outL: '개인 지출', netL: '개인 순현금흐름', S: P }
         : view === 'business' ? { inL: '사업 매출 및 기타 수입', outL: '사업 운영비 및 기타 지출', netL: '사업 순현금흐름', S: B }
             : { inL: '전체 수입', outL: '전체 지출', netL: '순현금흐름', S: { in: cf.income, out: cf.expense, net: cf.net } };
-    const seps = [['저축·투자', X.saving], ['계좌 간 이체', X.transfer], ['카드대금 납부 (사용할 때 이미 지출)', X.cardpay], ['대출 원금 상환', X.loan], ['대출 실행 (대출 계좌에서 받은 돈)', X.loanIn], ['세금 적립 (적립 계좌로 이동)', X.reserve], ['사업 인출 (사업 → 개인 이동)', X.draw]].filter(([, v]) => v > 0);
+    const seps = [['저축·투자', X.saving], ['계좌 간 이체', X.transfer], ['카드대금 납부 (사용할 때 이미 지출)', X.cardpay], ['대출 실행 (대출 계좌에서 받은 돈)', X.loanIn], ['세금 적립 (적립 계좌로 이동)', X.reserve], ['사업 인출 (사업 → 개인 이동)', X.draw]].filter(([, v]) => v > 0);
     const bal = realBalanceOf(data, month);
     return (h(Sheet, { title: "순현금흐름 자세히", onClose },
         h("div", { className: "stack" },
@@ -20271,6 +20209,9 @@ function BasisSheet({ onClose }) {
                 view === 'all' && row('└ 개인', P.in, '', 'sub', 'ip'),
                 view === 'all' && row('└ 사업', B.in, '', 'sub', 'ib'),
                 row(T.outL, T.S.out, '−', null, 'out'),
+                view === 'all' && row('소비·세금 (대출 이자 제외)', cf.consumption-cf.interest, '', 'sub'),
+                view === 'all' && row('대출 원금 상환', X.loan, '', 'sub'),
+                view === 'all' && row('대출 이자', cf.interest, '', 'sub'),
                 view === 'all' && row('└ 개인', P.out, '', 'sub', 'op'),
                 view === 'all' && row('└ 사업', B.out, '', 'sub', 'ob'),
                 view === 'all' && (P.tax + B.tax) > 0 && row('└ 이 중 세금 납부', P.tax + B.tax, '', 'sub', 'ot'),
@@ -20319,6 +20260,100 @@ function HomeProg({ label, value, pct, sub, warn, onClick }) {
         pct != null && React.createElement("span", { className: "bar hp-bar", "aria-hidden": "true" }, React.createElement("i", { className: cx(warn && 'over'), style: { width: `${p}%` } })),
         sub && React.createElement("span", { className: "hp-s" }, sub)));
 }
+const ADVISOR_TOPICS={saving:'저축',spend:'소비습관 개선',income:'수입',invest:'투자 관리'};
+function moneyHints(data,date,localState='saved',status='local') {
+ const settings=data.settings.settings||{},prefs=settings.moneyAdvisor||{},topics=prefs.topics||Object.keys(ADVISOR_TOPICS),primary=prefs.primary||'saving';
+ const month=date.slice(0,7),prev=addM(month,-1),day=+date.slice(8),out=[];
+ const put=(key,topic,tone,title,body,target,priority=0)=>{
+  if(!priority&&(!topics.includes(topic)||prefs.reduced?.[topic]))return;
+  if(!priority&&prefs.hidden?.[key]===date)return;
+  out.push({key,topic,tone,title,body,target,priority,score:priority||((primary===topic?100:0)+(tone==='warn'?40:tone==='good'?30:10))});
+ };
+ if(localState==='error'||localState==='retry')put('save','system','warn','입력 내용을 아직 저장하지 못했어요.','입력창에서 다시 저장해 주세요. 저장 완료 전에는 입력 내용을 유지해 주세요.',{retry:true},1000);
+ else if(status==='error'||status==='quota')put('sync','system','warn','기기 기록은 유지 중이에요. 서버 연결을 확인해 주세요.','서버 동기화가 완료되지 않았어요. 다른 기기에서 보기 전에 다시 시도해 주세요.',{retry:true},950);
+ const due=[];
+ occurrences(data,month).filter(o=>!o.paid&&daysBetween(date,o.date)<=3).forEach(o=>due.push({key:'fixed:'+o.key,name:o.rule.name,date:o.date,amount:o.remaining,account:o.rule.accountId,target:{sheet:['pay',{occKey:o.key,month,kind:'expense'}]}}));
+ live(data.account).filter(a=>a.kind==='loan'&&a.payDay).forEach(a=>{
+  if(live(data.tx).some(t=>t.loanId===a.id&&t.paymentMode==='monthly'&&t.date?.slice(0,7)===month))return;
+  if(due.some(o=>o.account===a.defaultFrom&&live(data.rule).some(r=>r.loanId===a.id&&o.key==='fixed:'+r.id+'_'+month)))return;
+  const dt=month+'-'+pad(Math.min(a.payDay,dim(month)));if(daysBetween(date,dt)>3)return;
+  const bal=Math.max(0,-(accountValuesAt(data,date)[a.id]||0));if(!bal)return;
+  const next=loanPlan(a,bal,date).rows[0];const amount=(a.defaultPrincipal??next?.principal??0)+(a.defaultInterest??next?.interest??0);
+  due.push({key:'loan:'+a.id+':'+month,name:a.name,date:dt,amount,account:a.defaultFrom,target:{sheet:['loanPay',{loanId:a.id}]}});
+ });
+ due.sort((a,b)=>a.date.localeCompare(b.date)||a.key.localeCompare(b.key));
+ const balances=accountValuesAt(data,date),required={};
+ due.forEach(d=>{if(d.account&&d.amount>0)required[d.account]=(required[d.account]||0)+d.amount;const delta=daysBetween(date,d.date);
+  put(d.key,'system','warn',delta<0?`${d.name} 납부 기록을 확인해 주세요.`:delta===0?`오늘 ${d.name} 납부일이에요.`:`${delta===1?'내일':delta+'일 뒤'} ${d.name} 납부일이에요.`,`${d.date} · ${d.amount>0?won(d.amount)+'원 예정':'예정 금액을 확인해 주세요'}. 납부 기록이 없다는 뜻이며 실제 미납으로 단정하지 않아요.`,d.target,delta<=0?850:800);
+ });
+ Object.entries(required).forEach(([id,amount])=>{const a=data.account[id];if(!a||a.deleted||['loan','card','invest'].includes(a.kind))return;if((balances[id]||0)<amount)put('balance:'+id,'system','warn',`${a.name}의 등록 잔액이 예정 납부액보다 적어요.`,`확인 대상 납부 합계 ${won(amount)}원 · 등록 잔액 ${won(balances[id]||0)}원. 실제 은행 잔액과 다를 수 있어요.`,{page:'assets',assetTab:'accounts'},900);});
+ const txs=live(data.tx),current=txs.filter(t=>t.date?.slice(0,7)===month&&t.date<=date);
+ const eligible=t=>!t.oneOff&&!t.isOneOff&&!t.refundOf&&!t.isRefund;
+ const previousEnd=prev+'-'+pad(Math.min(day,dim(prev))),previous=txs.filter(t=>t.date?.slice(0,7)===prev&&t.date<=previousEnd);
+ const personal=current.filter(t=>t.scope!=='business'),oldPersonal=previous.filter(t=>t.scope!=='business');
+ const saved=sum(personal.filter(t=>t.type==='saving'&&!['주식','펀드','코인','투자'].includes(t.category)&&data.account[t.toAccountId]?.kind!=='invest'),t=>t.amount);
+ const target=Number(prefs.savingGoal)||Number(settings.savingTarget)||0;
+ if(target>0){const pct=Math.round(saved/target*100);if(pct>=80)put('saving:'+month,'saving','good',pct>=100?'이번 달 저축 목표를 달성했어요!':`저축 목표의 ${pct}%를 채웠어요!`,`${won(target)}원 목표 중 ${won(saved)}원 기록됐어요. 투자 납입은 제외해요.`,{page:'assets',assetTab:'accounts'});
+ else if(day>=Math.ceil(dim(month)*.75))put('saving:'+month,'saving','info',`저축 목표까지 ${won(target-saved)}원 남았어요.`,`등록한 예정 지출을 먼저 확인해 보세요. 기록된 저축 ${won(saved)}원 / 목표 ${won(target)}원.`,{sheet:['entry',{prefill:{type:'saving'}}]});}
+ const compare=(kind,topic)=>{
+  const filter=t=>eligible(t)&&t.type===kind&&(kind!=='expense'||t.category!=='대출 상환');
+  const a=personal.filter(filter),b=oldPersonal.filter(filter),av=sum(a,t=>t.amount),bv=sum(b,t=>t.amount);
+  const enough=kind==='income'?a.length>0&&b.length>0:a.length>=3&&b.length>=3&&new Set(a.map(t=>t.date)).size>=2&&new Set(b.map(t=>t.date)).size>=2;
+  if(!enough||bv<=0)return;const diff=av-bv,pct=Math.round(Math.abs(diff)/bv*100);if(pct<10||Math.abs(diff)<10000)return;
+  const good=kind==='income'?diff>0:diff<0;
+  put(topic+':'+month,topic,good?'good':'warn',kind==='income'?`지난달 같은 기간보다 수입이 ${won(Math.abs(diff))}원 ${diff>0?'늘었어요!':'적게 기록됐어요.'}`:`지난달 같은 기간보다 소비가 ${pct}% ${diff>0?'늘었어요.':'줄었어요!'}`,`${month}-01~${date} ${won(av)}원 / ${prev}-01~${previousEnd} ${won(bv)}원. 개인 기록 기준이며 계좌이체·원금 상환은 제외해요. 표시된 일회성·환불 기록은 비교에서 제외하지만 분류되지 않은 건은 포함될 수 있어요.`,{page:'history',tab:kind,month});
+ };compare('expense','spend');compare('income','income');
+ const spent=sum(personal.filter(t=>t.type==='expense'&&t.category!=='대출 상환'),t=>t.amount),budget=budgetMap(data)._total;
+ if(budget>0&&spent/budget>=.8)put('budget:'+month,'spend','warn',`이번 달 소비 예산의 ${Math.round(spent/budget*100)}%를 사용했어요.`,`${won(spent)}원 / ${won(budget)}원 · 개인 소비 기록 기준, 대출 원금 제외.`,{sheet:['budget',{}]});
+ const invest=live(data.account).filter(a=>a.kind==='invest'),values=invest.map(a=>({a,v:Math.max(0,balances[a.id]||0)})),total=sum(values,x=>x.v),largest=values.sort((a,b)=>b.v-a.v)[0];
+ if(largest&&total>0&&largest.v/total>=.6)put('invest:'+month,'invest','info',`등록 투자자산의 ${Math.round(largest.v/total*100)}%가 ${largest.a.name} 계좌에 있어요.`,`등록한 평가액 기준이에요. 계좌 안의 종목별 분산 여부나 실시간 수익률을 뜻하지 않아요.`,{page:'assets',assetTab:'invest'});
+ const investing=sum(personal.filter(t=>t.type==='saving'&&(t.category==='투자'||data.account[t.toAccountId]?.kind==='invest')),t=>t.amount),investmentGoal=Number(prefs.investGoal)||0;
+ if(investmentGoal>0&&investing>=investmentGoal)put('investgoal:'+month,'invest','good','이번 달 투자 적립 목표를 달성했어요!',`기록된 납입 ${won(investing)}원 / 목표 ${won(investmentGoal)}원. 수익률과는 별개예요.`,{page:'assets',assetTab:'invest'});
+ const unsettled=txs.filter(t=>t.split&&t.split.payer!=='other').map(t=>({t,n:sum(t.split.parts||[],p=>Math.max(0,(p.share||0)-(p.settled||0)))})).filter(x=>x.n>0);
+ if(unsettled.length)put('dutch','spend','info',`정산받을 금액 ${won(sum(unsettled,x=>x.n))}원이 남아 있어요.`,`${unsettled.length}건의 공동 결제 기록 기준이에요. 실제 정산 여부를 확인해 주세요.`,{sheet:['entry',{tx:unsettled[0].t}]});
+ out.sort((a,b)=>b.score-a.score||a.key.localeCompare(b.key));
+ if(!out.length)out.push({key:'empty',tone:'info',topic:primary,title:current.length?'관심 목표를 기준으로 기록을 살펴보고 있어요.':'이번 달 기록을 시작해 볼까요?',body:'비교할 기록이나 설정된 목표가 부족하면 성과를 단정하지 않아요. 관심 분야와 목표를 설정해 주세요.',target:{sheet:['entry',{}]},score:0});
+ return out;
+}
+function useMoneyHints(){const {data,localState,status}=useApp();const [date,setDate]=useState(today());useEffect(()=>{const id=setInterval(()=>setDate(today()),30000);return()=>clearInterval(id);},[]);return {date,hints:useMemo(()=>moneyHints(data,date,localState,status),[data,date,localState,status])};}
+function advisorVisual(a) {
+ if(a.key==='save')return {emoji:'⚠️',label:'저장 확인'};
+ if(a.key==='sync')return {emoji:'☁️',label:'연결 확인'};
+ if(a.key.startsWith('balance:'))return {emoji:'💳',label:'잔액 확인'};
+ if(a.priority)return {emoji:'🔔',label:'납부 알림'};
+ if(a.key==='empty')return {emoji:'👋',label:'오늘의 머니 비서'};
+ if(a.key==='dutch')return {emoji:'🤝',label:'정산 알림'};
+ const emoji={saving:'🐷',spend:'🛒',income:'💰',invest:'📈'}[a.topic]||'💬';
+ return {emoji,label:a.tone==='good'?'잘하고 있어요':a.tone==='warn'?'살펴볼까요?':(ADVISOR_TOPICS[a.topic]||'오늘의')+' 알림'};
+}
+function MoneyAdvisorBar(){
+ const {openSheet}=useApp(),{hints}=useMoneyHints(),a=hints[0],v=advisorVisual(a),h=React.createElement;
+ return h('section',{className:'money-bar '+a.tone,'aria-label':'오늘의 머니 비서'},
+  h('button',{className:'money-message',onClick:()=>openSheet('moneyAdvisor'),title:a.title,'aria-label':v.label+'. '+a.title+'. 상세 보기'},
+   h('span',{className:'money-emoji','aria-hidden':true},v.emoji),
+   h('span',{className:'money-copy'},h('span',{className:'money-kicker'},v.label,a.tone==='good'&&h('span',{'aria-hidden':true},' ✨')),h('span',{className:'money-title'},a.title)),
+   h('span',{className:'money-chevron','aria-hidden':true},'›')),
+  h('button',{className:'money-settings','aria-label':'머니 비서 관심 분야 설정',onClick:()=>openSheet('moneyAdvisor',{showPrefs:true})},h(Icon,{n:'gear',s:17})));
+}
+function MoneyAdvisorSheet({onClose,showPrefs=false}){
+ const {data,commit,toast,openSheet,go,retry}=useApp(),{date,hints}=useMoneyHints(),h=React.createElement;
+ const s=data.settings.settings||{id:'settings'},p=s.moneyAdvisor||{};
+ const [editing,setEditing]=useState(showPrefs),[topics,setTopics]=useState(p.topics||Object.keys(ADVISOR_TOPICS)),[primary,setPrimary]=useState(p.primary||'saving'),[savingGoal,setSavingGoal]=useState(p.savingGoal||s.savingTarget||0),[investGoal,setInvestGoal]=useState(p.investGoal||0),[err,setErr]=useState('');
+ const put=patch=>{try{commit([{kind:'settings',rec:{...s,moneyAdvisor:{...p,...patch}}}]);return true;}catch(e){setErr(e.message);return false;}};
+ const act=a=>{if(a.target?.retry){retry();return;}if(a.target?.sheet){openSheet(...a.target.sheet);return;}onClose();go(a.target);};
+ const save=()=>{if(!topics.length){setErr('관심 분야를 하나 이상 골라 주세요.');return;}if(put({topics,primary:topics.includes(primary)?primary:topics[0],savingGoal,investGoal,reduced:{}})){setEditing(false);toast('머니 비서 설정을 저장했어요');}};
+ return h(Sheet,{title:editing?'머니 비서 설정':'오늘의 머니 비서',onClose,footer:editing?h('button',{className:'btn primary grow',onClick:save},'설정 저장'):null},
+  h('p',{className:'small muted'},`${date} · 입력된 기록을 계산한 안내 · 외부 AI 연결 없음`),
+  h('button',{className:'link',onClick:()=>setEditing(!editing)},editing?'안내 보기':'관심 분야·목표 설정'),
+  editing?h('div',{className:'form'},h('p',null,'관심 분야를 고르고 가장 중요한 목표 하나를 정해 주세요.'),
+   h('div',{className:'chips'},Object.entries(ADVISOR_TOPICS).map(([key,label])=>h('button',{key,className:cx('chip',topics.includes(key)&&'on'),'aria-pressed':topics.includes(key),onClick:()=>setTopics(t=>t.includes(key)?t.filter(x=>x!==key):[...t,key])},({saving:'🐷 ',spend:'🛒 ',income:'💰 ',invest:'📈 '}[key]||'')+label))),
+   h(Field,{label:'가장 중요한 목표'},h('select',{className:'input',value:topics.includes(primary)?primary:topics[0]||'',onChange:e=>setPrimary(e.target.value)},topics.map(k=>h('option',{key:k,value:k},ADVISOR_TOPICS[k])))),
+   h(Field,{label:'월 저축 목표 (투자 제외)'},h(AmountInput,{value:savingGoal,onChange:setSavingGoal})),h(Field,{label:'월 투자 적립 목표'},h(AmountInput,{value:investGoal,onChange:setInvestGoal})),
+   h('p',{className:'small muted'},'저장 오류·임박한 납부는 항상 먼저 보여요. 그 외에는 선택한 목표를 우선해요. 설정 저장 시 줄였던 분야의 안내도 다시 켜집니다.')):
+   h('div',{className:'stack'},hints.map(a=>h('section',{className:'money-detail '+a.tone,key:a.key},h('div',{className:'money-detail-heading'},h('span',{className:'money-emoji','aria-hidden':true},advisorVisual(a).emoji),h('div',null,h('span',{className:'money-kicker'},advisorVisual(a).label),h('h3',null,a.title))),h('p',{className:'small muted'},a.body),h('div',{className:'chips'},h('button',{className:'btn small',onClick:()=>act(a)},a.target?.retry?'다시 시도':'확인하기'),!a.priority&&a.key!=='empty'&&h('button',{className:'link',onClick:()=>put({hidden:{...Object.fromEntries(Object.entries(p.hidden||{}).filter(([,v])=>v===date)),[a.key]:date}})},'오늘 숨기기'),!a.priority&&a.key!=='empty'&&h('button',{className:'link',onClick:()=>put({reduced:{...(p.reduced||{}),[a.topic]:true}})},'이 분야 안내 줄이기'))))),
+  err&&h('p',{className:'err',role:'alert'},err));
+}
+
 function HomePage() {
     const { data, month, statsOf, firstMonth, alerts, go, openSheet, user, period } = useApp();
     const h = React.createElement;
@@ -20374,7 +20409,7 @@ function HomePage() {
                 h("span", null, "수입 · 개인 + 사업"), h("b", { className: "num" }, cf.income > 0 ? `+${won(cf.income)}` : won(cf.income), h("small", null, "원"))),
             h("button", { type: "button", className: "k-io-r", onClick: () => go({ page: 'history', tab: 'expense' }) },
                 h("span", null, "지출 · 개인 + 사업"), h("b", { className: "num" }, cf.expense > 0 ? `−${won(cf.expense)}` : won(cf.expense), h("small", null, "원")))),
-        h("p", {className:"k-explain"}, "카드 사용 포함 · 통장 잔고와 달라요"),
+        h("p", {className:"k-explain"}, (reviewState(data,month)==='done'?"정리 완료":"정리 중") + " · 카드 사용 포함 · 잔고와 달라요"),
         isMonth && h("p", { className: "k-s k-s-end" },
             h("button", { className: "lnk", onClick: () => openSheet('basis') }, "자세히", h(Icon, { n: "right", s: 14 }))));
     const income = h("section", { className: "hcard" },
@@ -20396,7 +20431,7 @@ function HomePage() {
             h("div", { className: "hs-t" }, h("b", { className: cx('num', nw < 0 && 'neg') }, nw == null ? '계좌 없음' : `${won(nw)}원`), h("span", null, nw == null ? "순자산 · 계좌를 등록하면 계산해요" : isMonth && month === tm ? "순자산" : `순자산 · ${pl} 말 기준`)),
             pill('자산', () => go({ page: 'assets' }))));
     const upc = h("section", { className: "hcard" },
-        h("div", { className: "hcard-h" }, h("h2", null, "다가오는 결제"), upcoming.occ.length > 0 && pill('고정비', () => go({ page: 'history', tab: 'fixed' }))),
+        h("div", { className: "hcard-h" }, h("h2", null, "결제·카드 잔액"), upcoming.occ.length > 0 && pill('고정비', () => go({ page: 'history', tab: 'fixed' }))),
         upcoming.occ.length + upcoming.cards.length ? h("div", null,
             upcoming.cards.map((a) => h("button", { key: a.id, type: "button", className: "hs-row hs-link", onClick: () => openSheet('account', { acc: a }) },
                 h("span", { className: "hs-t" }, h("b", { className: "hs-sm" }, a.name), h("span", null, "등록된 카드 미결제 잔액")),
@@ -20431,12 +20466,12 @@ function HomePage() {
     const saving = h("section", {className:"hcard saving-focus"},
         h("div",{className:"hcard-h"}, h("h2",null,"월 저축 계획"),pill('계획 보기',()=>go({page:'assets',assetTab:'saving'}))),
         h("p",{className:cx("saving-value num", !S.ok && "is-empty")}, S.ok ? `${won(S.low)} ~ ${won(S.base)}원` : '아직 계산할 기록이 부족해요'),
-        h("p",{className:"muted small"},S.ok ? '등록된 기록 기준의 월 저축 여력 추정치예요. 계산 기준에서 제외된 지출을 확인해 주세요.' : '지난달 수입·지출을 정리하면 저축 여력을 계산해요.'),
+        h("p",{className:"muted small"},S.ok ? '등록된 기록 기준의 월 저축 여력 추정치예요. 계산 기준에서 제외된 지출을 확인해 주세요.' : '내역의 월말 정리에서 지난 월 3개를 확인하면 계산해요.'),
         G.save && h(HomeProg,{label:`${+month.slice(5)}월 저축 목표`,value:`${won(G.save.have)} / ${won(G.save.target)}원`,pct:ratio(G.save.have,G.save.target),onClick:()=>go({page:'assets',assetTab:'saving'})}),
         h("details",{className:"balance-details"},h("summary",null,"계산 기준과 준비금"),
-            h("p",{className:"small muted"},"최근 수입과 지난 3개월의 지출을 바탕으로 세금·비상자금 적립을 차감한 기존 계획 기준입니다. 확정 잔고나 인출 가능한 사업 자금과는 달라요."), goals));
+            h("p",{className:"small muted"},"월말 정리를 완료한 최근 3개 월의 수입·지출에서 세금·비상자금 적립, 대출 원금 이체, 사업 운영자금 추가 적립을 차감해요. 카드 사용은 소비 시점에 반영하므로 카드대금을 다시 차감하지 않습니다. 현재 인출 가능한 잔고와는 달라요."), goals));
     return (h("div", { className: "home6 home7" },
-        h("div", { className: "h6-l" }, kpi, isMonth && saving, income, spend),
+        h("div", { className: "h6-l" }, h(MoneyAdvisorBar), kpi, isMonth && saving, income, spend),
         h("div", { className: "h6-r h-side" }, check, upc, summary, isMonth && budget, h("details",{className:"balance-details recent-details"},h("summary",null,"최근 내역 보기"),rec))));
 }
 // 내역: 전체 / 지출 / 수입 / 이동 — 고정비·근무는 지출·수입 안의 칩으로
@@ -20481,6 +20516,46 @@ function HistCalendar({ preset }) {
             list.length ? h("ul", { className: "rows" }, list.map((t) => h(TxRow, { key: t.id, t })))
                 : h("div", { className: "hp-empty" }, h("p", null, "이 날 기록이 없어요."))));
 }
+/* Review metadata uses existing settings records; existing transactions stay intact. */
+function stableJSON(v){if(Array.isArray(v))return '['+v.map(stableJSON).join(',')+']';if(v&&typeof v==='object')return '{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+stableJSON(v[k])).join(',')+'}';return JSON.stringify(v);}
+function contentKey(raw){let a=2166136261,b=5381;for(let i=0;i<raw.length;i++){a=Math.imul(a^raw.charCodeAt(i),16777619);b=Math.imul(b,33)^raw.charCodeAt(i);}return raw.length+'-'+(a>>>0)+'-'+(b>>>0);}
+function monthStamp(data,m){return contentKey(stableJSON(['tx','rule','occ','worklog'].map(kind=>live(data[kind]).filter(r=>kind==='rule'?ruleActive(r,m):kind==='occ'?r.month===m:((r.date||'').slice(0,7)===m||(kind==='tx'&&r.split&&(r.split.parts||[]).some(p=>(p.settledDate||'').slice(0,7)===m)))).sort((a,b)=>a.id.localeCompare(b.id)))));}
+function reviewState(data,m){const r=data.settings['monthClose:'+m];return r&&!r.deleted&&r.closed?(r.stamp===monthStamp(data,m)?'done':'changed'):'open';}
+function reviewedMonths(data,before=thisMonth()){return Object.keys(data.settings).filter(k=>k.startsWith('monthClose:')).map(k=>k.slice(11)).filter(m=>m<before&&m>=addM(before,-12)&&reviewState(data,m)==='done').sort().slice(-3);}
+function cashMovement(data,m){
+ const ac=data.account||{},liquid=id=>ac[id]&&!ac[id].deleted&&['cash','deposit','reserve'].includes(ac[id].kind),known=id=>ac[id]&&!ac[id].deleted;
+ let inflow=0,outflow=0,unlinked=0;const add=(id,v,d)=>{if(d&&d.slice(0,7)===m&&liquid(id)){if(v>=0)inflow+=v;else outflow-=v;}};
+ live(data.tx).forEach(t=>{const inMonth=(t.date||'').slice(0,7)===m;
+ if(inMonth&&(!known(t.accountId)||(['transfer','saving','cardpay','draw'].includes(t.type)&&!known(t.toAccountId))))unlinked++;
+ if(t.type==='expense'&&t.split){const sp=t.split;if(sp.payer!=='other')add(t.accountId,-(sp.total||t.amount),t.date);(sp.parts||[]).forEach(p=>add(sp.settleAccountId||t.accountId,(sp.payer==='other'?-1:1)*(p.settled||0),p.settledDate||t.date));return;}
+ if(t.type==='income')add(t.accountId,t.amount,t.date);else if(t.type==='expense')add(t.accountId,-t.amount,t.date);else if(!(liquid(t.accountId)&&liquid(t.toAccountId))){add(t.accountId,-t.amount,t.date);add(t.toAccountId,t.amount,t.date);}});
+ return {inflow,outflow,net:inflow-outflow,unlinked,hasAccounts:live(ac).some(a=>liquid(a.id))};
+}
+function billPlans(data){return live(data.settings).filter(r=>r.id.startsWith('importBatch:')&&r.billDate&&r.billAmount>0&&!r.billPaid).map(r=>{const paid=sum(live(data.tx).filter(t=>t.type==='cardpay'&&t.statementId===r.id&&t.toAccountId===r.accountId&&t.date<=today()),t=>t.amount);return {...r,billAmount:Math.max(0,r.billAmount-paid),statementTotal:r.billAmount,paid};}).filter(r=>r.billAmount>0).sort((a,b)=>a.billDate.localeCompare(b.billDate));}
+function undoImportChanges(data,batch){const ids=new Set(batch.txIds||[]),changes=live(data.tx).filter(t=>ids.has(t.id)).map(t=>({kind:'tx',rec:{...t,deleted:true}}));live(data.occ).forEach(o=>{const ps=o.payments||(o.txId?[{id:o.txId,txId:o.txId}]:[]);if(ps.some(p=>ids.has(p.txId)))changes.push({kind:'occ',rec:{...o,txId:null,payments:ps.filter(p=>!ids.has(p.txId))}});});changes.push({kind:'settings',rec:{...batch,deleted:true}});return changes;}
+function ReviewPanel(){
+ const {data,month,commit,statsOf,toast}=useApp(),h=React.createElement;
+ const [checks,setChecks]=useState([false,false,false]),stamp=monthStamp(data,month),status=reviewState(data,month),cf=statsOf(month).cf;
+ useEffect(()=>setChecks([false,false,false]),[month,stamp]);
+ const batches=live(data.settings).filter(r=>r.id.startsWith('importBatch:')&&(r.months||[]).includes(month)).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+ const undo=async batch=>{if(await ask({title:'이 업로드를 되돌릴까요?',body:'이 업로드로 추가된 거래를 삭제합니다. 직접 수정한 거래도 포함돼요. 카드 계좌와 분류 규칙은 유지합니다.',confirmLabel:'업로드 되돌리기',danger:true})){commit(undoImportChanges(data,batch));toast('선택한 업로드를 되돌렸어요');}};
+ return h('details',{className:'more-sec monthly-review',key:month},h('summary',null,'월말 정리',h('span',null,status==='done'?'정리 완료':status==='changed'?'내역 변경 · 재확인 필요':'정리 중')),
+ h('section',{className:'card stack'},h('p',{className:'small muted'},'카드 업로드 → 분류·합계 확인 → 완료. 거래가 없는 달도 실제 0원인지 확인해 주세요.'),
+ h('div',{className:'mini-rows'},[['수입',cf.income],['소비·세금',cf.consumption],['저축·투자',statsOf(month).saving]].map(([l,v])=>h('div',{key:l},h('span',null,l),h('b',null,won(v),'원')))),
+ ['급여·사업 매출과 현금 거래를 확인했어요','모든 카드 내역·취소·할부·사업 경비 분류를 확인했어요','누락·중복 없이 합계가 맞아요'].map((text,i)=>h('label',{className:'check',key:i},h('input',{type:'checkbox',checked:checks[i],onChange:e=>setChecks(v=>v.map((x,j)=>j===i?e.target.checked:x))}),text)),
+ h('button',{className:'btn primary',disabled:!checks.every(Boolean)||month>thisMonth(),onClick:()=>{commit([{kind:'settings',rec:{id:'monthClose:'+month,closed:true,stamp,reviewedAt:Date.now()}}]);toast('이번 달 정리를 완료했어요');}},'이번 달 정리 완료'),
+ status==='done'&&h('button',{className:'btn ghost small',onClick:()=>commit([{kind:'settings',rec:{id:'monthClose:'+month,closed:false}}])},'정리 다시 열기'),
+ h('p',{className:'small muted'},'완료 후 거래가 바뀌면 재확인이 필요해져요. 저축 계산은 최근 1년 안에 정리한 지난달까지의 월 중 최근 3개월을 사용합니다.'),
+ h('details',null,h('summary',null,'카드 업로드 이력'),batches.length?batches.map(b=>h('div',{className:'hs-row',key:b.id},h('div',{className:'hs-t'},h('b',null,b.name),h('span',null,`${b.count}건 · ${won(b.total)}원 · ${b.months.join(', ')}`)),h('button',{className:'btn small',onClick:()=>undo(b)},'되돌리기'))):h('p',{className:'small muted'},'이 버전에서 올린 파일부터 이력이 남아요. 기존 기록은 그대로 유지됩니다.'))));
+}
+function OperatingReserve(){const {data,commit,toast}=useApp(),h=React.createElement,s=data.settings.settings||{};const [v,setV]=useState(s.businessReserveMonthly||0);
+ return h('details',{className:'more-sec'},h('summary',null,'사업에 남겨둘 돈',h('span',null,'월 운영자금 추가 적립')),h('section',{className:'card stack'},h('p',{className:'small muted'},'이미 경비로 기록한 금액 외에 다음 제작·재고·운영을 위해 매달 추가로 남겨둘 금액이에요. 저축 여력에서 차감하며 거래를 만들지는 않아요.'),h(Field,{label:'월 추가 적립액'},h(AmountInput,{value:v,onChange:setV})),h('button',{className:'btn primary',onClick:()=>{commit([{kind:'settings',rec:{...s,id:'settings',businessReserveMonthly:Math.max(0,Number(v)||0)}}]);toast('운영자금 기준을 저장했어요');}},'운영자금 저장')));}
+function CashMovementPanel(){const {data,month,statsOf,openSheet}=useApp(),h=React.createElement,c=cashMovement(data,month),cf=statsOf(month).cf,state=reviewState(data,month),plans=billPlans(data).filter(r=>r.billDate.slice(0,7)===month);
+ return h('div',{className:'stack'},h('section',{className:'card'},h('h3',null,'소비와 통장 흐름'),h('p',{className:'small muted'},state==='done'?'월 정리 완료 · 등록된 계좌 기준':'정리 중 · 누락된 내역은 반영되지 않아요'),h('div',{className:'mini-rows'},[['소비·세금 (카드 사용일 기준)',cf.consumption],['통장에 들어온 돈',c.inflow],['통장에서 나간 돈',c.outflow],['통장 순증감',c.net]].map(([l,v])=>h('div',{key:l},h('span',null,l),h('b',{className:'num'},c.hasAccounts||l.startsWith('소비')?won(v)+'원':'계좌 등록 필요')))),h('p',{className:'small muted'},'현금·예금·세금 준비금 계좌 사이의 이체는 제외해요. 카드 구매는 소비, 카드대금 납부는 통장 출금입니다. 대출 원금 상환·투자계좌 납입은 출금에 포함돼요.'),c.unlinked>0&&h('p',{className:'warn-t small'},`계좌 미연결 거래 ${c.unlinked}건이 있어 통장 흐름은 일부만 반영됐어요.`)),
+ h('section',{className:'card'},h('h3',null,'명세서 결제 예정'),plans.length?plans.map(p=>h('div',{className:'hs-row',key:p.id},h('div',{className:'hs-t'},h('b',null,won(p.billAmount)+'원'),h('span',null,p.billDate+' · '+p.name)),h('button',{className:'btn small',onClick:()=>openSheet('entry',{prefill:{type:'cardpay',amount:p.billAmount,toAccountId:p.accountId,statementId:p.id,memo:'카드대금 · '+p.name}})},'납부 기록'))):h('p',{className:'small muted'},'카드 업로드에서 결제일·청구 총액을 입력하면 표시해요.'),h('p',{className:'small muted'},'납부 기록에서 출금 계좌를 선택하면 실제 통장 출금과 연결되고 남은 예정액이 자동으로 줄어요. 이미 기록한 납부를 다시 입력하지 않도록 확인해 주세요.')),
+ h('section',{className:'card'},h('h3',null,'이번 달 한눈에'),h('p',null,`수입 ${won(cf.income)}원, 소비·세금 ${won(cf.consumption)}원, 저축·투자 ${won(statsOf(month).saving)}원이에요.`),h('p',{className:'small muted'},state==='done'?'확인한 월의 요약이에요.':'정리 중인 기록 기준입니다.')));}
+function cardDuplicateInfo(p,data,accountId,hash){const k=merchantKey(p.merchant),sign=p.cancel?-1:1;const candidates=live(data.tx).filter(t=>t.type==='expense'&&t.date===p.date&&Math.sign(t.amount)===sign&&Math.abs(t.amount)===p.amount&&(merchantKey(t.memo)===k||t.importKey===`${p.date}|${k}|${p.amount}`)&&(!accountId||t.accountId===accountId));const exact=candidates.some(t=>accountId&&t.accountId===accountId&&((p.approval&&t.approval===p.approval)||(hash&&t.importHash===hash&&t.importRow===p.idx)));return {dup:exact,suspected:!exact&&candidates.length>0};}
+
 function HistoryPage() {
     const { histTab, setHistTab, histSub, setHistSub, data } = useApp();
     const [view, setView] = useState('list');
@@ -20497,6 +20572,7 @@ function HistoryPage() {
             subs && v === 'list' ? React.createElement("div", { className: "chips sub-chips", role: "group", "aria-label": histTab === 'expense' ? '지출 유형' : '수입 유형' },
                 subs.map(([v, l]) => React.createElement("button", { key: v, type: "button", className: cx('chip', sub === v && 'on'), "aria-pressed": sub === v, onClick: () => setHistSub(v) }, l))) : React.createElement("span", null),
             !special && React.createElement(Seg, { small: true, value: v, onChange: setView, options: [['list', '리스트'], ['cal', '달력']] })),
+        (histTab === 'all' || histTab === 'expense') && React.createElement(ReviewPanel, null),
         special ? (histTab === 'expense' ? React.createElement(FixedPage, null) : React.createElement(WorkPanel, { mode: "log" }))
             : v === 'cal' ? React.createElement(HistCalendar, { preset: histTab })
                 : React.createElement(TxListPage, { key: histTab, preset: histTab, sub })));
@@ -20549,8 +20625,8 @@ function ProfitOverview() {
         all: { label: '순현금흐름', key: 'net', sign: true,
             chart: [{ name: '전체 수입', color: 'var(--sage)', values: pick((p) => p.income) }, { name: '전체 지출', color: 'var(--c-var)', values: pick((p) => p.expense) }, { name: '순현금흐름', color: 'var(--c-fixed)', values: pick((p) => p.net) }],
             lines: [['전체 수입', '+', cur.income], ['전체 지출', '−', cur.expense]],
-            extra: [...(cur.tax ? [['└ 지출 중 세금 납부', `${won(cur.tax)}원`]] : []), ...(cur.dutchAdj ? [['└ 지출 중 더치페이 정산 차이', `${signed(cur.dutchAdj)}원`]] : []), ...(cur.loanRepay ? [['대출 원금 상환 (별도 분류)', `${won(cur.loanRepay)}원`]] : []), ...(cur.dutchN ? [['더치페이 실제 현금 유출', `${won(cur.dutchCash)}원`], ['더치페이 최종 내 소비액', `${won(cur.dutchOwn)}원`], ['미정산 받을 돈 / 보낼 돈', `${won(cur.dutchRecv)} / ${won(cur.dutchPay)}원`]] : []), ['사업 순수익 (세전)', `${signed(cur.bizProfit)}원`], ['근로 수입 (실제 입금)', `${won(cur.labor)}원`], ['포커 손익 (참고)', `${signed(cur.poker)}원`]],
-            note: `전체 수입·지출은 개인과 사업을 합친 금액이에요. 계좌 이체·저축·카드대금·사업 인출 ${won(cur.moved)}원은 돈의 위치만 바뀐 것이라 수입·지출에 넣지 않았어요. 홈·계산 근거와 같은 기준이에요: 순현금흐름 = 전체 수입 − 전체 지출(세금 납부·더치페이 실제 지출 포함). 대출 원금 상환은 부채 감소라 별도로 보여주고, 이자는 지출에 포함돼요. 예상 급여는 실제 입금이 아니라 더하지 않아요. 포커 손익은 ‘수입·지출에 자동 반영’한 기록만 포함돼요.` },
+            extra: [...(cur.tax ? [['└ 지출 중 세금 납부', `${won(cur.tax)}원`]] : []), ...(cur.dutchAdj ? [['└ 지출 중 더치페이 정산 차이', `${signed(cur.dutchAdj)}원`]] : []), ...(cur.loanRepay ? [['└ 지출 중 대출 원금 상환', `${won(cur.loanRepay)}원`]] : []), ...(cur.dutchN ? [['더치페이 실제 현금 유출', `${won(cur.dutchCash)}원`], ['더치페이 최종 내 소비액', `${won(cur.dutchOwn)}원`], ['미정산 받을 돈 / 보낼 돈', `${won(cur.dutchRecv)} / ${won(cur.dutchPay)}원`]] : []), ['사업 순수익 (세전)', `${signed(cur.bizProfit)}원`], ['근로 수입 (실제 입금)', `${won(cur.labor)}원`], ['포커 손익 (참고)', `${signed(cur.poker)}원`]],
+            note: `전체 수입·지출은 개인과 사업을 합친 금액이에요. 계좌 이체·저축·카드대금·사업 인출 ${won(cur.moved)}원은 돈의 위치만 바뀐 것이라 수입·지출에 넣지 않았어요. 홈·계산 근거와 같은 기준이에요: 순현금흐름 = 전체 수입 − 전체 지출(세금 납부·더치페이 실제 지출 포함). 대출 원금과 이자는 모두 전체 지출에 포함하며 상세 항목으로 구분해요. 예상 급여는 실제 입금이 아니라 더하지 않아요. 포커 손익은 ‘수입·지출에 자동 반영’한 기록만 포함돼요.` },
         biz: { label: '사업 순수익 (세전)', key: 'bizProfit', sign: true,
             chart: [{ name: '매출', color: 'var(--sage)', values: pick((p) => p.sales) }, { name: '경비', color: 'var(--c-var)', values: pick((p) => p.costs) }, { name: '순수익', color: 'var(--c-fixed)', values: pick((p) => p.bizProfit) }],
             lines: [['매출', '+', cur.sales], ['사업 경비', '−', cur.costs]],
@@ -20754,7 +20830,7 @@ function IncomeAnalysis() {
 }
 function AnalysisPage() {
     const { anaTab, setAnaTab, data } = useApp();
-    const t = anaTab;
+    const t = !bizModeOf(data) && anaTab === 'sim' ? 'flow' : anaTab;
     const g = anaGroupOf(t);
     const e = React.createElement;
     const biz = bizModeOf(data);
@@ -20774,7 +20850,7 @@ function AnalysisPage() {
                 e(OrdersPanel, null))))
         : t === 'spend' ? e(SpendAnalysis, { part: "spend" }, e(RecurringCard, null))
             : t === 'budget' ? e(BudgetPanel, null)
-                : t === 'flow' ? e(SpendAnalysis, { part: "flow" })
+                : t === 'flow' ? e(React.Fragment, null, e(CashMovementPanel, null), e('details', {className:'more-sec'}, e('summary',null,'소비 추이 자세히'),e(SpendAnalysis,{part:'flow'})))
                     : t === 'growth' ? e(AssetGrowthPanel, null)
                             : e(React.Fragment, null,
                                 e("h3", { className: "sec-t" }, "다음 달 예상"),
@@ -21527,13 +21603,15 @@ function filingStatus(item, f, since) {
     return item.needsFiling ? ['todo', '신고 준비 전', ''] : ['topay', '납부 예정', ''];
 }
 function reserveInfo(data, statsOf) {
+    // 기능을 꺼도 원본 세금 설정·납부 기록은 보존하고 예상 적립만 중지해요.
+    if (!bizModeOf(data)) return {};
     const ts = taxSettingsOf(data), profile = ts.profile;
     const rates = ts.reserve || {};
     const accs = live(data.account).filter((a) => a.kind === 'reserve');
     const bal = accountBalances(data);
     const t = today(), y = +t.slice(0, 4), mo = +t.slice(5, 7);
     const sched = taxSchedule(profile, t, `${y + 2}-12-31`);
-    const monthsTo = (due) => Math.max(1, mDiff(t.slice(0, 7), due.slice(0, 7)) + (+due.slice(8) >= +t.slice(8) ? 0 : 0));
+    const monthsTo = (due) => Math.max(1, mDiff(t.slice(0, 7), due.slice(0, 7)));
     const rangeSum = (m0, m1, f) => { let s = 0; for (let m = m0; m <= m1; m = addM(m, 1))
         s += f(statsOf(m)); return s; };
     const out = {};
@@ -22246,6 +22324,7 @@ const CARD_COLS = {
     date: ['이용일자', '이용일', '거래일자', '거래일', '승인일자', '승인일', '사용일자', '사용일', '매출일자', '매출일', '이용일시', '거래일시', '승인일시', '날짜', '일자'],
     merchant: ['이용가맹점', '가맹점명', '가맹점', '이용처', '사용처', '상호명', '상호', '이용내역', '거래내용', '내용', '적요'],
     amount: ['이용금액', '승인금액', '거래금액', '사용금액', '매출금액', '원화금액', '결제금액', '금액', '청구금액'],
+    approval: ['승인번호', '거래번호'],
     inst: ['할부개월', '할부기간', '할부'],
     status: ['취소여부', '승인구분', '거래구분', '취소구분', '상태', '구분'],
 };
@@ -22340,7 +22419,8 @@ function detectCardCols(rows) {
         if (inst >= 0)
             used.add(inst);
         const status = find(CARD_COLS.status);
-        return { headerRow: i, map: { date, merchant, amount, inst, status } };
+        const approval=find(CARD_COLS.approval);
+        return { headerRow: i, map: { date, merchant, amount, inst, status, approval } };
     }
     return null;
 }
@@ -22352,49 +22432,24 @@ function parseCardRows(rows, det) {
             return null;
         const date = cardDate(get(r, map.date));
         const raw = parseMoney(get(r, map.amount));
+        if(date&&(+date.slice(5,7)<1||+date.slice(5,7)>12||+date.slice(8)<1||+date.slice(8)>dim(date.slice(0,7))))throw new Error('유효하지 않은 날짜가 있어요: '+date+' · 원본 파일을 확인해 주세요.');
         if (!date || !raw)
             return null;
         const merchant = String(get(r, map.merchant) || '').trim();
         if (/^(합계|소계|총계|TOTAL)/i.test(merchant))
             return null;
         const status = String(get(r, map.status) || '');
-        const cancel = raw < 0 || /취소|환불|반품/.test(status) || /^\s*\[?취소/.test(merchant);
+        const statusHead=String((rows[det.headerRow]||[])[map.status]||'');
+        const cancel=raw<0||(/취소|환불|반품/.test(status)&&!/미취소|취소아님|취소없음/.test(status))||(/취소여부/.test(statusHead)&&/^(Y|YES|1)$/i.test(status.trim()))||/^\s*\[?취소/.test(merchant);
         const inst = String(get(r, map.inst) || '').trim();
-        return { idx, date, merchant: merchant || '(가맹점 없음)', amount: Math.abs(Math.round(raw)), cancel, inst: /^(일시불|0|1|-|)$/.test(inst) ? '' : inst };
+        return { idx, date, approval:String(get(r,map.approval)||'').trim(), merchant: merchant || '(가맹점 없음)', amount: Math.abs(Math.round(raw)), cancel, inst: /^(일시불|0|1|-|)$/.test(inst) ? '' : inst };
     }).filter(Boolean);
 }
-function prepareCardItems(parsed, data) {
-    const learned = (((data.settings.settings || {}).cardRules) || {});
-    const existing = live(data.tx).filter((t) => t.type === 'expense');
-    const items = parsed.map((p) => {
-        const g = guessCategory(p.merchant, learned);
-        const k = merchantKey(p.merchant);
-        const dup = existing.some((t) => t.date === p.date && Math.abs(t.amount) === p.amount && (merchantKey(t.memo) === k || t.importKey === `${p.date}|${k}|${p.amount}`));
-        return { ...p, key: `${p.idx}`, mkey: k, category: g.category, auto: g.auto, learned: !!g.learned, scope: g.scope || 'personal', dup, pair: false, link: null, include: !dup };
-    });
-    // 승인 후 취소된 쌍은 둘 다 제외
-    items.filter((x) => x.cancel).forEach((c) => {
-        const o = items.find((x) => !x.cancel && !x.pair && x.mkey === c.mkey && x.amount === c.amount);
-        if (o) {
-            o.pair = c.pair = true;
-            o.include = c.include = false;
-        }
-    });
-    // 고정비 예정과 같은 결제는 연결 (중복 지출 방지)
-    const usedOcc = new Set();
-    items.filter((x) => !x.cancel && x.include).forEach((x) => {
-        const occs = occurrences(data, x.date.slice(0, 7)).concat(occurrences(data, addM(x.date.slice(0, 7), 1)));
-        const o = occs.find((o2) => !o2.paid && !usedOcc.has(o2.key) && Math.abs(daysBetween(o2.date, x.date)) <= 7 && (x.amount === o2.remaining || x.amount === o2.amount)
-            && (x.mkey.includes(merchantKey(o2.rule.name)) || merchantKey(o2.rule.name).includes(x.mkey.slice(0, 4)) || x.category === o2.rule.category));
-        if (o) {
-            usedOcc.add(o.key);
-            x.link = { key: o.key, ruleId: o.rule.id, month: o.month, name: o.rule.name, category: o.rule.category, scope: o.scope };
-            x.category = o.rule.category;
-            x.scope = o.scope;
-            x.auto = true;
-        }
-    });
-    return items;
+function prepareCardItems(parsed,data,accountId='',hash='') {
+ const learned=(data.settings.settings||{}).cardRules||{}, seen=new Set();
+ return parsed.map(p=>{const g=guessCategory(p.merchant,learned),d=cardDuplicateInfo(p,data,accountId,hash),key=p.approval?`${p.date}|${p.approval}|${p.cancel}|${p.amount}`:'';const repeated=key&&seen.has(key);if(key)seen.add(key);
+ return {...p,key:String(p.idx),mkey:merchantKey(p.merchant),category:g.category,auto:g.auto,learned:!!g.learned,scope:g.scope||'personal',...d,dup:!!(d.dup||repeated),fileDup:!!repeated,pair:false,link:null,include:!(d.dup||repeated),needsReview:!!(d.suspected||p.cancel||p.inst)};
+ });
 }
 async function readCardFile(file) {
     const name = file.name.toLowerCase();
@@ -22439,7 +22494,15 @@ function CardImportSheet({ onClose }) {
     const [err, setErr] = useState('');
     const [busy, setBusy] = useState(false);
     const fileRef = useRef(null);
+    const [importHash,setImportHash]=useState('');
+    const [reviewOK,setReviewOK]=useState(false);
+    const [billDate,setBillDate]=useState('');
+    const [billAmount,setBillAmount]=useState('');
+    useEffect(()=>{if(stage==='review'){setItems(xs=>xs.map(x=>{const d=cardDuplicateInfo(x,data,cardAcc,importHash);return {...x,...d,dup:!!(d.dup||x.fileDup),needsReview:!!(d.suspected||x.cancel||x.inst),include:!(d.dup||x.fileDup)};}));setReviewOK(false);}},[cardAcc]);
     const build = (rows, d) => {
+        const heading=String((rows[d.headerRow]||[])[d.map.amount]||'');
+        if (/청구/.test(heading)&&!/이용|승인|사용/.test(heading)){setErr('청구금액만으로는 사용 총액을 알 수 없어요. 이용금액이 있는 내역을 올리거나 금액 열을 다시 골라 주세요.');setStage('map');return;}
+        const hash=contentKey(stableJSON(rows));setImportHash(hash);setReviewOK(false);
         const parsed = parseCardRows(rows, d);
         if (!parsed.length) {
             setErr('이 열 구성으로는 읽을 수 있는 거래가 없어요. 열을 다시 골라 주세요.');
@@ -22447,7 +22510,7 @@ function CardImportSheet({ onClose }) {
             return;
         }
         setErr('');
-        setItems(prepareCardItems(parsed, data));
+        setItems(prepareCardItems(parsed, data, cardAcc, hash));
         setStage('review');
     };
     const onFile = async (e) => {
@@ -22487,16 +22550,19 @@ function CardImportSheet({ onClose }) {
             setBusy(false);
         }
     };
-    const upd = (key, patch) => setItems((l) => l.map((x) => (x.key === key ? { ...x, ...patch, auto: patch.category ? true : x.auto, touched: patch.category || patch.scope ? true : x.touched } : x)));
+    const upd = (key, patch) => {setReviewOK(false);setItems((l) => l.map((x) => (x.key === key ? { ...x, ...patch, auto: patch.category ? true : x.auto, touched: patch.category || patch.scope ? true : x.touched } : x)));};
     const inc = items.filter((x) => x.include);
     const total = sum(inc, (x) => (x.cancel ? -x.amount : x.amount));
-    const needCheck = items.filter((x) => x.include && !x.auto);
+    const needCheck = items.filter((x) => x.include && (!x.auto || x.needsReview));
     const byCat = {};
     inc.forEach((x) => { byCat[x.category] = (byCat[x.category] || 0) + (x.cancel ? -x.amount : x.amount); });
-    const shown = onlyCheck ? items.filter((x) => x.include && !x.auto) : items;
+    const shown = onlyCheck ? needCheck : items;
     const doImport = () => {
-        if (!inc.length)
-            return;
+        if (!inc.length || (needCheck.length && !reviewOK)) return;
+        if ((billDate && !(Number(billAmount)>0)) || (!billDate && Number(billAmount)>0)){setErr('결제 예정액과 결제일을 함께 입력해 주세요.');return;}
+        if(billDate&&cardAcc&&billPlans(data).some(b=>b.accountId===cardAcc&&b.billDate===billDate)){setErr('이 카드·결제일의 예정액이 이미 있어요. 중복 등록하지 않도록 결제 예정액 입력을 비워 주세요.');return;}
+        if(billDate&&!cardAcc){setErr('결제 예정액을 입력하려면 카드를 선택하거나 새 카드를 추가해 주세요.');return;}
+        const batchId='importBatch:'+newId();
         const ch = [];
         let acc = cardAcc;
         if (cardAcc === 'new') {
@@ -22514,10 +22580,10 @@ function CardImportSheet({ onClose }) {
             const biz = x.scope === 'business';
             const rec = {
                 id, type: 'expense', scope: x.scope, date: x.date, amount: x.cancel ? -x.amount : x.amount, category: x.category, memo: x.merchant + (x.cancel ? ' (취소)' : ''), source: '',
-                accountId: acc || '', createdAt: now + i, importedFrom: 'card', importKey: `${x.date}|${x.mkey}|${x.amount}`, inst: x.inst || null,
+                accountId: acc || '', createdAt: now + i, approval:x.approval||'', importBatchId:batchId,importHash,importRow:x.idx, importedFrom: 'card', importKey: `${x.date}|${x.mkey}|${x.amount}`, inst: x.inst || null,
             };
             if (biz)
-                Object.assign(rec, { vatType: 'taxable', ...vatSplit(Math.abs(rec.amount), 'taxable'), evidence: 'card', vatDeductible: true, nonDeductible: false });
+                Object.assign(rec, { vatType: 'taxable', ...vatSplit(rec.amount, 'taxable'), evidence: 'card', vatDeductible: true, nonDeductible: false });
             if (x.link) {
                 rec.ruleId = x.link.ruleId;
                 rec.occMonth = x.link.month;
@@ -22538,9 +22604,12 @@ function CardImportSheet({ onClose }) {
             learned.forEach((x) => { rules[x.mkey] = { category: x.category, scope: x.scope }; });
             ch.push({ kind: 'settings', rec: { ...s0, id: 'settings', cardRules: rules } });
         }
+        const txIds=ch.filter(c=>c.kind==='tx').map(c=>c.rec.id);
+        const batch={id:batchId,name:fileName,createdAt:now,txIds,count:inc.length,total,accountId:acc,months:[...new Set(inc.map(x=>x.date.slice(0,7)))].sort(),billDate,billAmount:Number(billAmount)||0};
+        ch.push({kind:'settings',rec:batch});
         commit(ch);
         const ids = ch.filter((c) => c.kind === 'tx').map((c) => c.rec);
-        toast(`카드 내역 ${inc.length}건을 정리해 넣었어요`, { label: '되돌리기', run: () => commit(ids.map((r) => ({ kind: 'tx', rec: { ...r, deleted: true } }))) });
+        toast(`카드 내역 ${inc.length}건을 정리해 넣었어요`, { label: '되돌리기', run: () => commit([...ids.map((r) => ({ kind: 'tx', rec: { ...r, deleted: true } })),{kind:'settings',rec:{...batch,deleted:true}}]) });
         onClose();
     };
     if (stage === 'pick') {
@@ -22551,8 +22620,8 @@ function CardImportSheet({ onClose }) {
                 React.createElement("input", { ref: fileRef, type: "file", accept: ".xlsx,.xls,.csv,.txt,.tsv", hidden: true, onChange: onFile }),
                 err && React.createElement("p", { className: "err" }, err),
                 React.createElement("ul", { className: "plain small muted" },
-                    React.createElement("li", null, "\uC2B9\uC778 \uD6C4 \uCDE8\uC18C\uB41C \uAC74\uC740 \uB458 \uB2E4 \uBE7C\uACE0, \uC774\uBBF8 \uAE30\uB85D\uD55C \uAC70\uB798\uB294 \uAC74\uB108\uB6F0\uC5B4\uC694."),
-                    React.createElement("li", null, "\uACE0\uC815\uBE44\uB85C \uB4F1\uB85D\uD55C \uACB0\uC81C(\uD1B5\uC2E0\uBE44\u00B7\uAD6C\uB3C5 \uB4F1)\uB294 \uADF8 \uB2EC \uB0A9\uBD80 \uAE30\uB85D\uC73C\uB85C \uC5F0\uACB0\uD574\uC11C \uC9C0\uCD9C\uC774 \uB450 \uBC88 \uC7A1\uD788\uC9C0 \uC54A\uC544\uC694."),
+                    React.createElement("li", null, "승인과 취소는 각각의 날짜로 남겨요. 확실한 중복은 기본 제외하고, 같은 날 반복 결제는 확인 후 포함할 수 있어요."),
+                    React.createElement("li", null, "고정비 납부로 이미 기록한 거래는 중복 후보를 확인해 제외해 주세요. 금액·분류만으로 자동 연결하지 않아요."),
                     React.createElement("li", null, "\uD560\uBD80 \uACB0\uC81C\uB294 \uC4F4 \uB0A0\uC5D0 \uC804\uCCB4 \uAE08\uC561\uC744 \uC9C0\uCD9C\uB85C \uAE30\uB85D\uD574\uC694."),
                     React.createElement("li", null, "\uCE74\uD14C\uACE0\uB9AC\uB97C \uACE0\uCE58\uBA74 \uAC19\uC740 \uAC00\uB9F9\uC810\uC740 \uB2E4\uC74C\uBD80\uD130 \uADF8\uB300\uB85C \uBD84\uB958\uD574\uC694.")))));
     }
@@ -22571,14 +22640,14 @@ function CardImportSheet({ onClose }) {
                         i + 1,
                         "\uBC88\uC9F8 \uC904 \u00B7 ",
                         (r || []).filter(Boolean).slice(0, 4).join(' / ').slice(0, 40))))),
-                [['date', '날짜 열'], ['merchant', '가맹점 열'], ['amount', '금액 열 (이용금액)'], ['inst', '할부 열 (선택)'], ['status', '취소 표시 열 (선택)']].map(([k, l]) => (React.createElement(Field, { key: k, label: l },
+                [['approval', '승인번호 열 (선택)'], ['date', '날짜 열'], ['merchant', '가맹점 열'], ['amount', '금액 열 (이용금액)'], ['inst', '할부 열 (선택)'], ['status', '취소 표시 열 (선택)']].map(([k, l]) => (React.createElement(Field, { key: k, label: l },
                     React.createElement("select", { className: "input", value: det.map[k], onChange: setMap(k) },
                         React.createElement("option", { value: -1 }, "\uC5C6\uC74C"),
                         colOpts.map(([j, t]) => React.createElement("option", { key: j, value: j }, t)))))))));
     }
     return (React.createElement(Sheet, { title: "\uCE74\uB4DC \uB0B4\uC5ED \uD655\uC778", onClose: onClose, wide: true, footer: React.createElement(React.Fragment, null,
             React.createElement("button", { className: "btn", onClick: () => setStage('map') }, "\uC5F4 \uB2E4\uC2DC \uACE0\uB974\uAE30"),
-            React.createElement("button", { className: "btn primary grow", disabled: !inc.length, onClick: doImport },
+            React.createElement("button", { className: "btn primary grow", disabled: !inc.length || (needCheck.length>0&&!reviewOK), onClick: doImport },
                 inc.length,
                 "\uAC74 \uAC00\uC838\uC624\uAE30")) },
         React.createElement("div", { className: "stack" },
@@ -22617,6 +22686,8 @@ function CardImportSheet({ onClose }) {
                 needCheck.length,
                 "\uAC74\uB9CC \uBCF4\uAE30"),
             err && React.createElement("p", { className: "err" }, err),
+            needCheck.length>0 && React.createElement('label',{className:'check'},React.createElement('input',{type:'checkbox',checked:reviewOK,onChange:e=>setReviewOK(e.target.checked)}),'중복 후보·취소·할부 및 미분류 거래를 확인했어요'),
+            React.createElement('details',{className:'more-sec'},React.createElement('summary',null,'결제 예정액 입력 (선택)'),React.createElement('div',{className:'form-2'},React.createElement(Field,{label:'명세서 결제일'},React.createElement('input',{className:'input',type:'date',value:billDate,onChange:e=>setBillDate(e.target.value)})),React.createElement(Field,{label:'이번 달 실제 청구 총액'},React.createElement(AmountInput,{value:billAmount,onChange:setBillAmount}))),React.createElement('p',{className:'small muted'},'할부·수수료를 포함한 명세서 청구 총액을 입력하세요. 사용 총액에서 임의로 나누지 않으며 실제 출금은 납부 기록 시 반영됩니다. 같은 카드·결제일은 한 파일에만 입력하세요.')),
             React.createElement("ul", { className: "ci-list" }, shown.map((x) => {
                 const cats = x.scope === 'business' ? bizExpCats() : expCats();
                 return (React.createElement("li", { key: x.key, className: cx('ci-row', !x.include && 'off') },
@@ -22627,7 +22698,8 @@ function CardImportSheet({ onClose }) {
                             x.date.slice(5).replace('-', '/'),
                             x.inst ? ` · 할부 ${x.inst}` : '',
                             x.cancel ? ' · 취소·환불' : '',
-                            x.dup ? ' · 이미 기록됨' : '',
+                            x.dup ? ' · 일치하는 기록 있음 · 기본 제외' : '',
+                            x.suspected ? ' · 중복 후보: 실제 별도 결제인지 확인' : '',
                             x.pair ? ' · 승인 후 취소' : '',
                             x.link ? ` · 고정비 ‘${x.link.name}’ 납부로 연결` : '',
                             x.learned ? ' · 지난번 분류' : '')),
@@ -22794,7 +22866,7 @@ const stdev = (arr) => { if (!arr.length)
     return 0; const m = sum(arr) / arr.length; return Math.sqrt(sum(arr.map((x) => (x - m) ** 2)) / arr.length); };
 // 최근 6개월(기록 있는 달) 개인 수입으로 평균·변동성·보수적 수입을 계산 (3개월 미만이면 계산하지 않음)
 function incomeProfile(statsOf, month, firstMonth) {
-    const months = [...Array(6)].map((_, i) => addM(month, i - 5)).filter((m) => firstMonth && m >= firstMonth);
+    const months = [...Array(12)].map((_,i)=>addM(month,i-12)).filter(m=>statsOf(m).reviewed).slice(-3);
     if (months.length < 3)
         return { ok: false, have: months.length };
     const vals = months.map((m) => statsOf(m).income);
@@ -22803,7 +22875,7 @@ function incomeProfile(statsOf, month, firstMonth) {
     return { ok: true, months, vals, mean, sd, cv: mean > 0 ? sd / mean : null, avg3, conservative: Math.max(0, Math.min(avg3, mean - sd)) };
 }
 function essentialAvg(statsOf, month, firstMonth) {
-    const ms = [1, 2, 3].map((k) => addM(month, -k)).filter((m) => firstMonth && m >= firstMonth);
+    const ms = [...Array(12)].map((_,i)=>addM(month,i-12)).filter(m=>statsOf(m).reviewed).slice(-3);
     if (!ms.length)
         return null;
     return sum(ms, (m) => { const s = statsOf(m); return sum(s.txs.filter((t) => t.type === 'expense' && (t.ruleId || isEssential(t.category))), (t) => t.amount) + s.fixedUnpaid; }) / ms.length;
@@ -22870,11 +22942,11 @@ function taxDueAmount(data, statsOf, prof, it) {
 function cashForecast(data, statsOf, firstMonth, scen = 0) {
     const t = today(), tm = thisMonth(), y = +t.slice(0, 4);
     const ip = incomeProfile(statsOf, tm, firstMonth);
-    const last3 = [1, 2, 3].map((k) => addM(tm, -k)).filter((m) => firstMonth && m >= firstMonth);
+    const last3 = reviewedMonths(data);
     const varAvg = last3.length ? sum(last3, (m) => statsOf(m).variable) / last3.length : null;
     const settings = data.settings.settings || {};
     const savPlan = settings.savingTarget || (last3.length ? sum(last3, (m) => statsOf(m).saving) / last3.length : 0);
-    const prof = taxProfileOf(data);
+    const prof = bizModeOf(data) ? taxProfileOf(data) : null;
     const sched = prof ? taxSchedule(prof, t, `${y + 1}-12-31`).filter((it) => !['done', 'unknown'].includes(filingStatus(it, filingOf(data, it.id), prof.since)[0])) : [];
     const accs = live(data.account), bal = accountBalances(data);
     const pa = accs.filter((a) => a.scope !== 'business');
@@ -22913,7 +22985,7 @@ function buildInsights(data, statsOf, firstMonth, P) {
     const out = [];
     if (!firstMonth)
         return out;
-    const add = (x) => { if (INSIGHT_KEEP.includes(x.type) && !(P.off && P.off[x.type]))
+    const add = (x) => { const currentTypes=['fixedRatio','budgetForecast','overspend','spendUp','savingCheck','cashRisk']; if(currentTypes.includes(x.type)&&reviewState(data,thisMonth())!=='done')return; if(x.type==='incomeDrop'&&![1,2,3,4].every(k=>reviewState(data,addM(thisMonth(),-k))==='done'))return; if (INSIGHT_KEEP.includes(x.type) && !(P.off && P.off[x.type]))
         out.push(x); };
     const t = today(), tm = thisMonth(), pm = addM(tm, -1), day = +t.slice(8), D = dim(tm);
     const st = statsOf(tm), pv = statsOf(pm);
@@ -23232,17 +23304,14 @@ function AssetGrowthPanel() {
                 React.createElement("p", { className: "small muted" }, "\uD22C\uC790\uB294 \uB123\uC740 \uC6D0\uAE08\uC774\uC5D0\uC694. \uD3C9\uAC00\uC561\uACFC \uC218\uC775\uB960\uC740 \uC790\uC0B0 \u203A \uD22C\uC790\uC5D0\uC11C \uBCFC \uC218 \uC788\uC5B4\uC694.")))));
 }
 function planBaseline(data, statsOf, firstMonth) {
-    const tm = thisMonth();
-    const ms = [1, 2, 3].map((k) => addM(tm, -k)).filter((m) => firstMonth && m >= firstMonth);
-    const ip = incomeProfile(statsOf, tm, firstMonth);
-    const avg = (f) => (ms.length ? sum(ms, (m) => f(statsOf(m))) / ms.length : null);
-    const ess = essentialAvg(statsOf, tm, firstMonth);
-    const fixed = avg((s) => s.fixedTotal);
-    const variable = avg((s) => s.variable);
-    const essVar = avg((s) => sum(s.txs.filter((t) => t.type === 'expense' && !t.ruleId && isEssential(t.category)), (t) => t.amount));
-    const RI = taxProfileOf(data) ? reserveInfo(data, statsOf) : {};
-    const taxM = sum(Object.values(RI), (r) => r.monthly || 0);
-    return { ms, ip, ess, fixed, variable, essVar, nonEss: variable != null && essVar != null ? Math.max(0, variable - essVar) : null, taxM, saving: avg((s) => s.saving) };
+ const ms=reviewedMonths(data), vals=ms.map(m=>incomeSplit(data,statsOf,[m]).total), avg=f=>ms.length?sum(ms,m=>f(statsOf(m)))/ms.length:null;
+ const mean=vals.length?sum(vals)/vals.length:0, sd=vals.length?stdev(vals):0;
+ const ip={ok:ms.length===3,have:ms.length,months:ms,vals,mean,sd,cv:mean>0?sd/mean:null,avg3:mean,conservative:Math.max(0,mean-sd)};
+ const ess=avg(s=>sum(s.txs.filter(t=>t.type==='expense'&&(t.ruleId||isEssential(t.category))),t=>t.amount)+s.fixedUnpaid);
+ const variable=avg(s=>s.variable),essVar=avg(s=>sum(s.txs.filter(t=>t.type==='expense'&&!t.ruleId&&isEssential(t.category)),t=>t.amount));
+ const RI=taxProfileOf(data)?reserveInfo(data,statsOf):{},taxM=sum(Object.values(RI),r=>r.monthly||0);
+ const loanM=avg(s=>sum(s.all.filter(t=>t.type==='transfer'&&data.account[t.toAccountId]&&data.account[t.toAccountId].kind==='loan'),t=>t.amount))||0;
+ return {ms,ip,ess,fixed:avg(s=>s.fixedTotal),variable,essVar,nonEss:variable!=null?Math.max(0,variable-essVar):null,taxM,saving:avg(s=>s.saving),loanM,operating:Math.max(0,Number((data.settings.settings||{}).businessReserveMonthly)||0)};
 }
 function emergencyInfo(data, statsOf, firstMonth) {
     const plan = ((data.settings.settings || {}).plan || {}).emergency || {};
@@ -23251,7 +23320,8 @@ function emergencyInfo(data, statsOf, firstMonth) {
     const bal = accountBalances(data);
     const chosen = plan.accountIds && plan.accountIds.length ? accs.filter((a) => plan.accountIds.includes(a.id)) : accs.filter((a) => a.scope !== 'business' && (a.kind === 'cash' || a.kind === 'deposit'));
     const fund = sum(chosen, (a) => Math.max(0, bal[a.id]));
-    const ess = essentialAvg(statsOf, thisMonth(), firstMonth);
+    const done=reviewedMonths(data);
+    const ess=done.length?sum(done,m=>{const st=statsOf(m);return sum(st.txs.filter(t=>t.type==='expense'&&(t.ruleId||isEssential(t.category))),t=>t.amount)+st.fixedUnpaid;})/done.length:null;
     const target = ess != null ? Math.round(ess * months) : null;
     const short = target != null ? Math.max(0, target - fund) : null;
     return { months, reach, chosen, fund, ess, target, short, covered: ess > 0 ? fund / ess : null, monthly: short ? Math.ceil(short / reach) : 0, hasAcc: accs.length > 0 };
@@ -23261,8 +23331,8 @@ function savingRange(data, statsOf, firstMonth) {
     const em = emergencyInfo(data, statsOf, firstMonth);
     if (!b.ip.ok || b.ess == null || b.nonEss == null)
         return { ok: false, have: b.ip.have || b.ms.length, b, em };
-    const deduct = b.ess + b.nonEss + b.taxM + (em.monthly || 0);
-    return { ok: true, b, em, low: Math.max(0, Math.round(b.ip.conservative - deduct)), base: Math.max(0, Math.round(b.ip.avg3 - deduct)), max: Math.max(0, Math.round(b.ip.avg3 - b.ess - b.taxM - (em.monthly || 0))) };
+    const deduct = b.ess + b.nonEss + b.taxM + (em.monthly || 0) + b.loanM + b.operating;
+    return { ok: true, b, em, low: Math.max(0, Math.round(b.ip.conservative - deduct)), base: Math.max(0, Math.round(b.ip.avg3 - deduct)), max: Math.max(0, Math.round(b.ip.avg3 - b.ess - b.taxM - (em.monthly || 0) - b.loanM - b.operating)) };
 }
 function BudgetPanel() {
     const { data, month, statsOf, openSheet, go, firstMonth } = useApp();
@@ -23362,6 +23432,7 @@ function SavingPlanPanel() {
     const recentGoal = (gid) => { const ms = [0, 1, 2].map((k) => addM(thisMonth(), -k)); return sum(live(data.tx).filter((t) => t.type === 'saving' && t.goalId === gid && ms.includes(t.date.slice(0, 7))), (t) => t.amount) / 3; };
     const avgSave = R.b.saving;
     return (React.createElement("div", { className: "stack" },
+        React.createElement(OperatingReserve, null),
         React.createElement("details", { className: "more-sec sv-rec" }, React.createElement("summary", null, "\uAD8C\uC7A5 \uC800\uCD95 \uBC94\uC704", React.createElement("span", null, "\uC218\uC785\u00B7\uD544\uC218 \uC9C0\uCD9C\uB85C \uACC4\uC0B0\uD55C \uCD94\uC815\uCE58")), React.createElement("section", { className: "card" },
             React.createElement("div", { className: "card-h" },
                 React.createElement("h3", null, "\uAD8C\uC7A5 \uC800\uCD95 \uBC94\uC704"),
@@ -23372,6 +23443,7 @@ function SavingPlanPanel() {
                     " ~ ",
                     won(R.base),
                     React.createElement("small", null, "\uC6D0/\uC6D4")),
+                React.createElement("p", {className:"small muted"}, '기준 월: ' + R.b.ms.join(', ') + ' · 대출 원금 이체 월평균 ' + won(R.b.loanM) + '원 · 사업 운영자금 추가 적립 ' + won(R.b.operating) + '원 차감'),
                 React.createElement("p", { className: "stat-s" }, "\uBCF4\uC218\uC801 \uC218\uC785 \uAE30\uC900 ~ \uCD5C\uADFC 3\uAC1C\uC6D4 \uD3C9\uADE0 \uC218\uC785 \uAE30\uC900"),
                 React.createElement("div", { className: "mini-rows" },
                     React.createElement("div", null,
@@ -23407,7 +23479,7 @@ function SavingPlanPanel() {
                             won(R.max),
                             "\uC6D0"))),
                 React.createElement("p", { className: "small muted" }, "\uC218\uC785 \uBCC0\uB3D9\uC131\uC774 \uD074\uC218\uB85D \uBC94\uC704\uAC00 \uB113\uC5B4\uC838\uC694. \uC218\uC785\uC774 \uC801\uC740 \uB2EC\uC5D0\uB294 \uC544\uB798\uCABD \uAE08\uC561\uC744, \uB9CE\uC740 \uB2EC\uC5D0\uB294 \uC704\uCABD \uAE08\uC561\uC744 \uAE30\uC900\uC73C\uB85C \uC0BC\uC544 \uBCF4\uC138\uC694."))) : React.createElement("p", { className: "muted small" },
-                "\uC18C\uB4DD\uC774 3\uAC1C\uC6D4 \uC774\uC0C1 \uC313\uC5EC\uC57C \uBCC0\uB3D9\uC131\uAE4C\uC9C0 \uACE0\uB824\uD55C \uBC94\uC704\uB97C \uACC4\uC0B0\uD574\uC694 (\uD604\uC7AC ",
+                "월말 정리를 완료한 지난 월이 3개 필요해요 (현재 ",
                 R.have,
                 "\uAC1C\uC6D4)."))),
         React.createElement("section", { className: "card sv-a" },
@@ -23764,7 +23836,8 @@ const ASSET_GROUPS = {
 const ASSET_TABS = ['all', ...ASSET_GROUPS.accounts.map((x) => x[0]), ...ASSET_GROUPS.manage.map((x) => x[0])];
 const assetGroupOf = (t) => (ASSET_GROUPS.accounts.some((x) => x[0] === t) ? 'accounts' : ASSET_GROUPS.manage.some((x) => x[0] === t) ? 'manage' : 'all');
 function AssetsPage() {
-    const { assetTab, setAssetTab, data } = useApp();
+    const { assetTab: selectedTab, setAssetTab, data } = useApp();
+    const assetTab = !bizModeOf(data) && selectedTab === 'tax' ? 'saving' : selectedTab;
     const g = assetGroupOf(assetTab);
     const e = React.createElement;
     const body = assetTab === 'accounts' ? e(AccountListPanel, { kinds: ['cash', 'card', 'deposit', 'reserve'], title: "계좌" })
@@ -24181,7 +24254,7 @@ function loanPayments(data, id) {
     return live(data.tx).filter((t) => (t.toAccountId === id && t.type !== 'income' && t.type !== 'expense') || (t.loanId === id && t.type === 'expense'));
 }
 function LoanSheet({ acc, onClose }) {
-    const { commit, toast, data, accounts } = useApp();
+    const { commit, toast, data, accounts, openSheet } = useApp();
     const h = React.createElement;
     const t0 = today();
     const cur = acc ? accountValuesAt(data, t0)[acc.id] : null;
@@ -24192,6 +24265,7 @@ function LoanSheet({ acc, onClose }) {
         grace: acc && acc.graceMonths != null ? String(acc.graceMonths) : '', graceInterest: (acc && acc.graceInterest) || 'pay',
         term: acc && acc.termMonths != null ? String(acc.termMonths) : '',
         startDate: (acc && acc.startDate) || '', repayStart: (acc && acc.repayStart) || '', payDay: acc && acc.payDay ? String(acc.payDay) : '',
+        defaultFrom: acc?.defaultFrom || '', defaultPrincipal: acc?.defaultPrincipal ?? '', defaultInterest: acc?.defaultInterest ?? '',
         repay: (acc && acc.repayMethod) || 'equal_pi', memo: (acc && acc.memo) || '',
     }));
     const [err, setErr] = useState('');
@@ -24218,6 +24292,7 @@ function LoanSheet({ acc, onClose }) {
         const r = num(f.rate);
         if (r != null && !(r >= 0 && r <= 100))
             return setErr('연이율은 0~100% 사이로 입력해 주세요.');
+        if ([f.defaultPrincipal,f.defaultInterest].some(v=>v!==''&&(!Number.isSafeInteger(Number(v))||Number(v)<0))) return setErr('예정 원금·이자는 0 이상의 정수로 입력해 주세요.');
         const pd = num(f.payDay);
         if (pd != null && !(pd >= 1 && pd <= 31))
             return setErr('매월 상환일은 1~31일 사이로 입력해 주세요.');
@@ -24228,6 +24303,7 @@ function LoanSheet({ acc, onClose }) {
                     principal: Number(f.principal) || 0, initial: -(Number(f.remaining) || 0), rate: r, rateType: f.rateType,
                     graceMonths: num(f.grace), graceInterest: f.graceInterest, termMonths: num(f.term), repayMethod: f.repay,
                     startDate: f.startDate || '', repayStart: f.repayStart || '', payDay: pd,
+                    defaultFrom:f.defaultFrom,defaultPrincipal:f.defaultPrincipal === '' ? null : Number(f.defaultPrincipal),defaultInterest:f.defaultInterest === '' ? null : Number(f.defaultInterest),
                     scope: f.loanType === '사업자 대출' ? 'business' : (acc && acc.scope) || 'personal', memo: f.memo.trim(), deleted: false,
                 } }]);
         toast(acc ? '대출 정보를 수정했어요' : '대출을 추가했어요');
@@ -24241,25 +24317,8 @@ function LoanSheet({ acc, onClose }) {
         onClose();
     };
     const fromAccs = accounts.filter((a) => a.kind !== 'loan' && a.kind !== 'card');
-    const openPay = () => {
-        const nx = plan.rows.find((x) => !x.grace || x.interest) || null;
-        setPay({ date: t0, from: (fromAccs[0] || {}).id || '', principal: nx ? nx.principal : 0, interest: nx ? nx.interest : 0 });
-    };
-    const savePay = () => {
-        if (!(pay.principal > 0) && !(pay.interest > 0))
-            return setErr('원금이나 이자 금액을 입력해 주세요.');
-        if (pay.principal > balance)
-            return setErr('원금 상환액이 남은 원금보다 커요.');
-        const ch = [];
-        const base = { scope: acc.scope || 'personal', date: pay.date, accountId: pay.from, loanId: acc.id, createdAt: Date.now(), deleted: false };
-        if (pay.principal > 0)
-            ch.push({ kind: 'tx', rec: { ...base, id: newId(), type: 'transfer', amount: pay.principal, category: '', toAccountId: acc.id, memo: `${acc.name} 원금 상환` } });
-        if (pay.interest > 0)
-            ch.push({ kind: 'tx', rec: { ...base, id: newId(), type: 'expense', scope: 'personal', amount: pay.interest, category: '대출 이자', group: '금융', sub: null, memo: `${acc.name} 이자`, toAccountId: '' } });
-        commit(ch);
-        toast(`상환을 기록했어요 · 원금 ${won(pay.principal)}원${pay.interest ? ` · 이자 ${won(pay.interest)}원` : ''}`);
-        setPay(null);
-    };
+    const openPay = () => openSheet('loanPay',{loanId:acc.id});
+    const savePay = () => {};
     const kv = (l, v, cls) => h("div", { className: cls }, h("span", null, l), h("b", { className: "num" }, v));
     return (h(Sheet, { title: acc ? '대출 수정' : '대출 추가', onClose, footer: h(React.Fragment, null,
             acc && h("button", { className: "icon-btn", onClick: del, "aria-label": "삭제" }, h(Icon, { n: "trash" })),
@@ -24311,7 +24370,7 @@ function LoanSheet({ acc, onClose }) {
             acc && h("section", { className: "loan-calc" },
                 h("h4", null, "상환 기록"),
                 paid.length ? h("ul", { className: "loan-paid" }, paid.sort((a, c) => c.date.localeCompare(a.date)).slice(0, 6).map((t) => h("li", { key: t.id },
-                    h("span", null, t.date.slice(2).replace(/-/g, '.')), h("span", null, t.type === 'expense' ? '이자' : '원금'), h("b", { className: "num" }, won(t.amount), "원"))))
+                    h("span", null, t.date.slice(2).replace(/-/g, '.')), h("span", null, t.type === 'expense' ? '이자' : '원금'), h("b", { className: "num" }, won(t.amount), "원"), h("button",{className:"link",onClick:()=>openSheet('loanPay',{loanId:acc.id,...(t.paymentId?{paymentId:t.paymentId}:{legacy:t})})},'수정·취소'))))
                     : h("p", { className: "small muted" }, "아직 기록한 상환이 없어요."),
                 pay ? h("div", { className: "form" },
                     h("div", { className: "form-2" },
@@ -24325,6 +24384,10 @@ function LoanSheet({ acc, onClose }) {
                         h("button", { type: "button", className: "btn", onClick: () => setPay(null) }, "취소"),
                         h("button", { type: "button", className: "btn primary", onClick: savePay }, "상환 기록 저장")))
                     : h("button", { type: "button", className: "btn small", onClick: openPay }, h(Icon, { n: "plus", s: 15 }), "상환 기록하기")),
+            h("section", {className:"loan-calc"},h("h4",null,"매월 납부 기본값"),
+                h(Field,{label:"기본 출금 계좌"},h("select",{className:"input",value:f.defaultFrom,onChange:set('defaultFrom')},h("option",{value:""},"선택"),fromAccs.map(a=>h("option",{key:a.id,value:a.id},a.name)))),
+                h("div",{className:"form-2"},h(Field,{label:"예정 원금 (비우면 계산값)"},h("input",{className:"input",inputMode:"numeric",value:f.defaultPrincipal,onChange:set('defaultPrincipal')})),h(Field,{label:"예정 이자 (비우면 계산값)"},h("input",{className:"input",inputMode:"numeric",value:f.defaultInterest,onChange:set('defaultInterest')}))),
+                h("p",{className:"small muted"},"위의 매월 상환일에 납부 예정으로 참고해요. 실제 잔액은 납부 완료 후 변경돼요.")),
             h(Field, { label: "메모 (선택)" }, h("input", { className: "input", value: f.memo, onChange: set('memo') })),
             err && h("p", { className: "err", role: "alert" }, err))));
 }
@@ -24350,6 +24413,10 @@ function DebtPanel() {
                 h("div", null, h("span", null, "상환 부담 (월 상환 ÷ 최근 평균 수입)"), h("b", { className: "num" }, W.repay ? fmtPct(W.repayBurden) : '—'))),
             repayRules.length > 0 && h("p", { className: "small muted" }, "상환 고정비: ", repayRules.map((o) => `${o.rule.name} ${won(o.amount)}원`).join(' · ')),
             h("p", { className: "small muted" }, "순자산은 자산에서 부채 잔액을 뺀 값이에요. 원금을 갚을 때 ‘이체 › 계좌 이체’로 대출에 보내거나, 대출 수정에서 남은 원금을 고쳐 주세요.")),
+        h("section",{className:"card"},h("h3",null,"이번 달 대출 납부"),loans.map(a=>{
+            const paid=live(data.tx).some(t=>t.loanId===a.id&&t.paymentMode==='monthly'&&t.date.slice(0,7)===thisMonth());
+            return h("div",{className:"row",key:a.id},h("span",{className:"row-main"},a.name,h("small",null,`${a.payDay?'매월 '+a.payDay+'일':'납부일 미설정'} · ${paid?'납부 기록 있음':'납부 확인 전'}`)),h("button",{className:"btn small",onClick:()=>openSheet('loanPay',{loanId:a.id,...(paid?{paymentId:live(data.tx).find(t=>t.loanId===a.id&&t.paymentMode==='monthly'&&t.date.slice(0,7)===thisMonth()).paymentId}:{})})},paid?'납부 수정':'납부하기'));
+        })),
         h("h3", { className: "sec-t" }, "대출 ", loans.length, "건"),
         loans.length ? h(AccountRows, { list: loans, values: W.v, onOpen: (a) => openSheet('loan', { acc: a }), extra: (a) => [a.loanType && a.loanType !== ACC_KINDS.loan ? ` · ${a.loanType}` : '', a.lender ? ` · ${a.lender}` : '', a.rate != null && a.rate !== '' ? ` · 연 ${a.rate}%` : '', a.repayMethod ? ` · ${repayLabel(a.repayMethod)}` : ''].join('') })
             : h(Empty, { title: "등록된 대출이 없어요.", action: h("button", { className: "btn", onClick: () => openSheet('loan') }, h(Icon, { n: "plus", s: 16 }), "대출 추가") }, "학자금·신용·전세자금 등 대출을 등록하면 순자산과 부채 비율에 반영돼요."),
@@ -25234,8 +25301,83 @@ function AddPickSheet({ onClose }) {
             h("span", { className: "pick-t" }, h("b", null, t), h("span", null, d)),
             h(Icon, { n: "right", s: 16, className: "chev" }))))));
 }
-function EntrySheet({ tx, prefill, onClose }) {
-    const { data, commit, toast, accounts, openSheet } = useApp();
+function loanPaymentChanges(data, loan, form, old = []) {
+ const principal=Number(form.principal),interest=Number(form.interest),date=form.date;
+ if(!validDate(date))throw new Error('납부일을 확인해 주세요.');
+ if(![principal,interest].every(n=>Number.isSafeInteger(n)&&n>=0)||principal+interest<=0)throw new Error('원금·이자는 0 이상의 정수이고 합계는 0원보다 커야 해요.');
+ if(!loan||loan.deleted||loan.kind!=='loan')throw new Error('대출을 선택해 주세요.');
+ const from=data.account[form.from];if(!from||from.deleted||['loan','card'].includes(from.kind))throw new Error('출금 계좌를 선택해 주세요.');
+ const excluding= {...data,tx:{...data.tx}};old.forEach(t=>delete excluding.tx[t.id]);
+ const balance=Math.max(0,-(accountValuesAt(excluding,'9999-12-31')[loan.id]||0));
+ if(principal>balance)throw new Error('원금이 남은 대출 잔액보다 커요.');
+ const legacy=old.length===1&&!old[0].paymentId?old[0]:null;
+ if(legacy&&principal+interest!==legacy.amount)throw new Error('기존 거래 연결 시 원금+이자는 기존 금액과 같아야 해요. 연결 후 금액을 수정할 수 있어요.');
+ const prior=old.find(t=>t.paymentId),pid=form.extra?(prior?.paymentMode==='extra'?prior.paymentId:'lp_extra_'+newId()):'lp_'+loan.id+'_'+date.slice(0,7);
+ const oldIds=new Set(old.map(t=>t.id));
+ if(live(data.tx).some(t=>!oldIds.has(t.id)&&t.paymentId===pid))throw new Error('이번 회차는 이미 납부했어요. 기존 납부를 수정하거나 추가 상환을 선택해 주세요.');
+ // Only flag candidates, never infer a loan from a memo.
+ const candidates=live(data.tx).filter(t=>!oldIds.has(t.id)&&!t.paymentId&&t.date?.slice(0,7)===date.slice(0,7)&&
+   (t.loanId===loan.id||t.toAccountId===loan.id || (t.accountId===form.from&&['대출 상환','대출 이자'].includes(t.category)&&(t.amount===principal+interest || !!t.ruleId))));
+ if(!form.extra&&candidates.length)throw new Error('같은 달의 기존 상환 기록이 있어요. 아래 기존 기록 연결을 사용하거나 별도 추가 상환으로 기록해 주세요.');
+ const base={date,accountId:form.from,loanId:loan.id,paymentId:pid,paymentMode:form.extra?'extra':'monthly',scope:loan.scope||'personal',createdAt:prior?.createdAt||legacy?.createdAt||Date.now(),deleted:false};
+ const pOld=old.find(t=>t.type==='transfer')||(legacy&&principal?legacy:null),iOld=old.find(t=>t.type==='expense'&&t.paymentId)||(legacy&&!principal?legacy:null);
+ const records=[];
+ if(principal)records.push({...base,...(pOld?{ruleId:pOld.ruleId||null,occMonth:pOld.occMonth||null}:{}),id:pOld?.id||pid+'_p',type:'transfer',amount:principal,toAccountId:loan.id,category:'',memo:loan.name+' 원금 상환'});
+ if(interest)records.push({...base,...(iOld?{ruleId:iOld.ruleId||null,occMonth:iOld.occMonth||null}:{}),id:iOld?.id||pid+'_i',type:'expense',amount:interest,toAccountId:'',category:'대출 이자',group:'금융',memo:loan.name+' 이자'});
+ const changes=old.filter(t=>!records.some(r=>r.id===t.id)).map(rec=>({kind:'tx',rec:{...rec,deleted:true}}));
+ changes.push(...records.map(rec=>({kind:'tx',rec})));
+ // Keep existing recurring payment references pointing to the grouped principal+interest.
+ live(data.occ).forEach(o=>{if((o.payments||[]).some(p=>oldIds.has(p.txId))||oldIds.has(o.txId)){
+  const keep=(o.payments||(o.txId?[{id:o.txId,txId:o.txId}]:[])).filter(p=>!oldIds.has(p.txId));
+  records.forEach(r=>{r.ruleId=o.ruleId;r.occMonth=o.month;keep.push({id:r.id,txId:r.id});});
+  changes.push({kind:'occ',rec:{...o,payments:keep,txId:null}});
+ }});
+ return changes;
+}
+function LoanPaymentSheet({loanId,paymentId,legacy,initialPrincipal,initialInterest,initialDate,initialFrom,onClose}) {
+ const {data,commit,toast,setMonth,accounts,openSheet}=useApp(),h=React.createElement;
+ const loan=data.account[loanId];
+ const old=paymentId?live(data.tx).filter(t=>t.paymentId===paymentId):legacy?[data.tx[legacy.id]||legacy]:[];
+ const initial=useMemo(()=>{
+  const L=data.account[loanId],balance=Math.max(0,-(accountBalances(data)[loanId]||0));
+  const next=loanPlan(L,balance,today()).rows.find(r=>!r.grace||r.interest);
+  return {date:old[0]?.date||initialDate||today(),from:old[0]?.accountId||initialFrom||L.defaultFrom||'',
+   principal:old.length?(legacy?(legacy.category==='대출 이자'?0:legacy.amount):sum(old.filter(t=>t.type==='transfer'),t=>t.amount)):initialPrincipal??L.defaultPrincipal??next?.principal??0,
+   interest:old.length?(legacy?(legacy.category==='대출 이자'?legacy.amount:0):sum(old.filter(t=>t.type==='expense'),t=>t.amount)):initialInterest??L.defaultInterest??next?.interest??0,
+   extra:old[0]?.paymentMode==='extra'};
+ },[]);
+ const [f,setF]=useState(initial),[err,setErr]=useState(''),[dateTouched,setDateTouched]=useState(!!initialDate),[clock,setClock]=useState(today());
+ const [confirmed,setConfirmed]=useState(!legacy);const lock=useRef(false);
+ useEffect(()=>{const t=setInterval(()=>setClock(today()),1000);return()=>clearInterval(t);},[]);
+ const date=old.length||dateTouched?f.date:clock;
+ const set=k=>v=>{setF(x=>({...x,[k]:v?.target?v.target.value:v}));setErr('');};
+ const save=()=>{if(lock.current)return;lock.current=true;try{
+  if(!confirmed)throw new Error('기존 금액의 원금·이자 구분을 확인해 주세요.');
+  const changes=loanPaymentChanges(data,loan,{...f,date:old.length||dateTouched?f.date:today()},old);
+  commit(changes);setMonth(changes.find(c=>c.kind==='tx'&&!c.rec.deleted).rec.date.slice(0,7));toast('납부를 기기에 저장했어요');onClose();
+ }catch(e){setErr(e.message);lock.current=false;}};
+ const cancel=async()=>{if(!(await ask({title:'이 납부를 취소할까요?',body:'원금과 이자가 함께 취소되고 계좌·대출 잔액이 복원돼요.',confirmLabel:'납부 취소',danger:true})))return;
+  try{commit(old.map(rec=>({kind:'tx',rec:{...rec,deleted:true}})));toast('납부를 취소했어요');onClose();}catch(e){setErr(e.message);}};
+ const candidates=live(data.tx).filter(t=>!t.paymentId&&t.date?.slice(0,7)===date.slice(0,7)&&['대출 상환','대출 이자'].includes(t.category));
+ return h(Sheet,{title:paymentId?'대출 납부 수정':legacy?'기존 상환 연결':'대출 납부',onClose,dirty:JSON.stringify(f)!==JSON.stringify(initial),footer:h('div',{className:'grow'},h('p',{className:'small'},'기록 날짜: '+date.replace(/-/g,'.')),h('div',{className:'dual-btns'},paymentId&&h('button',{className:'btn',onClick:cancel},'납부 취소'),h('button',{className:'btn primary grow',onClick:save},paymentId?'수정 저장':'납부 완료')))},
+  h('h3',null,loan.name),h('p',{className:'muted'},`${loan.lender||''} · 남은 원금 ${won(Math.max(0,-(accountBalances(data)[loanId]||0)))}원`),
+  h('p',{className:'note'},'예정 금액은 수정할 수 있어요. 납부 완료 시에만 출금·대출 잔액에 반영돼요.'),
+  h(Field,{label:'출금 계좌'},h('select',{className:'input',value:f.from,onChange:set('from')},h('option',{value:''},'선택'),accounts.filter(a=>!['loan','card'].includes(a.kind)).map(a=>h('option',{key:a.id,value:a.id},a.name)))),
+  h('div',{className:'form-2'},h(Field,{label:'원금'},h(AmountInput,{value:f.principal,onChange:set('principal')})),h(Field,{label:'이자'},h(AmountInput,{value:f.interest,onChange:set('interest')}))),
+  h('p',{className:'note'},`총 출금 ${won(Number(f.principal)+Number(f.interest))}원 · 대출 원금 감소 ${won(f.principal)}원`),
+  h(Field,{label:'납부일'},h('input',{className:'input',type:'date',value:date,onChange:e=>{setDateTouched(true);set('date')(e);}})),
+  !paymentId&&h('label',{className:'check'},h('input',{type:'checkbox',checked:f.extra,onChange:e=>set('extra')(e.target.checked)}),'별도 추가 상환 (월 정기 납부와 구분)'),
+  legacy&&h('label',{className:'check'},h('input',{type:'checkbox',checked:confirmed,onChange:e=>setConfirmed(e.target.checked)}),`기존 ${won(legacy.amount)}원의 원금·이자 구분과 대출을 확인했어요`),
+  !old.length&&candidates.length>0&&h('details',{className:'note'},h('summary',null,'기존 기록 연결 · 중복 납부 확인'),candidates.map(t=>h('button',{key:t.id,className:'btn',onClick:()=>openSheet('loanPay',{loanId,legacy:t})},`${t.date} ${t.memo||t.category} ${won(t.amount)}원 연결`))),
+  err&&h('p',{className:'err',role:'alert'},err));
+}
+function EntrySheet(props) {
+ const {data}=useApp();const t=props.tx;
+ return t?.paymentId?React.createElement(LoanPaymentSheet,{loanId:t.loanId,paymentId:t.paymentId,onClose:props.onClose}):React.createElement(EntrySheetBase,props);
+}
+
+function EntrySheetBase({ tx, prefill, onClose }) {
+    const { data, commit, toast, accounts, openSheet, setMonth } = useApp();
     const h = React.createElement;
     const isEdit = !!tx;
     const b = tx || prefill || {};
@@ -25273,6 +25415,11 @@ function EntrySheet({ tx, prefill, onClose }) {
     const [adding, setAdding] = useState(false);
     const [newSrc, setNewSrc] = useState('');
     const [date, setDate] = useState(tx ? tx.date : today());
+    const [dateTouched,setDateTouched]=useState(false),[clock,setClock]=useState(today());
+    const [selectedLoan,setSelectedLoan]=useState('');
+    const saveLock=useRef(false);
+    useEffect(()=>{const t=setInterval(()=>setClock(today()),1000);return()=>clearInterval(t);},[]);
+    const effectiveDate=isEdit||dateTouched?date:clock;
     const [memo, setMemo] = useState(b.memo || '');
     const [source, setSource] = useState(b.source || '');
     const [accountId, setAccountId] = useState(b.accountId || '');
@@ -25433,11 +25580,12 @@ function EntrySheet({ tx, prefill, onClose }) {
         }
         if (pmNew && !pmText.trim())
             return '결제수단 이름을 입력해 주세요.';
-        if (!date)
-            return '날짜를 입력해 주세요.';
+        if (!validDate(effectiveDate)) return '날짜를 확인해 주세요.';
         return '';
     };
     const save = () => {
+        if(saveLock.current)return;
+        const date=isEdit||dateTouched?effectiveDate:today();
         const e = check();
         if (e) {
             setErr(e);
@@ -25448,6 +25596,7 @@ function EntrySheet({ tx, prefill, onClose }) {
         const incSource = tab !== 'income' ? null : group === 'job' ? (jobId ? 'job_' + jobId : null) : sourceId || null;
         const rec = {
             ...(tx || {}), id: tx ? tx.id : newId(), type, scope: recScope, date, amount: useDutch ? myShare : n,
+            statementId:type==='cardpay'?(b.statementId||null):null,
             category: tab === 'transfer' ? (type === 'draw' ? '사업 인출' : '') : catVal,
             sub: (tab === 'expense' || tab === 'income') && subName && subName !== catVal ? subName : null,
             group: tab === 'expense' && !isTax && !isBiz ? group : null,
@@ -25486,7 +25635,9 @@ function EntrySheet({ tx, prefill, onClose }) {
             const s0 = data.settings.settings || { id: 'settings' };
             changes.push({ kind: 'settings', rec: { ...s0, id: 'settings', payMethods: [...payMethodsOf(data), pm] } });
         }
-        commit(changes);
+        saveLock.current=true;
+        try { commit(changes); } catch(error) {saveLock.current=false;setErr(error.message);return;}
+        setMonth(date.slice(0,7));
         onClose();
         if (isEdit)
             toast('수정했어요');
@@ -25502,7 +25653,7 @@ function EntrySheet({ tx, prefill, onClose }) {
         onClose();
     };
     const copy = () => {
-        const { id, ruleId, occMonth, createdAt, updatedAt, date: _d, ...rest } = tx;
+        const { id, ruleId, occMonth, createdAt, updatedAt, _rev, paymentId, loanId, date: _d, ...rest } = tx;
         if (rest.split)
             rest.split = { ...rest.split, parts: (rest.split.parts || []).map((p) => ({ ...p, id: newId(), settled: 0, settledDate: '' })) };
         openSheet('entry', { prefill: rest });
@@ -25531,7 +25682,7 @@ function EntrySheet({ tx, prefill, onClose }) {
     const toOpts = tab === 'saving' ? accounts.filter((a) => a.kind === 'deposit' || a.kind === 'invest')
         : type === 'cardpay' ? accounts.filter((a) => a.kind === 'card') : type === 'draw' ? nonCard.filter((a) => !isBizAcc(a)) : accounts.filter((a) => a.kind !== 'card');
     const moveNote = {
-        transfer: '내 계좌끼리 옮긴 돈은 수입·지출에 포함되지 않아요. 대출 계좌로 보내면 남은 원금이 줄어요.',
+        transfer: '일반 계좌 이체는 수입·지출에서 제외해요. 대출 계좌로 보내면 원금이 줄고 홈 지출에도 포함돼요.',
         cardpay: '카드 사용액은 쓴 날 지출로 이미 잡혀 있어요. 카드대금 납부는 지출로 다시 세지 않고 카드 빚을 갚는 이동으로만 기록해요.',
         draw: '사업에서 개인으로 가져온 돈이에요. 이미 사업소득에 들어 있어서 소득으로 다시 세지 않아요.',
     }[type];
@@ -25555,13 +25706,14 @@ function EntrySheet({ tx, prefill, onClose }) {
             setAccountId(v);
         }
     };
-    const [init0] = useState(() => ({ amt, memo, date, sub: sel ? sel.name : '', source }));
-    const curSub = custom ? customText : sel ? sel.name : '';
-    const dirty = isEdit ? (amt !== init0.amt || memo !== init0.memo || date !== init0.date || curSub !== init0.sub || source !== init0.source)
-        : !!((amt && amt !== init0.amt) || (memo.trim() && memo !== init0.memo) || (source.trim() && source !== init0.source));
+    const formSnapshot=JSON.stringify({tab,moveType,group,jobId,sel,custom,customText,amt,dutch,payer,people,myShare,parts,settleAcc,date:dateTouched||isEdit?date:null,memo,source,accountId,payMethod,pmNew,pmText,toAccountId,goalId,vatType,evidence,nonDeductible,orderId,sourceId,repeat});
+    const initialSnapshot=useRef(formSnapshot);
+    const dirty=formSnapshot!==initialSnapshot.current;
     const Chip = (on, label, onClick, key, extra) => h("button", { key: key || label, type: "button", className: cx('chip', on && 'on', extra), onClick, "aria-pressed": !!on }, label);
     const showOrder = isBiz && !!orderId && live(data.order).length > 0;
+    if(selectedLoan) return h(LoanPaymentSheet,{loanId:selectedLoan,legacy:isEdit?tx:null,initialDate:dateTouched?date:undefined,initialFrom:accountId,initialPrincipal:catVal==='대출 이자'?0:!isEdit&&n?n:undefined,initialInterest:!isEdit&&n&&catVal==='대출 이자'?n:undefined,onClose:()=>{setSelectedLoan('');onClose();}});
     return (h(Sheet, { title: isEdit ? '거래 수정' : '기록하기', onClose, dirty, footer: (h(React.Fragment, null,
+            h("span",{className:"small entry-save-date"},"기록 날짜: "+effectiveDate.replace(/-/g,".")),
             isEdit && h("button", { className: "icon-btn", onClick: remove, "aria-label": "삭제" }, h(Icon, { n: "trash" })),
             isEdit && h("button", { className: "btn", onClick: copy }, h(Icon, { n: "copy", s: 16 }), "복사"),
             h("button", { className: "btn primary grow", onClick: save }, isEdit ? '수정 저장' : '저장'))) },
@@ -25572,9 +25724,14 @@ function EntrySheet({ tx, prefill, onClose }) {
             h("div", { className: cx('amount', type === 'income' && !isBiz && 'pos') },
                 touch ? (h("p", { className: "amount-v num", "aria-live": "polite" }, n ? n.toLocaleString('ko-KR') : h("span", { className: "ph" }, "0"), h("small", null, "원")))
                     : (h("input", { className: "amount-in num", autoFocus: true, inputMode: "numeric", placeholder: "0", value: n ? n.toLocaleString('ko-KR') : '', "aria-label": "금액", onChange: (e) => setAmt(e.target.value.replace(/[^0-9]/g, '').slice(0, 12)), onKeyDown: (e) => { if (e.key === 'Enter') save(); } })),
+            touch && (h("div", { className: "keypad" }, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map((k) => (h("button", { key: k, type: "button", onClick: () => press(k), "aria-label": k === 'del' ? '한 자리 지우기' : k }, k === 'del' ? h(Icon, { n: "del" }) : k))))),
                 h("div", { className: "quick" },
                     [10000, 50000, 100000].map((v) => h("button", { key: v, type: "button", onClick: () => addQuick(v) }, "+", v / 10000, "만")),
                     h("button", { type: "button", onClick: () => setAmt('') }, "지우기"))),
+            tab==='expense' && ['대출 상환','대출 이자'].includes(catVal) && h("section",{className:"loan-calc"},
+                h("h4",null,"어떤 대출인가요?"),h("p",{className:"small muted"},"대출을 고르면 원금·이자를 함께 납부할 수 있어요. 기존 기록은 확인 후 연결해요."),
+                accounts.filter(a=>a.kind==='loan').map(a=>h("button",{key:a.id,className:"btn",onClick:()=>setSelectedLoan(a.id)},`${a.name} · ${a.lender||''} · ${won(Math.max(0,-(accountBalances(data)[a.id]||0)))}원`)),
+                h("button",{className:"btn",onClick:()=>openSheet('loan')},"+ 대출 등록")),
             favs.length > 0 && (h("div", { className: "favs" }, favs.map((f) => h("button", { key: f.id, type: "button", className: "chip fav", onClick: () => useFav(f) }, h(Icon, { n: "star", s: 13 }), f.label, " ", h("span", { className: "num" }, won(f.amount)))))),
             tab === 'transfer' ? (h("div", { className: "form" },
                 h(Seg, { small: true, full: true, value: moveType, onChange: (v) => { setMoveType(v); setAccountId(''); setToAccountId(''); }, options: [['transfer', '계좌 이체'], ['cardpay', '카드대금'], ['draw', '사업 인출']] }),
@@ -25672,7 +25829,6 @@ function EntrySheet({ tx, prefill, onClose }) {
                     h("input", { type: "checkbox", checked: nonDeductible, onChange: (e) => setNonDeductible(e.target.checked) }),
                     "매입세액 공제가 안 되는 항목 (접대비 등)"),
                 tab === 'expense' && !QUALIFY.includes(evidence) && h("p", { className: "small warn-t" }, "적격증빙(세금계산서·사업용 카드·지출증빙 현금영수증)이 아니면 매입세액 공제 대상에서 빠져요. 세금 화면에서 ‘증빙 확인 필요’로 모아 보여드릴게요."))),
-            touch && (h("div", { className: "keypad" }, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map((k) => (h("button", { key: k, type: "button", onClick: () => press(k), "aria-label": k === 'del' ? '한 자리 지우기' : k }, k === 'del' ? h(Icon, { n: "del" }) : k))))),
             err && h("p", { className: "err", role: "alert" }, err),
             h("button", { type: "button", className: "more-t", onClick: () => setMore(!more), "aria-expanded": more },
                 more ? '간단히' : tab === 'expense' ? '날짜·메모·결제수단' : '날짜·메모·계좌',
@@ -25680,7 +25836,7 @@ function EntrySheet({ tx, prefill, onClose }) {
                 h("span", { className: "muted" }, !more && date !== today() ? dateLabel(date) : '')),
             more && (h("div", { className: "form" },
                 h(Field, { label: "날짜" },
-                    h("input", { className: "input", type: "date", value: date, onChange: (e) => setDate(e.target.value) })),
+                    h("input", { className: "input", type: "date", value: effectiveDate, onChange: (e) => {setDateTouched(true);setDate(e.target.value);} })),
                 tab !== 'transfer' && (h(Field, { label: tab === 'income' ? '입금 계좌' : tab === 'saving' ? '출금 계좌' : isTax ? '납부한 계좌·카드 (선택)' : '결제수단' },
                     h("select", { className: "input", value: payVal, onChange: (e) => onPay(e.target.value) },
                         h("option", { value: "" }, "선택 안 함"),
@@ -25823,7 +25979,7 @@ function SpendAnalysis({ part = 'spend', children }) {
                     React.createElement("h3", null, "\uC218\uC785\uACFC \uC9C0\uCD9C")),
                 React.createElement(BarChart, { labels: labels, series: [
                         { name: '수입', color: 'var(--sage)', values: ss.map((s) => s && s.cf.income) },
-                        { name: '지출', color: 'var(--c-fixed)', values: ss.map((s) => s && s.cf.expense) },
+                        { name: '지출', color: 'var(--c-fixed)', values: ss.map((s) => s && s.cf.consumption) },
                     ] })),
             React.createElement("section", { className: "card" },
                 React.createElement("div", { className: "card-h" },
@@ -25883,7 +26039,7 @@ function SpendAnalysis({ part = 'spend', children }) {
                                 React.createElement("td", null, mLabel(m)),
                                 s ? React.createElement(React.Fragment, null,
                                     React.createElement("td", { className: "num" }, won(s.cf.income)),
-                                    React.createElement("td", { className: "num" }, won(s.cf.expense)),
+                                    React.createElement("td", { className: "num" }, won(s.cf.consumption)),
                                     React.createElement("td", { className: "num" }, won(s.saving)),
                                     React.createElement("td", { className: cx('num', s.cf.net < 0 && 'neg') }, won(s.cf.net)),
                                     React.createElement("td", { className: "num" }, fmtPct(s.fixedRatio)),
@@ -25906,8 +26062,8 @@ function ViewSettings() {
             h("div", { className: "vset-t" }, h("b", null, "프리랜서 수입 (3.3%)"), h("span", null, "세금 떼고 받는 프리랜서·외주 수입을 소득 화면에서 어디에 보여줄지 정해요. 보는 방식만 바뀌고 기록과 세금 계산은 그대로예요.")),
             h(Seg, { full: true, small: true, value: s0.freelanceAs === 'labor' ? 'labor' : 'business', onChange: (v) => save({ freelanceAs: v }, v === 'labor' ? '프리랜서 수입을 근로소득으로 보여드려요' : '프리랜서 수입을 사업소득으로 보여드려요'), options: [['business', '사업소득 (세법 기준)'], ['labor', '근로소득']] })),
         h("div", { className: "vset-r" },
-            h("div", { className: "vset-t" }, h("b", null, "사업자 기능"), h("span", null, "세금 적립, 근무 기록, 사업·수입원 상세, 시뮬레이션을 메뉴에 보여요. 꺼도 기록은 지워지지 않아요.")),
-            h(Seg, { small: true, value: bizModeOf(data) ? 'on' : 'off', onChange: (v) => save({ bizMode: v === 'on' }), options: [['on', '켜기'], ['off', '끄기']] })));
+            h("div", { className: "vset-t" }, h("b", null, "사업자 기능"), h("span", null, "끄면 세금 알림·예상 준비금 반영과 사업 상세 메뉴를 중지해요. 수입·지출, 실제 세금 납부 기록과 사업자 설정은 유지돼요.")),
+            h(Seg, { small: true, value: bizModeOf(data) ? 'on' : 'off', onChange: (v) => save({ bizMode: v === 'on' }, v === 'on' ? '사업자 기능과 세금 관리를 켰어요' : '사업자 기능과 세금 관리를 껐어요'), options: [['on', '켜기'], ['off', '끄기']] })));
 }
 function MyPage({ part = 'settings' }) {
     const { data, user, status, retry, accounts, openSheet, statsOf, month, commit, toast, theme, setTheme } = useApp();
@@ -26088,50 +26244,84 @@ function parseCSV(text) {
     return rows.filter((r) => r.some((x) => String(x).trim()));
 }
 const TYPE_FROM = { 수입: 'income', 지출: 'expense', '저축·투자': 'saving', 저축: 'saving', 투자: 'saving', '계좌 이체': 'transfer', 이체: 'transfer', 카드대금: 'cardpay', '사업 인출': 'draw', '세금 납부': 'tax' };
+function validDate(v) {
+ if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v))return false;
+ const [y,m,d]=v.split('-').map(Number);if(y<1900||y>9999||m<1||m>12||d<1)return false;
+ return d<=new Date(Date.UTC(y,m,0)).getUTCDate();
+}
 function normDate(v) {
-    if (typeof v === 'number') {
-        const d = new Date(Math.round((v - 25569) * 86400000));
-        return ymd(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-    }
-    const m = String(v).trim().match(/(\d{4})[-./년\s]+(\d{1,2})[-./월\s]+(\d{1,2})/);
-    return m ? `${m[1]}-${pad(+m[2])}-${pad(+m[3])}` : '';
+ if(typeof v==='number') {if(!Number.isFinite(v))return '';const d=new Date(Math.round((v-25569)*86400000));if(!Number.isFinite(d.getTime()))return '';const x=d.toISOString().slice(0,10);return validDate(x)?x:'';}
+ const m=String(v??'').trim().match(/^(\d{4})[-./년\s]+(\d{1,2})[-./월\s]+(\d{1,2})일?$/);
+ const x=m?`${m[1]}-${pad(+m[2])}-${pad(+m[3])}`:'';return validDate(x)?x:'';
 }
-function rowsToTx(rows, data) {
-    const head = rows[0].map((h) => String(h).trim());
-    const idx = (n) => head.indexOf(n);
-    if (idx('날짜') < 0 || idx('금액') < 0)
-        throw new Error('첫 줄에 ‘날짜’와 ‘금액’ 열이 있어야 해요.');
-    const accByName = Object.fromEntries(live(data.account).map((a) => [a.name, a.id]));
-    const sig = (t) => [t.date, t.scope || 'personal', t.type, t.amount, t.category || '', t.memo || ''].join('|');
-    const existing = new Set(live(data.tx).map(sig));
-    const out = [];
-    let dup = 0, bad = 0;
-    rows.slice(1).forEach((r) => {
-        const get = (n) => (idx(n) >= 0 ? r[idx(n)] : '');
-        const date = normDate(get('날짜'));
-        const amount = Math.abs(Number(String(get('금액')).replace(/[^0-9.-]/g, '')) || 0);
-        const type = TYPE_FROM[String(get('유형')).trim()] || 'expense';
-        if (!date || !amount) {
-            bad++;
-            return;
-        }
-        const scope = String(get('구분')).trim() === '사업' ? 'business' : 'personal';
-        const t = { id: newId(), type, scope, date, amount: Math.round(amount), category: String(get('카테고리') || '').trim() || (type === 'income' ? '기타 수입' : type === 'saving' ? '저축' : type === 'expense' ? '기타' : ''),
-            memo: String(get('메모') || '').trim(), source: String(get('수입처') || '').trim(), accountId: accByName[String(get('계좌')).trim()] || '', toAccountId: accByName[String(get('받는 계좌')).trim()] || '', createdAt: Date.now() };
-        if (scope === 'business' && (type === 'income' || type === 'expense')) {
-            const sp = Number(String(get('공급가액')).replace(/[^0-9.-]/g, ''));
-            const vt = Number(String(get('부가세')).replace(/[^0-9.-]/g, ''));
-            Object.assign(t, sp ? { supply: Math.round(sp), vat: Math.round(vt || 0), vatType: vt ? 'taxable' : 'exempt' } : { vatType: 'taxable', ...vatSplit(t.amount, 'taxable') });
-        }
-        if (existing.has(sig(t))) {
-            dup++;
-            return;
-        }
-        existing.add(sig(t));
-        out.push(t);
-    });
-    return { out, dup, bad };
+function importMoney(v) {
+ const text=String(v??'').trim().replace(/원$/,'').trim();
+ if(!/^(?:\d+|\d{1,3}(?:,\d{3})+)$/.test(text))return null;
+ const n=Number(text.replace(/,/g,''));return Number.isSafeInteger(n)&&n>0?n:null;
 }
+const importSignature=t=>JSON.stringify([t.date,t.scope||'personal',t.type,t.amount,t.category||'',t.memo||'',t.accountId||'',t.toAccountId||'',t.source||'']);
+function rowsToTx(rows,data) {
+ if(!rows?.length)throw new Error('빈 파일이에요.');
+ const head=rows[0].map(v=>String(v??'').replace(/^\uFEFF/,'').trim()),idx=n=>head.indexOf(n);
+ if(idx('날짜')<0||idx('금액')<0)throw new Error('첫 줄에 날짜와 금액 열이 필요해요.');
+ const names={};live(data.account).forEach(a=>(names[a.name]??=[]).push(a.id));
+ const existing=new Set(live(data.tx).map(importSignature)),out=[],errors=[],candidates=[];
+ rows.slice(1).forEach((r,i)=>{
+  if(!r.some(v=>String(v??'').trim()))return;
+  const get=n=>idx(n)<0?'':r[idx(n)]??'',reason=[];
+  const date=normDate(get('날짜')),amount=importMoney(get('금액')),rawType=String(get('유형')).trim();
+  const type=rawType?TYPE_FROM[rawType]:'expense';
+  if(!date)reason.push('실제로 존재하는 날짜가 아니에요');
+  if(amount===null)reason.push('금액은 양의 정수 원 단위로 입력하세요. 음수·소수는 자동 변환하지 않아요');
+  if(!type)reason.push('알 수 없는 유형: '+rawType);
+  const account=n=>{const v=String(get(n)).trim();if(!v)return '';if(!names[v]){reason.push(n+'을 찾을 수 없어요: '+v);return '';}if(names[v].length!==1){reason.push(n+' 이름이 중복되어 있어요: '+v);return '';}return names[v][0];};
+  const accountId=account('계좌'),toAccountId=account('받는 계좌');
+  if(['transfer','cardpay','draw'].includes(type)&&(!accountId||!toAccountId||accountId===toAccountId))reason.push('서로 다른 출금·입금 계좌가 필요해요');
+  const scopeText=String(get('구분')).trim();if(scopeText&&!['개인','사업'].includes(scopeText))reason.push('구분은 개인 또는 사업이어야 해요');
+  if(reason.length){errors.push({row:i+2,reasons:reason});return;}
+  const scope=scopeText==='사업'?'business':'personal';
+  const t={id:newId(),date,amount,type,scope,accountId,toAccountId,category:String(get('카테고리')).trim()||(type==='income'?'기타 수입':type==='expense'?'기타':type==='saving'?'저축':''),memo:String(get('메모')).trim(),source:String(get('수입처')).trim(),createdAt:Date.now()};
+  if(scope==='business'&&['income','expense'].includes(type)){
+   const sp=String(get('공급가액')).trim(),vt=String(get('부가세')).trim();
+   if(sp||vt){const supply=sp==='0'?0:importMoney(sp),vat=vt==='0'||!vt?0:importMoney(vt);if(supply===null||vat===null||supply+vat!==amount){errors.push({row:i+2,reasons:['공급가액+부가세가 금액과 일치해야 해요']});return;}Object.assign(t,{supply,vat,vatType:vat?'taxable':'exempt'});}else Object.assign(t,{vatType:'taxable',...vatSplit(amount,'taxable')});
+  }
+  const sig=importSignature(t),suspect=existing.has(sig);existing.add(sig);out.push(t);candidates.push({row:i+2,id:t.id,suspect});
+ });
+ return {out,errors,candidates,dup:candidates.filter(x=>x.suspect).length,bad:errors.length};
+}
+function validateBackup(j) {
+ const obj=v=>!!v&&typeof v==='object'&&!Array.isArray(v);
+ const fail=m=>{throw new Error('백업 검증 실패: '+m);};
+ if(!obj(j)||j.app!=='MyBalance'||j.version!==1||!obj(j.data))fail('지원하는 MyBalance 버전 1 파일이 아니에요');
+ const D=j.data,refs={accountId:'account',toAccountId:'account',loanId:'account',defaultFrom:'account',goalId:'goal',ruleId:'rule',txId:'tx',orderId:'order',pokerLogId:'worklog',settleAccountId:'account'};
+ const numbers=new Set(['amount','initial','principal','remaining','interest','supply','vat','target','value','total','share','myShare','settled','defaultPrincipal','defaultInterest']);
+ const dates=new Set(['date','startDate','repayStart','settledDate','endDate']);
+ const walk=(v,path)=>{
+  if(!obj(v)&&!Array.isArray(v))return;
+  Object.entries(v).forEach(([k,x])=>{
+   if(['__proto__','constructor','prototype'].includes(k))fail(path+'의 허용하지 않는 키');
+   if(numbers.has(k)&&x!==null&&x!==''&&(typeof x!=='number'||!Number.isFinite(x)))fail(path+'.'+k+' 숫자 오류');
+   if(dates.has(k)&&x&&!validDate(x))fail(path+'.'+k+' 날짜 오류');
+   if(refs[k]&&x&&(!D[refs[k]]||!D[refs[k]][x]))fail(path+'.'+k+' 연결 대상 없음');
+   if(obj(x)||Array.isArray(x))walk(x,path+'.'+k);
+  });
+ };
+ Object.keys(D).forEach(k=>{if(!KINDS.includes(k))fail('지원하지 않는 종류 '+k);});
+ KINDS.forEach(k=>{
+  if(D[k]===undefined)return;if(!obj(D[k]))fail(k+' 구조 오류');
+  Object.entries(D[k]).forEach(([id,r])=>{
+   if(!obj(r)||typeof r.id!=='string'||r.id!==id||!id||['__proto__','constructor','prototype'].includes(id))fail(k+' ID 오류');
+   if(r._rev&&(!Number.isSafeInteger(r._rev.n)||r._rev.n<1||typeof r._rev.actor!=='string'))fail(k+' 버전 오류');
+   if(r.updatedAt!==undefined&&(!Number.isFinite(r.updatedAt)||r.updatedAt<0))fail(k+' 수정 시각 오류');
+   if(!r.deleted&&k==='tx'){
+    if(!['income','expense','tax','saving','transfer','cardpay','draw'].includes(r.type)||!validDate(r.date)||!Number.isSafeInteger(r.amount)||r.amount<=0)fail('거래 '+id+' 유형·날짜·금액 오류');
+   }
+   walk(r,k+'.'+id);
+  });
+ });
+ return true;
+}
+
 function DataSection({ busy, setBusy }) {
     const { data, commit, toast, openSheet } = useApp();
     const fileRef = useRef(null);
@@ -26166,8 +26356,7 @@ function DataSection({ busy, setBusy }) {
     const restore = async (file) => {
         try {
             const j = JSON.parse(await file.text());
-            if (!j || j.app !== 'MyBalance' || !j.data)
-                throw new Error();
+            validateBackup(j);
             const incoming = j.data;
             const total = KINDS.reduce((s, k) => s + live(incoming[k]).length, 0);
             // 취소(취소 버튼·ESC·바깥 탭)는 아무것도 바꾸지 않아요. 합치기/바꾸기는 각각 명시적으로 골라야 실행돼요.
@@ -26181,6 +26370,13 @@ function DataSection({ busy, setBusy }) {
                 toast('복원을 취소했어요 · 기록은 바뀌지 않았어요');
                 return;
             }
+            if (replace) {
+                const snapshot = {app:'MyBalance',version:1,exportedAt:new Date().toISOString(),data};
+                const key = 'mb_recovery_' + Date.now();
+                try { localStorage.setItem(key,JSON.stringify(snapshot)); }
+                catch(e) { throw new Error('복구 스냅샷을 저장할 공간이 없어 교체를 중단했어요.'); }
+                await download('mybalance-before-restore-'+stamp+'.json',JSON.stringify(snapshot,null,2),'application/json',toast);
+            }
             const changes = [];
             if (replace)
                 KINDS.forEach((k) => live(data[k]).forEach((r) => { if (!incoming[k] || !incoming[k][r.id] || incoming[k][r.id].deleted)
@@ -26190,7 +26386,7 @@ function DataSection({ busy, setBusy }) {
             toast(replace ? '백업으로 복원했어요' : '백업을 합쳤어요');
         }
         catch (e) {
-            toast('My Balance 백업 파일이 아니에요.');
+            toast(e.message || 'My Balance 백업 파일이 아니에요.');
         }
     };
     const onFile = async (e) => {
@@ -26224,6 +26420,7 @@ function DataSection({ busy, setBusy }) {
         React.createElement("div", { className: "card-h" },
             React.createElement("h3", null, "\uB370\uC774\uD130")),
         React.createElement("div", { className: "btn-grid" },
+            React.createElement("button", {className:"btn",onClick:()=>{try{const keys=Object.keys(localStorage).filter(k=>k.startsWith('mb_recovery_')).sort();if(!keys.length)return toast('복원 전 스냅샷이 없어요');download('mybalance-recovery.json',localStorage.getItem(keys[keys.length-1]),'application/json',toast);}catch(e){toast('복구 스냅샷을 읽지 못했어요');}}},'복원 전 스냅샷 내려받기'),
             React.createElement("button", { className: "btn", onClick: backup }, "\uBC31\uC5C5 \uD30C\uC77C \uC800\uC7A5"),
             React.createElement("button", { className: "btn", onClick: () => fileRef.current.click(), disabled: busy }, "\uBCF5\uC6D0\u00B7\uAC00\uC838\uC624\uAE30"),
             React.createElement("button", { className: "btn", onClick: csv }, "CSV \uB0B4\uBCF4\uB0B4\uAE30"),
@@ -26234,39 +26431,18 @@ function DataSection({ busy, setBusy }) {
             " \uC911 \uC788\uB294 \uC5F4\uB9CC \uC77D\uC5B4\uC694), \uC774\uBBF8 \uC788\uB294 \uAC70\uB798\uC640 \uB611\uAC19\uC740 \uC904\uC740 \uAC74\uB108\uB6F0\uC5B4\uC694."),
         React.createElement("input", { ref: fileRef, type: "file", accept: ".json,.csv,.xlsx,.xls", hidden: true, onChange: onFile })));
 }
-function ImportSheet({ res, name, onClose }) {
-    const { commit, toast } = useApp();
-    return (React.createElement(Sheet, { title: "\uAC70\uB798 \uAC00\uC838\uC624\uAE30", onClose: onClose, footer: React.createElement(React.Fragment, null,
-            React.createElement("button", { className: "btn", onClick: onClose }, "\uCDE8\uC18C"),
-            React.createElement("button", { className: "btn primary", disabled: !res.out.length, onClick: () => { commit(res.out.map((t) => ({ kind: 'tx', rec: t }))); toast(`${res.out.length}건 가져왔어요`); onClose(); } },
-                res.out.length,
-                "\uAC74 \uAC00\uC838\uC624\uAE30")) },
-        React.createElement("p", null, name),
-        React.createElement("div", { className: "mini-rows" },
-            React.createElement("div", null,
-                React.createElement("span", null, "\uC0C8\uB85C \uCD94\uAC00"),
-                React.createElement("b", { className: "num" },
-                    res.out.length,
-                    "\uAC74")),
-            React.createElement("div", null,
-                React.createElement("span", null, "\uC774\uBBF8 \uC788\uC5B4\uC11C \uAC74\uB108\uB700"),
-                React.createElement("b", { className: "num" },
-                    res.dup,
-                    "\uAC74")),
-            React.createElement("div", null,
-                React.createElement("span", null, "\uB0A0\uC9DC\u00B7\uAE08\uC561\uC774 \uC5C6\uC5B4 \uAC74\uB108\uB700"),
-                React.createElement("b", { className: "num" },
-                    res.bad,
-                    "\uAC74"))),
-        res.out.length > 0 && React.createElement("ul", { className: "rows" }, res.out.slice(0, 5).map((t) => React.createElement("li", { key: t.id, className: "row static" },
-            React.createElement("span", { className: "row-main" },
-                React.createElement("span", { className: "row-t" }, t.memo || t.category),
-                React.createElement("span", { className: "row-s" },
-                    t.date,
-                    " \u00B7 ",
-                    TYPE_LABEL[t.type])),
-            React.createElement("span", { className: "row-amt num" }, won(t.amount)))))));
+function ImportSheet({res,name,onClose}) {
+ const {commit,toast}=useApp(),h=React.createElement;
+ const [selected,setSelected]=useState(()=>new Set(res.candidates.filter(c=>!c.suspect).map(c=>c.id)));
+ const [err,setErr]=useState(''),locked=useRef(false);
+ const save=()=>{if(locked.current)return;locked.current=true;try{const rows=res.out.filter(t=>selected.has(t.id));commit(rows.map(rec=>({kind:'tx',rec})));toast(`${rows.length}건 기기에 저장했어요`);onClose();}catch(e){setErr(e.message);locked.current=false;}};
+ return h(Sheet,{title:'거래 가져오기',onClose,footer:h('button',{className:'btn primary',disabled:!selected.size,onClick:save},`${selected.size}건 가져오기`)},
+  h('p',null,name),h('p',{className:'note'},`유효 ${res.out.length}건 · 중복 의심 ${res.dup}건 · 오류 ${res.bad}건. 같은 내용의 실제 거래도 있을 수 있으므로 직접 선택하세요. 유형이 빈 행은 지출로 가져옵니다.`),
+  h('div',{className:'dual-btns'},h('button',{className:'btn',onClick:()=>setSelected(new Set(res.out.map(t=>t.id)))},'모두 선택'),h('button',{className:'btn',onClick:()=>setSelected(new Set())},'선택 해제')),
+  res.out.map((t,i)=>h('label',{className:'row',key:t.id},h('input',{type:'checkbox',checked:selected.has(t.id),onChange:e=>setSelected(old=>{const n=new Set(old);e.target.checked?n.add(t.id):n.delete(t.id);return n;})}),h('span',{className:'row-main'},`${res.candidates[i].row}행 · ${t.date} · ${t.memo||t.category}`,h('small',null,res.candidates[i].suspect?'중복 의심 · 선택 시 추가 저장':'새 거래')),h('b',null,won(t.amount)+'원'))),
+  res.errors.length>0&&h('section',{className:'note'},h('b',null,'가져올 수 없는 행'),res.errors.map(e=>h('p',{key:e.row},`${e.row}행: ${e.reasons.join(' / ')}`))),err&&h('p',{className:'err'},err));
 }
+
 /* ───────── 작은 시트들 ───────── */
 // 대출은 전용 '대출 추가' 시트로 열어요 (예전 경로로 열어도 같은 시트)
 function AccountSheet(p) {
