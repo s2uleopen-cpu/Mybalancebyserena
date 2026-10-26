@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0F1115">
+<meta name="theme-color" content="#F5F7FA">
+<script>(function(){var t='light';try{var cached=localStorage.getItem('mb_theme');if(['light','dark','system'].indexOf(cached)>=0)t=cached;else{var d=JSON.parse(localStorage.getItem('mb_guest_v1')||'null');var v=d&&d.settings&&d.settings.settings&&d.settings.settings.theme;if(['light','dark','system'].indexOf(v)>=0)t=v;}}catch(e){}window.__MB_THEME_CHOICE__=t;var effective=t==='system'?(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;document.documentElement.setAttribute('data-theme',effective);document.documentElement.style.colorScheme=effective;var m=document.querySelector('meta[name="theme-color"]');if(m)m.content=effective==='light'?'#F5F7FA':'#111318';})();</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -14,7 +15,7 @@
 <!-- 본문·숫자·입력 공통 글꼴: Pretendard (가변 글꼴, 사용하는 글자만 내려받는 dynamic subset) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <script src="firebase-config.js"></script>
-<script>(function(){try{var t=localStorage.getItem("mb_theme")||"light";if(t==="system")t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
+
 
 <style>
 /* ═══════════════════════════════════════════════════════════════
@@ -1224,6 +1225,11 @@ html,body,#root{height:100%;overflow:hidden}
 .entry>.field:first-child{margin-bottom:12px}
 .entry .entry-details{margin-top:16px}
 .message-input{margin:12px 0;min-height:130px;resize:vertical}.message-raw{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;font:12px/1.6 inherit;background:var(--chip);padding:12px;border-radius:12px;max-height:200px;overflow:auto}.message-candidate{border:1px solid var(--line);border-radius:16px;padding:14px;margin:14px 0}.message-candidate .hcard-h{flex-wrap:wrap}.message-candidate .check{font-size:12px}
+.entry .calculator-keypad{grid-template-columns:repeat(4,minmax(0,1fr))}
+.entry .calculator-keypad .calc-op{background:var(--sage-soft);color:var(--primary);font-weight:650}
+.entry-calculation{display:flex;align-items:center;gap:8px;justify-content:center;min-height:28px;margin:2px 0 6px}
+.calculation-expression{font-size:12px;color:var(--ink2);overflow-wrap:anywhere;min-width:0;font-variant-numeric:tabular-nums}
+.entry-calculation .btn{flex-shrink:0;min-width:40px;min-height:32px}
 </style>
 </head>
 <body>
@@ -19531,14 +19537,11 @@ function App() {
     const store = useStore();
     const { data, commit } = store;
     CATS = useMemo(() => buildCats(data), [data.settings]);
-    const [page, setPage] = useState(() => {
-        const h = location.hash.slice(1);
-        const T = normalizeTarget({ page: h });
-        return PAGES.some((p) => p.id === T.page) || T.page === 'settings' ? T.page : 'home';
-    });
+    // 저장된 주소의 마지막 탭과 관계없이 새 실행은 홈에서 시작한다.
+    const [page, setPage] = useState('home');
     // 예전 탭 이름(고정비·근무·저축·세금·투자·부채·추이 등)으로 와도 새 구조의 탭+칩으로 연결해요
-    const [histTab, setHistTabRaw] = useState(() => (location.hash.slice(1) === 'fixed' ? 'expense' : 'all'));
-    const [histSub, setHistSub] = useState(() => (location.hash.slice(1) === 'fixed' ? 'fixed' : 'all'));
+    const [histTab, setHistTabRaw] = useState('all');
+    const [histSub, setHistSub] = useState('all');
     const setHistTab = useCallback((t) => {
         if (t === 'fixed') { setHistTabRaw('expense'); setHistSub('fixed'); }
         else if (t === 'work') { setHistTabRaw('income'); setHistSub('work'); }
@@ -19550,8 +19553,8 @@ function App() {
     const setAnaTab = useCallback((t) => setAnaTabRaw(t === 'asset' || t === 'trend' ? 'growth' : t === 'io' ? 'income' : ANA_TABS.includes(t) ? t : 'income'), []);
     const [assetTab, setAssetTabRaw] = useState('all');
     const setAssetTab = useCallback((t) => setAssetTabRaw(t === 'cash' || t === 'deposit' ? 'accounts' : t === 'manage' || t === 'goal' ? 'saving' : ASSET_TABS.includes(t) ? t : 'all'), []);
-    const [planTab, setPlanTabRaw] = useState(() => (location.hash.slice(1) === 'business' ? 'goal' : 'budget'));
-    const [goalSub, setGoalSub] = useState(() => (location.hash.slice(1) === 'business' ? 'tax' : 'saving'));
+    const [planTab, setPlanTabRaw] = useState('budget');
+    const [goalSub, setGoalSub] = useState('saving');
     const setPlanTab = useCallback((t) => {
         if (t === 'saving' || t === 'emergency' || t === 'tax') { setPlanTabRaw('goal'); setGoalSub(t); }
         else setPlanTabRaw(t === 'goal' || t === 'sim' ? t : 'budget');
@@ -19560,9 +19563,9 @@ function App() {
     const [month, setMonth] = useState(thisMonth());
     const [sheet, setSheet] = useState(null);
     const [toastS, setToastS] = useState(null);
-    // 테마: 계정 설정에 저장해 모든 기기에 같이 적용 (기기에는 깜빡임 방지용으로 마지막 값만 보관)
-    const themeChoice = ((data.settings.settings || {}).theme) || safeTheme() || 'light';
-    const [sysLight, setSysLight] = useState(() => window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+    // 첫 화면과 React는 같은 기기 테마를 사용한다. 늦게 도착한 계정 설정은 덮어쓰지 않는다.
+    const [themeChoice, setThemeChoice] = useState(() => window.__MB_THEME_CHOICE__ || safeTheme() || 'light');
+    const [sysLight, setSysLight] = useState(() => !window.matchMedia || window.matchMedia('(prefers-color-scheme: light)').matches);
     useEffect(() => {
         if (!window.matchMedia)
             return;
@@ -19574,6 +19577,7 @@ function App() {
     const effTheme = themeChoice === 'system' ? (sysLight ? 'light' : 'dark') : themeChoice;
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', effTheme);
+        document.documentElement.style.colorScheme = effTheme;
         try {
             localStorage.setItem('mb_theme', themeChoice);
         }
@@ -19583,6 +19587,9 @@ function App() {
             mt.setAttribute('content', effTheme === 'light' ? '#F5F7FA' : '#111318');
     }, [effTheme, themeChoice]);
     const setTheme = useCallback((v) => {
+        if (!['light','dark','system'].includes(v)) return;
+        setThemeChoice(v);
+        window.__MB_THEME_CHOICE__ = v;
         const el = document.documentElement;
         el.classList.add('theme-anim');
         setTimeout(() => el.classList.remove('theme-anim'), 300);
@@ -19699,11 +19706,11 @@ function App() {
                     "\uC124\uC815"),
                 React.createElement(SideAccount, null)),
             React.createElement("main", { className: "main" },
-                React.createElement("header", { className: cx('topbar', page === 'home' && 'home-topbar', scrolled && 'scrolled') },
+                React.createElement("header", { className: cx('topbar', (page === 'home' || (page === 'analysis' && anaGroupOf(anaTab) === 'income')) && 'home-topbar', scrolled && 'scrolled') },
                     React.createElement("div", { className: cx('top-l', page === 'settings' && 'no-month') },
                         React.createElement("h1", null, cur.label),
                         page !== 'settings' && React.createElement(MonthPicker, null),
-                        page === 'home' && React.createElement(PeriodSeg, null)),
+                        (page === 'home' || (page === 'analysis' && anaGroupOf(anaTab) === 'income')) && React.createElement(PeriodSeg, null)),
                     React.createElement("div", { className: "top-r" },
                         React.createElement("button", { className: "icon-btn theme-btn", onClick: () => setTheme(effTheme === 'dark' ? 'light' : 'dark'), "aria-label": effTheme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환', title: effTheme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환' },
                             React.createElement(Icon, { n: effTheme === 'dark' ? 'moon' : 'sun', s: 20 })),
@@ -20883,7 +20890,6 @@ function AnalysisPage() {
     const biz = bizModeOf(data);
     const opts = g === 'flow' && !biz ? ANA_GROUPS.flow.filter((x) => x[0] !== 'sim') : ANA_GROUPS[g];
     const body = g === 'income' ? e(React.Fragment, null,
-        e(PeriodSeg, null),
         e(IncomeAnalysis, null),
         biz && e("details", { className: "more-sec", open: t === 'eff' },
             e("summary", null, "사업·수입원 상세", e("span", null, "효율 · 수입원별 손익 · OAOC · 주문")),
@@ -25408,9 +25414,9 @@ function LoanPaymentSheet({loanId,paymentId,legacy,initialPrincipal,initialInter
  const cancel=async()=>{if(!(await ask({title:'이 납부를 취소할까요?',body:'원금과 이자가 함께 취소되고 계좌·대출 잔액이 복원돼요.',confirmLabel:'납부 취소',danger:true})))return;
   try{commit(old.map(rec=>({kind:'tx',rec:{...rec,deleted:true}})));toast('납부를 취소했어요');onClose();}catch(e){setErr(e.message);}};
  const candidates=live(data.tx).filter(t=>!t.paymentId&&t.date?.slice(0,7)===date.slice(0,7)&&['대출 상환','대출 이자'].includes(t.category));
- return h(Sheet,{title:paymentId?'대출 납부 수정':legacy?'기존 상환 연결':'대출 납부',onClose,dirty:JSON.stringify(f)!==JSON.stringify(initial),footer:h('div',{className:'grow'},h('p',{className:'small'},'기록 날짜: '+date.replace(/-/g,'.')),h('div',{className:'dual-btns'},paymentId&&h('button',{className:'btn',onClick:cancel},'납부 취소'),h('button',{className:'btn primary grow',onClick:save},onDraft?'검토 완료 (아직 저장 안 함)':paymentId?'수정 저장':'납부 완료')))},
+ return h(Sheet,{title:paymentId?'대출 납부 수정':legacy?'기존 상환 연결':'대출 납부',onClose,dirty:JSON.stringify(f)!==JSON.stringify(initial),footer:h('div',{className:'grow'},h('p',{className:'small'},'기록 날짜: '+date.replace(/-/g,'.')),h('div',{className:'dual-btns'},paymentId&&h('button',{className:'btn',onClick:cancel},'납부 취소'),h('button',{className:'btn primary grow',onClick:save},onDraft?'수정하고 저장':paymentId?'수정 저장':'납부 완료')))},
   h('h3',null,loan.name),h('p',{className:'muted'},`${loan.lender||''} · 남은 원금 ${won(Math.max(0,-(accountBalances(data)[loanId]||0)))}원`),
-  h('p',{className:'note'},onDraft?'원금·이자 합계가 알림 금액과 같은지 확인해 주세요. 목록에서 최종 저장할 때 반영돼요.':'예정 금액은 수정할 수 있어요. 납부 완료 시에만 출금·대출 잔액에 반영돼요.'),
+  h('p',{className:'note'},onDraft?'원금·이자 합계가 실제 납부 금액과 같은지 확인해 주세요. 수정하고 저장을 누르면 바로 기록돼요.':'예정 금액은 수정할 수 있어요. 납부 완료 시에만 출금·대출 잔액에 반영돼요.'),
   h(Field,{label:'출금 계좌'},h('select',{className:'input',value:f.from,onChange:set('from')},h('option',{value:''},'선택'),accounts.filter(a=>!['loan','card'].includes(a.kind)).map(a=>h('option',{key:a.id,value:a.id},a.name)))),
   h('div',{className:'form-2'},h(Field,{label:'원금'},h(AmountInput,{value:f.principal,onChange:set('principal')})),h(Field,{label:'이자'},h(AmountInput,{value:f.interest,onChange:set('interest')}))),
   h('p',{className:'note'},`총 출금 ${won(Number(f.principal)+Number(f.interest))}원 · 대출 원금 감소 ${won(f.principal)}원`),
@@ -25424,6 +25430,39 @@ function EntrySheet(props) {
  const {data}=useApp();const t=props.tx;
  return t?.paymentId?React.createElement(LoanPaymentSheet,{loanId:t.loanId,paymentId:t.paymentId,onClose:props.onClose}):React.createElement(EntrySheetBase,props);
 }
+
+// Four-operation integer-input calculator. Rational arithmetic avoids floating point rounding surprises.
+function calculateEntryAmount(input){
+ const text=String(input||'').replace(/[,\s]/g,'').replaceAll('×','*').replaceAll('÷','/').replaceAll('−','-');
+ const bad=error=>({ok:false,value:0,error});
+ if(!text)return {ok:true,value:0,expression:'',fractional:false};
+ if(text.length>120||!/^[0-9+*/-]+$/.test(text))return bad('숫자와 + − × ÷만 입력해 주세요.');
+ if(!/^\d+(?:[+*/-]\d+)*$/.test(text))return bad('계산식을 완성해 주세요.');
+ const tokens=text.match(/\d+|[+*/-]/g);if(tokens.filter(t=>/^\d/.test(t)).some(t=>t.length>12))return bad('각 숫자는 12자리까지 입력할 수 있어요.');
+ const gcd=(a,b)=>{a=a<0n?-a:a;while(b){const r=a%b;a=b;b=r;}return a||1n;};
+ const rational=(n,d)=>{if(d<0n){n=-n;d=-d;}const g=gcd(n,d);return {n:n/g,d:d/g};};
+ let sum={n:0n,d:1n},term={n:BigInt(tokens[0]),d:1n},sign=1n;
+ const finish=()=>{sum=rational(sum.n*term.d+sign*term.n*sum.d,sum.d*term.d);};
+ for(let i=1;i<tokens.length;i+=2){const op=tokens[i],v=BigInt(tokens[i+1]);
+  if(op==='*')term=rational(term.n*v,term.d);
+  else if(op==='/'){if(v===0n)return bad('0으로 나눌 수 없어요.');term=rational(term.n,term.d*v);}
+  else{finish();term={n:v,d:1n};sign=op==='-'?-1n:1n;}
+ }
+ finish();if(sum.n<0n)return bad('계산 결과가 음수예요. 거래 금액은 0원보다 커야 해요.');
+ if(sum.n>999999999999n*sum.d)return bad('계산 결과는 12자리 이하만 입력할 수 있어요.');
+ const fractional=sum.n%sum.d!==0n;
+ return {ok:true,value:Number(sum.n)/Number(sum.d),fractional,rounded:Number((sum.n*2n+sum.d)/(sum.d*2n)),expression:text};
+}
+function entryCalcKey(value,key){
+ const text=String(value||'').replace(/[,\s]/g,'').replaceAll('×','*').replaceAll('÷','/').replaceAll('−','-');
+ if(key==='del')return text.slice(0,-1);
+ if(['+','-','*','/'].includes(key)){if(!text)return key==='-'?'0-':'';return /[+*/-]$/.test(text)?text.slice(0,-1)+key:text+key;}
+ if(!/^\d{1,2}$/.test(key))return text;
+ const last=text.match(/\d*$/)[0],next=(last+key).replace(/^0+(?=\d)/,'');
+ if(next.length>12||text.length-last.length+next.length>120)return text;
+ return text.slice(0,text.length-last.length)+next;
+}
+function entryCalcDisplay(value){return String(value||'').replace(/[,\s]/g,'').replace(/\d+/g,t=>t.replace(/\B(?=(\d{3})+(?!\d))/g,',')).replaceAll('*',' × ').replaceAll('/',' ÷ ').replaceAll('+',' + ').replaceAll('-',' − ');}
 
 function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
     const { data, commit, toast, accounts, openSheet, setMonth } = useApp();
@@ -25486,7 +25525,9 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
     const [keypadOpen, setKeypadOpen] = useState(false);
     const [err, setErr] = useState('');
     const touch = useMemo(() => window.matchMedia && window.matchMedia('(pointer: coarse)').matches, []);
-    const nTotal = Number(amt) || 0;
+    const calculation=useMemo(()=>calculateEntryAmount(amt),[amt]);
+    const [calculationHistory,setCalculationHistory]=useState(null);
+    const nTotal = calculation.ok&&!calculation.fractional?calculation.value:0;
     useEffect(() => {
         if (!dutch)
             return;
@@ -25528,7 +25569,7 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
     const goals = live(data.goal);
     const linkedRule = tx && tx.ruleId ? data.rule[tx.ruleId] : null;
     const pokerLog = tx && tx.pokerLogId && data.worklog[tx.pokerLogId] && !data.worklog[tx.pokerLogId].deleted ? data.worklog[tx.pokerLogId] : null;
-    const n = Number(amt) || 0;
+    const n = nTotal;
     const split = vatSplit(n, vatType);
     const bizSources = sourcesOf(data).filter((x) => x.kind === 'business');
     const pickList = group === 'salary' ? sourcesOf(data).filter((x) => x.kind === 'salary') : group === 'other' ? sourcesOf(data).filter((x) => x.kind === 'freelance' || x.kind === 'other') : [];
@@ -25591,14 +25632,20 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
         toast(`‘${name}’을(를) ${group === 'biz' ? '사업체' : '근무처'}로 추가했어요`);
     };
     const pickJob = (id) => { setJobId(id); const first = subsFor(data, 'income', 'job', id)[0]; if (sel && first) setSel({ name: sel.name, cat: first.cat }); };
-    const press = (k) => setAmt((a) => {
-        if (k === 'del')
-            return a.slice(0, -1);
-        const x = (a + k).replace(/^0+/, '');
-        return x.length > 12 ? a : x;
-    });
-    const addQuick = (v) => setAmt((a) => String((Number(a) || 0) + v));
+    const resolveCalculation=(round=false)=>{
+        if(!calculation.ok){setErr(calculation.error);return;}
+        if(calculation.fractional&&!round){setErr('소수점 결과예요. 아래 ‘원 단위 반올림 적용’을 눌러 확인해 주세요.');return;}
+        const value=round?calculation.rounded:calculation.value;
+        setCalculationHistory({expression:amt,result:String(value),rounded:round&&calculation.fractional});setAmt(String(value));setErr('');
+    };
+    const press = (k) => {
+        if(k==='='){resolveCalculation();return;}
+        setAmt(a=>entryCalcKey(calculationHistory?.result===a&&/^\d+$/.test(k)?'':a,k));setCalculationHistory(null);setErr('');
+    };
+    const addQuick = (v) => {setAmt(a=>{a=a.replace(/[,\s]/g,'').replaceAll('×','*').replaceAll('÷','/').replaceAll('−','-');return !a||a==='0'?String(v):/[+*/-]$/.test(a)?a+v:a+'+'+v;});setCalculationHistory(null);setErr('');};
     const check = () => {
+        if(!calculation.ok)return calculation.error;
+        if(calculation.fractional)return '소수점 결과예요. 원 단위 반올림을 확인해 주세요.';
         if (!(n > 0))
             return '금액을 입력해 주세요.';
         if (tab === 'expense' || tab === 'income') {
@@ -25766,7 +25813,7 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
             h("span",{className:"small entry-save-date"},"기록 날짜: "+effectiveDate.replace(/-/g,".")),
             isEdit && h("button", { className: "icon-btn", onClick: remove, "aria-label": "삭제" }, h(Icon, { n: "trash" })),
             isEdit && h("button", { className: "btn", onClick: copy }, h(Icon, { n: "copy", s: 16 }), "복사"),
-            h("button", { className: "btn primary grow", onClick: save }, onDraft?'검토 완료 (아직 저장 안 함)':isEdit ? '수정 저장' : '저장'))) },
+            h("button", { className: "btn primary grow", onClick: save }, onDraft?'수정하고 저장':isEdit ? '수정 저장' : '저장'))) },
         h("div", { className: "entry" },
                 h(Field, { label: "날짜" },
                     h("input", { className: "input", type: "date", value: effectiveDate, onChange: (e) => {setDateTouched(true);setDate(e.target.value);} })),
@@ -25776,12 +25823,17 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
             linkedRule && h("p", { className: "note" }, "고정비 ‘", linkedRule.name, "’ ", mLabel(tx.occMonth || tx.date.slice(0, 7)), " ", tx.type === 'income' ? '입금' : '납부', " 기록이에요. 금액을 고치면 납부 상태와 통계에 바로 반영돼요."),
             h("div", { className: cx('amount', type === 'income' && !isBiz && 'pos') },
                 touch && h("span",{className:"small muted amount-help"},keypadOpen?"금액을 다시 누르면 키패드가 접혀요":"금액을 눌러 입력하세요"),
-                touch ? (h("button", { type:"button", className: "amount-v num amount-toggle", "aria-label":"금액 입력", "aria-expanded":keypadOpen, onClick:()=>setKeypadOpen(v=>!v), "aria-live": "polite" }, n ? n.toLocaleString('ko-KR') : h("span", { className: "ph" }, "0"), h("small", null, "원")))
-                    : (h("input", { className: "amount-in num", autoFocus: true, inputMode: "numeric", placeholder: "0", value: n ? n.toLocaleString('ko-KR') : '', "aria-label": "금액", onChange: (e) => setAmt(e.target.value.replace(/[^0-9]/g, '').slice(0, 12)), onKeyDown: (e) => { if (e.key === 'Enter') save(); } })),
+                touch ? (h("button", { type:"button", className: "amount-v num amount-toggle", "aria-label":"금액 입력", "aria-expanded":keypadOpen, onClick:()=>setKeypadOpen(v=>!v), "aria-live": "polite" }, !calculation.ok?'—':calculation.fractional?calculation.value.toLocaleString('ko-KR',{maximumFractionDigits:6}):n ? n.toLocaleString('ko-KR') : h("span", { className: "ph" }, "0"), h("small", null, "원")))
+                    : (h("input", { className: "amount-in num", autoFocus: true, inputMode: "text", placeholder: "금액 또는 12000+8000", value: /^[0-9]*$/.test(amt)?(n?n.toLocaleString('ko-KR'):''):amt, "aria-label": "금액", onChange: (e) => {setAmt(e.target.value.replaceAll(',','').slice(0,120));setCalculationHistory(null);setErr('');}, onKeyDown: (e) => { if(e.key==='='){e.preventDefault();resolveCalculation();}else if (e.key === 'Enter') {e.preventDefault();if(/[+*/×÷−-]/.test(amt))resolveCalculation();else save();} } })),
+                h("div",{className:"entry-calculation","aria-live":"polite"},
+                    h("span",{className:"calculation-expression"},/[+*/×÷−-]/.test(amt)?entryCalcDisplay(amt):calculationHistory?.result===amt?entryCalcDisplay(calculationHistory.expression)+' = '+won(n)+(calculationHistory.rounded?' (반올림)':''):'여러 금액을 + − × ÷로 계산할 수 있어요'),
+                    ((!touch||keypadOpen)&&/[+*/×÷−-]/.test(amt))&&h("button",{type:"button",className:"btn small",onClick:()=>resolveCalculation(),"aria-label":"계산 결과 적용"},'=')),
+                !calculation.ok&&h("p",{className:"small err",role:"status"},calculation.error),
+                calculation.fractional&&h("button",{type:"button",className:"btn small",onClick:()=>resolveCalculation(true)},'원 단위 반올림 적용 ('+won(calculation.rounded)+'원)'),
                 (!touch || keypadOpen) && h("div", { className: "quick" },
                     [10000, 50000, 100000].map((v) => h("button", { key: v, type: "button", onClick: () => addQuick(v) }, "+", v / 10000, "만")),
-                    h("button", { type: "button", onClick: () => setAmt('') }, "지우기")),
-            touch && keypadOpen && (h("div", { className: "keypad" }, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map((k) => (h("button", { key: k, type: "button", onClick: () => press(k), "aria-label": k === 'del' ? '한 자리 지우기' : k }, k === 'del' ? h(Icon, { n: "del" }) : k)))))),
+                    h("button", { type: "button", onClick: () => {setAmt('');setCalculationHistory(null);setErr('');} }, "지우기")),
+            touch && keypadOpen && (h("div", { className: "keypad calculator-keypad" }, ['1', '2', '3', '/', '4', '5', '6', '*', '7', '8', '9', '-', '00', '0', 'del', '+'].map((k) => (h("button", { key: k, type: "button", className:['+','-','*','/'].includes(k)?'calc-op':'', onClick: () => press(k), "aria-label": ({del:'한 자리 지우기','+':'더하기','-':'빼기','*':'곱하기','/':'나누기'})[k]||k }, k === 'del' ? h(Icon, { n: "del" }) : ({'*':'×','/':'÷','-':'−'})[k]||k)))))),
             tab === 'expense' && !isTax && !isBiz && h("label", { className: "check dutch-t" },
                 h("input", { type: "checkbox", checked: dutch, onChange: (e) => { setDutch(e.target.checked); setErr(''); } }),
                 "더치페이 · 공동 결제"),
@@ -25855,7 +25907,7 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
                             custom && h("input", { className: "input", autoFocus: !touch, value: customText, onChange: (e) => setCustomText(e.target.value), placeholder: tab === 'income' ? '예: 강의료, 원고료' : '예: 세탁, 주차 정기권', maxLength: 30, "aria-label": "직접 입력한 항목" })))),
             tab==='expense' && ['대출 상환','대출 이자'].includes(catVal) && h("section",{className:"loan-calc"},
                 h("h4",null,"어떤 대출인가요?"),h("p",{className:"small muted"},"대출을 고르면 원금·이자를 함께 납부할 수 있어요. 기존 기록은 확인 후 연결해요."),
-                accounts.filter(a=>a.kind==='loan').map(a=>h("button",{key:a.id,className:"btn",onClick:()=>setSelectedLoan(a.id)},`${a.name} · ${a.lender||''} · ${won(Math.max(0,-(accountBalances(data)[a.id]||0)))}원`)),
+                accounts.filter(a=>a.kind==='loan').map(a=>h("button",{key:a.id,className:"btn",onClick:()=>{if(!calculation.ok||calculation.fractional){setErr(calculation.error||'원 단위 반올림을 확인해 주세요.');return;}setSelectedLoan(a.id);}},`${a.name} · ${a.lender||''} · ${won(Math.max(0,-(accountBalances(data)[a.id]||0)))}원`)),
                 h("button",{className:"btn",onClick:()=>openSheet('loan')},"+ 대출 등록")),
             isTax && h("p", { className: "note" }, "세금 납부는 생활 지출과 따로 집계하고, 남은 돈(현금흐름)에서만 빠져요. 부가가치세는 사업 쪽 납부로 기록돼요."),
             isBiz && (h("div", { className: "biz-box" },
@@ -26573,67 +26625,52 @@ function buildMessageImportChanges(data,items,aux,batchId,options={}){
 }
 function MessageImportSheet({onClose}){
  const app=useApp(),{data,commit,toast,setMonth,getSessionToken,getCurrentData}=app,h=React.createElement;
- const session=useRef(getSessionToken()),alive=useRef(true),lock=useRef(false),batch=useRef(newId());
- const [text,setText]=useState(''),[items,setItems]=useState([]),[err,setErr]=useState(''),[busy,setBusy]=useState(false),[editing,setEditing]=useState(null),[aux,setAux]=useState([]),[keepRaw,setKeepRaw]=useState(false),[accountForm,setAccountForm]=useState(false),[rawEdit,setRawEdit]=useState(null);
- const prefs=data.settings.settings?.messageImport||{};
- const [ignore,setIgnore]=useState((prefs.ignore||['[Web발신]']).join('\n')),[remember,setRemember]=useState(true),[dateConfirmed,setDateConfirmed]=useState(false);
+ const session=useRef(getSessionToken()),alive=useRef(true),locks=useRef(new Set()),batch=useRef(newId());
+ const [text,setText]=useState(''),[items,setItems]=useState([]),[err,setErr]=useState(''),[busy,setBusy]=useState(false),[editing,setEditing]=useState(null),[aux,setAux]=useState([]),[parsed,setParsed]=useState('');
  const current=()=>alive.current&&getSessionToken()===session.current;
  useEffect(()=>()=>{alive.current=false;},[]);
  useEffect(()=>{if(!current()){setItems([]);setText('');setEditing(null);onClose();}},[app.user,app.status,getSessionToken()]);
+ useEffect(()=>{if(text===parsed)return;const timer=setTimeout(()=>{if(!current())return;try{const next=text.trim()?parseTransactionMessages(text,{data:getCurrentData(),ignore:['[Web발신]']}):[];setItems(next);setParsed(text);setErr('');batch.current=newId();}catch(e){setItems([]);setParsed(text);setErr(e.message);}},450);return()=>clearTimeout(timer);},[text,parsed]);
  const temp=useMemo(()=>{const d=clean(data);aux.forEach(c=>{d[c.kind][c.rec.id]=c.rec;});return d;},[data,aux]);
- const addAux=changes=>setAux(old=>{const map=new Map(old.map(c=>[c.kind+'|'+c.rec.id,c]));changes.forEach(c=>map.set(c.kind+'|'+c.rec.id,c));return [...map.values()];});
  const update=(id,patch)=>setItems(xs=>xs.map(c=>c.id===id?{...c,...patch}:c));
- const paste=async()=>{if(busy)return;setBusy(true);setErr('');try{if(!navigator.clipboard?.readText)throw new Error();const value=await navigator.clipboard.readText();if(current())setText(value);}catch(e){if(current())setErr('클립보드 읽기를 사용할 수 없어요. 아래 입력란을 길게 눌러 붙여넣거나 Ctrl+V를 사용해 주세요.');}finally{if(current())setBusy(false);}};
- const analyze=()=>{if(!current())return;try{const next=parseTransactionMessages(text,{data:temp,ignore:ignore.split('\n').map(s=>s.trim()).filter(Boolean)});setItems(next);setErr('');batch.current=newId();}catch(e){setErr(e.message);}};
- const review=c=>{setDateConfirmed(!c.dateNeedsConfirm);setEditing({...c,editDraft:{...(c.records?.length===1&&!c.records[0].loanId?c.records[0]:c.draft)}});setErr('');};
- const finishReview=changes=>{
+ const addAux=changes=>setAux(old=>{const map=new Map(old.map(c=>[c.kind+'|'+c.rec.id,c]));changes.forEach(c=>map.set(c.kind+'|'+c.rec.id,c));return [...map.values()];});
+ const paste=async()=>{if(busy)return;setBusy(true);setErr('');try{if(!navigator.clipboard?.readText)throw new Error();const value=await navigator.clipboard.readText();if(current())setText(value);}catch(e){if(current())setErr('클립보드를 읽을 수 없어요. 아래 입력란을 길게 눌러 붙여넣거나 Ctrl+V를 사용해 주세요.');}finally{if(current())setBusy(false);}};
+ const store=(c,records,extra=[])=>{
   if(!current())throw new Error('계정이 변경됐어요. 다시 열어 주세요.');
-  const records=changes.filter(c=>c.kind==='tx'&&!c.rec.deleted).map(c=>c.rec);if(!records.length)throw new Error('거래 내용이 없어요.');
-  records.forEach(t=>validateMessageRecord(t,temp));
-  if(records.some(t=>t.loanId)&&sum(records,t=>t.amount)!==Number(editing.editDraft.amount))throw new Error('원금+이자 합계가 알림 금액과 달라요. 금액을 확인한 뒤 다시 검토해 주세요.');
-  const candidate={...editing,records,reviewed:true,selected:true,duplicateAccepted:false,rememberAccount:remember};
-  if(messageDuplicateReasons(candidate,temp,items).length)candidate.selected=false;
-  update(editing.id,candidate);addAux(changes.filter(c=>c.kind!=='tx'));
-
+  if(locks.current.has(c.id))throw new Error('이미 저장한 알림이에요.');
+  locks.current.add(c.id);
+  try{
+   const latest=getCurrentData(),candidate={...c,records,selected:true,reviewed:true};
+   const staged=[...aux,...extra].filter(x=>x.kind!=='tx');
+   const unique=(a,b)=>[...new Map([...(a||[]),...(b||[])].map(v=>[v.id,v])).values()];
+   const merged=new Map();staged.forEach(x=>{let rec=x.rec;if(x.kind==='settings'&&rec.id==='settings'){const old=latest.settings.settings||{id:'settings'};rec={...old,sources:unique(old.sources,rec.sources),payMethods:[...new Set([...(old.payMethods||[]),...(rec.payMethods||[])])],work:{...(old.work||{}),jobs:unique(old.work?.jobs,rec.work?.jobs)}};}merged.set(x.kind+'|'+rec.id,{kind:x.kind,rec});});
+   const changes=buildMessageImportChanges(latest,[candidate],[...merged.values()],batch.current);
+   commit(changes,session.current);
+   update(c.id,{saved:true,records});setAux([]);setErr('');setMonth(records[0].date.slice(0,7));toast('기기에 기록했어요');
+  }catch(e){locks.current.delete(c.id);throw e;}
  };
- const stagedApp={...app,data:temp,accounts:live(temp.account),commit:addAux,toast:()=>{},setMonth:()=>{},openSheet:()=>setErr('추가 등록은 검토 목록으로 돌아가 아래 ‘계좌·카드 추가’에서 진행해 주세요.')};
- const save=()=>{if(lock.current||!current())return;lock.current=true;try{
-  const latest=getCurrentData();const s=latest.settings.settings||{id:'settings'},stagedSettings=aux.find(c=>c.kind==='settings'&&c.rec.id==='settings')?.rec;
-  const unique=(a,b)=>[...new Map([...(a||[]),...(b||[])].map(v=>[v.id,v])).values()];
-  const mappings=[...(s.messageImport?.mappings||[])];items.filter(c=>c.selected&&c.rememberAccount&&c.identity&&c.records?.[0]?.accountId).forEach(c=>{const i=mappings.findIndex(m=>m.identity===c.identity),m={identity:c.identity,accountId:c.records[0].accountId};if(i<0)mappings.push(m);else mappings[i]=m;});
-  const settings={...s,messageImport:{...(s.messageImport||{}),mappings,ignore:ignore.split('\n').map(s=>s.trim()).filter(Boolean)}};
-  if(stagedSettings?.sources)settings.sources=unique(s.sources,stagedSettings.sources);
-  if(stagedSettings?.payMethods)settings.payMethods=[...new Set([...(s.payMethods||[]),...stagedSettings.payMethods])];
-  if(stagedSettings?.work?.jobs)settings.work={...(s.work||{}),jobs:unique(s.work?.jobs,stagedSettings.work.jobs)};
-  const changes=buildMessageImportChanges(latest,items,[...aux.filter(c=>!(c.kind==='settings'&&c.rec.id==='settings')),{kind:'settings',rec:settings}],batch.current,{keepRaw});
-  commit(changes,session.current);const records=changes.filter(c=>c.kind==='tx');setMonth(records[0].rec.date.slice(0,7));toast(`${items.filter(c=>c.selected).length}건의 알림을 기기에 저장했어요 · 미선택 ${items.filter(c=>!c.selected).length}건`);setText('');setItems([]);onClose();
- }catch(e){setErr(e.message);lock.current=false;}};
- if(rawEdit)return h(Sheet,{title:'알림 원문 수정·나누기',onClose:()=>setRawEdit(null),footer:h('button',{className:'btn primary',onClick:()=>{try{const replacements=parseTransactionMessages(rawEdit.value,{data:temp,ignore:ignore.split('\n').filter(Boolean)});if(!replacements.length)throw new Error('원문을 입력해 주세요.');const next=[...items.slice(0,rawEdit.index),...replacements,...items.slice(rawEdit.index+rawEdit.count)].map((c,i)=>({...c,index:i+1}));setItems(next);setText(next.map(c=>c.raw).join('\n\n'));setRawEdit(null);setErr('');}catch(e){setErr(e.message);}}},'이 알림만 다시 분석')},h('p',{className:'small muted'},'서로 다른 거래 사이에 빈 줄 또는 ---를 넣으세요. 다른 알림의 검토 결과는 유지됩니다.'),h('textarea',{className:'input message-input',value:rawEdit.value,'aria-label':'수정할 알림 원문',onChange:e=>setRawEdit(r=>({...r,value:e.target.value}))}),err&&h('p',{className:'err'},err));
- if(accountForm)return h(AppCtx.Provider,{value:stagedApp},h(AccountSheet,{onClose:()=>setAccountForm(false)}));
- if(editing&&editing.formOpen)return h(AppCtx.Provider,{value:stagedApp},h(EntrySheetBase,{key:editing.id,prefill:editing.editDraft,importedDate:editing.editDraft.date,onDraft:finishReview,onClose:()=>setEditing(null)}));
- if(editing)return h(Sheet,{title:`${editing.index}번 알림 확인`,onClose:()=>setEditing(null),footer:h('button',{className:'btn primary',disabled:!dateConfirmed||!editing.editDraft.type||!validDate(editing.editDraft.date)||!(Number(editing.editDraft.amount)>0),onClick:()=>setEditing(c=>({...c,formOpen:true}))},'분류·결제수단 검토')},
-  h('pre',{className:'message-raw'},editing.raw),h('p',{className:'note'},'추출값을 확인한 뒤 다음 화면에서 분류·결제수단을 선택하세요. 아직 저장되지 않아요.'),
-  h(Field,{label:'거래일'},h('input',{className:'input',type:'date',value:editing.editDraft.date,onChange:e=>{setDateConfirmed(true);setEditing(c=>({...c,editDraft:{...c.editDraft,date:e.target.value}}));}})),
-  editing.dateNeedsConfirm&&h('label',{className:'check'},h('input',{type:'checkbox',checked:dateConfirmed,onChange:e=>setDateConfirmed(e.target.checked)}),'제안된 연도와 날짜가 실제 거래일이 맞아요'),
-  h(Field,{label:'거래 유형'},h('select',{className:'input',value:editing.editDraft.type,onChange:e=>setEditing(c=>({...c,editDraft:{...c.editDraft,type:e.target.value,category:e.target.value==='expense'?'기타':e.target.value==='income'?'기타 수입':''}}))},h('option',{value:''},'선택'),[['expense','지출'],['income','수입'],['transfer','계좌이체'],['cardpay','카드대금'],['saving','저축·투자']].map(([v,l])=>h('option',{key:v,value:v},l)))),
-  h(Field,{label:'거래 금액'},h(AmountInput,{value:editing.editDraft.amount,onChange:v=>setEditing(c=>({...c,editDraft:{...c.editDraft,amount:v}}))})),
-  editing.amountChoices.length>1&&h('div',{className:'chips'},editing.amountChoices.filter(v=>v>0).map((v,i)=>h('button',{key:i,className:'chip',onClick:()=>setEditing(c=>({...c,editDraft:{...c.editDraft,amount:v}}))},won(v)+'원'))),
-  editing.warnings.map((w,i)=>h('p',{key:i,className:'small muted'},w)),err&&h('p',{className:'err'},err));
- return h(Sheet,{title:'거래 알림 붙여넣기',onClose,dirty:!!text||!!items.length,footer:h('button',{className:'btn primary grow',disabled:!items.some(c=>c.selected),onClick:save},`선택한 ${items.filter(c=>c.selected).length}건 저장`)},
-  h('p',{className:'small muted'},'문자·카카오톡·은행 앱에서 복사한 텍스트를 넣어 주세요. 기기에서 분석하며 검토 완료 후 선택한 거래만 저장해요.'),
-  h('button',{className:'btn',onClick:paste,disabled:busy},busy?'읽는 중…':'📋 클립보드에서 붙여넣기'),
-  h('textarea',{className:'input message-input',rows:6,value:text,maxLength:100000,'aria-label':'거래 알림 원문',placeholder:'알림 여러 건은 빈 줄 또는 ---로 구분하세요.',onChange:e=>{setText(e.target.value);setItems([]);}}),
-  h('details',null,h('summary',null,'문구 정리·계좌 연결 설정'),h('p',{className:'small muted'},'제거할 고정 문구를 한 줄에 하나씩 입력하세요. 금액·날짜·취소 문구는 지우지 마세요. 원문은 미리보기에 유지돼요.'),h('textarea',{className:'input',value:ignore,'aria-label':'제거할 고정 문구',onChange:e=>{setIgnore(e.target.value);setItems([]);}}),h('label',{className:'check'},h('input',{type:'checkbox',checked:remember,onChange:e=>setRemember(e.target.checked)}),'기관명+마스킹 끝자리가 있는 결제수단 연결 기억'),h('label',{className:'check'},h('input',{type:'checkbox',checked:keepRaw,onChange:e=>setKeepRaw(e.target.checked)}),'원문도 거래에 보관 (기본은 보관 안 함)')),
-  h('div',{className:'dual-btns'},h('button',{className:'btn primary',disabled:!text.trim(),onClick:analyze},'알림 분석'),h('button',{className:'btn',onClick:()=>{setText('');setItems([]);setAux([]);setErr('');}},'비우기')),
-  items.length>0&&h('p',{className:'note'},`총 ${items.length}건 · 검토 완료 ${items.filter(c=>c.reviewed).length}건 · 선택 ${items.filter(c=>c.selected).length}건 · 오류 ${items.filter(c=>c.errors.length).length}건 · 중복 의심 ${items.filter(c=>messageDuplicateReasons(c,temp,items).length).length}건`),
-  items.map((c,i)=>{const dup=messageDuplicateReasons(c,temp,items);return h('section',{key:c.id,className:'message-candidate'},h('div',{className:'hcard-h'},h('b',null,`${i+1} / ${items.length} · ${c.reviewed?'검토 완료':'확인 필요'}`),h('label',{className:'check'},h('input',{type:'checkbox','aria-label':`${i+1}번 선택`,checked:c.selected,disabled:!c.reviewed||c.blocked||(dup.length>0&&!c.duplicateAccepted),onChange:e=>update(c.id,{selected:e.target.checked})}),'저장 선택')),
-   h('pre',{className:'message-raw'},c.raw),h('p',null,`${c.draft.date} · ${c.records?won(sum(c.records,t=>t.amount)):won(c.draft.amount)}원 · ${c.institution||'기관 미확인'}`),
-   c.records&&h('p',{className:'small'},c.records.map(t=>`${TYPE_LABEL[t.type]||t.type} / ${t.category||'이체'} / ${temp.account[t.accountId]?.name||t.payMethod||'계좌 미연결'}`).join(' + ')),
-   [...c.errors,...c.warnings].map((w,j)=>h('p',{key:j,className:c.errors.includes(w)?'err':'small muted'},w)),
-   dup.length>0&&h('div',{className:'note'},h('b',null,'중복 의심: '+dup.join(' · ')),h('label',{className:'check'},h('input',{type:'checkbox',checked:c.duplicateAccepted,onChange:e=>update(c.id,{duplicateAccepted:e.target.checked,selected:false})}),'별개의 실제 거래임을 확인했어요')),
-   h('div',{className:'chips'},h('button',{className:'btn small',disabled:!!c.errors.length,onClick:()=>review(c)},c.reviewed?'검토 수정':'검토하기'),h('button',{className:'btn small',onClick:()=>update(c.id,{selected:false})},'건너뛰기'),h('button',{className:'link',onClick:()=>{setRawEdit({index:i,count:1,value:c.raw});setErr('');}},'원문 수정·나누기'),i<items.length-1&&h('button',{className:'link',onClick:()=>{setRawEdit({index:i,count:2,value:c.raw+'\n'+items[i+1].raw});setErr('');}},'다음 알림과 합치기')));}),
-  h('button',{className:'btn',onClick:()=>setAccountForm(true)},'+ 계좌·카드 추가 (최종 저장 때 반영)'),
-  h('p',{className:'small muted'},'일반적인 원화 텍스트 형식만 인식합니다. 취소·환불·외화·인식 오류는 직접 확인이 필요해요. 기관별 실제 알림 전체를 검증한 기능은 아니에요.'),
+ const quickRecord=c=>({...c.draft,scope:'personal',payMethod:temp.account[c.draft.accountId]?.kind==='card'?'카드':'',id:newId()});
+ const quickError=c=>{if(c.errors.length)return c.errors.join(' · ');if(temp.account[c.draft.accountId]?.scope==='business')return '사업 거래의 분류를 확인해 주세요.';try{validateMessageRecord(quickRecord(c),temp);return '';}catch(e){return e.message;}};
+ const edit=c=>{setAux([]);setErr('');setEditing(c);};
+ const finish=changes=>{const records=changes.filter(c=>c.kind==='tx'&&!c.rec.deleted).map(c=>c.rec);if(!records.length)throw new Error('거래 내용이 없어요.');store(editing,records,changes.filter(c=>c.kind!=='tx'));};
+ const stagedApp={...app,data:temp,accounts:live(temp.account),commit:addAux,toast:()=>{},setMonth:()=>{},openSheet:()=>setErr('계좌 등록은 자산 화면에서 할 수 있어요.')};
+ if(editing)return h(AppCtx.Provider,{value:stagedApp},h(EntrySheetBase,{key:editing.id,prefill:{...editing.draft,scope:temp.account[editing.draft.accountId]?.scope||'personal'},importedDate:validDate(editing.draft.date)?editing.draft.date:today(),onDraft:finish,onClose:()=>{setEditing(null);setAux([]);}}));
+ return h(Sheet,{title:'거래 알림 붙여넣기',onClose,dirty:items.some(c=>!c.saved&&!c.skipped)||text!==parsed,footer:h('button',{className:'btn grow',onClick:onClose},'닫기')},
+  h('p',{className:'small muted'},'문자를 붙여넣으면 자동으로 분석해요. 내용을 확인하고 승인하면 바로 기록돼요.'),
+  h('button',{className:'btn primary',onClick:paste,disabled:busy},busy?'읽는 중…':'📋 문자 붙여넣고 분석'),
+  h('textarea',{className:'input message-input',rows:4,value:text,maxLength:100000,'aria-label':'거래 알림 원문',placeholder:'여기에 직접 붙여넣어도 돼요. 여러 거래는 빈 줄로 구분하세요.',onChange:e=>{setText(e.target.value);setErr('');}}),
+  text!==parsed?h('p',{className:'small muted',role:'status'},'문자 분석 중…'):items.map((c,i)=>{const dup=c.saved?[]:messageDuplicateReasons(c,temp,items.filter(x=>!x.skipped)),problem=quickError(c);return h('section',{key:c.id,className:'message-candidate'},
+   h('b',null,c.saved?'✅ 기록했어요':c.skipped?'건너뛴 알림':`${items.length>1?i+1+'번 · ':''}이 내용이 맞나요?`),
+   h('p',null,`${TYPE_LABEL[(c.records?.[0]||c.draft).type]||'유형 확인 필요'} · ${won(c.records?sum(c.records,t=>t.amount):c.draft.amount)}원`),
+   h('p',{className:'small'},`${c.records?.[0]?.date||c.draft.date} · ${c.records?.[0]?.category||c.draft.category||'분류 확인'} · ${temp.account[(c.records?.[0]||c.draft).accountId]?.name||'계좌 미연결 (잔액에는 미반영)'}`),
+   h('p',{className:'small muted'},c.records?.[0]?.memo||c.draft.memo),
+   h('details',null,h('summary',null,'원문 보기'),h('pre',{className:'message-raw'},c.raw)),
+   !c.saved&&!c.skipped&&h(React.Fragment,null,
+    [...new Set([problem,...c.warnings].filter(Boolean))].map((w,j)=>h('p',{key:j,className:'small muted'},w)),
+    c.dateNeedsConfirm&&h('p',{className:'small muted'},'날짜는 추정값이에요. 다르면 수정해 주세요.'),
+    dup.length>0&&h('label',{className:'check'},h('input',{type:'checkbox',checked:!!c.duplicateAccepted,onChange:e=>update(c.id,{duplicateAccepted:e.target.checked})}),'중복 의심 · 별개의 실제 거래가 맞아요'),
+    h('div',{className:'dual-btns'},h('button',{className:'btn primary',disabled:!!problem||c.blocked||(dup.length>0&&!c.duplicateAccepted),onClick:()=>{try{store(c,[quickRecord(c)]);}catch(e){setErr(e.message);}}},'맞아요 · 저장'),h('button',{className:'btn',disabled:c.blocked,onClick:()=>edit(c)},'수정')),
+    h('button',{className:'link',onClick:()=>update(c.id,{skipped:true})},'건너뛰기')));}),
   err&&h('p',{className:'err',role:'alert'},err));
 }
 
