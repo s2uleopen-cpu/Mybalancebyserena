@@ -695,16 +695,20 @@ details.more[open] summary{margin-bottom:6px}
 }
 @media (min-width:960px){
   :root{--gutter:44px}
-  .app{display:grid;grid-template-columns:224px 1fr}
-  .sidebar{position:sticky;top:0;display:flex;flex-direction:column;gap:var(--sp-4);height:100vh;padding:18px var(--sp-3);background:var(--bg);border-right:1px solid var(--line2)}
+  /* 앱 = 지금 보이는 화면 높이(100dvh, 미지원 브라우저는 100vh). 상단 safe-area는 앱 안쪽 여백으로 넣어 전체가 화면을 넘지 않게 */
+  .app{display:grid;grid-template-columns:224px minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:100vh;height:100dvh;min-height:0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+  /* 사이드바: 로고(고정) · 메뉴(남은 공간, 필요할 때만 스크롤) · 설정·프로필·동기화(하단 고정) */
+  .sidebar{position:relative;display:flex;flex-direction:column;gap:var(--sp-4);min-height:0;padding:18px var(--sp-3) calc(14px + env(safe-area-inset-bottom,0px)) calc(var(--sp-3) + env(safe-area-inset-left,0px));background:var(--bg);border-right:1px solid var(--line2)}
+  .sidebar > .brand,.sidebar > .side-set,.sidebar > .side-acct{flex:none}
   .brand{display:flex;align-items:center;gap:var(--sp-2);padding:0 6px;font-size:var(--fs-base);font-weight:600;letter-spacing:-0.01em}
   .sidebar .btn.primary{height:36px;font-size:var(--fs-sm)}
-  .side-nav{display:flex;flex-direction:column;gap:2px;flex:1}
+  .side-nav{display:flex;flex-direction:column;gap:2px;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
   .side-nav button,.side-set{display:flex;align-items:center;gap:var(--sp-3);height:36px;padding:0 10px;border-radius:var(--r-sm);font-size:var(--fs-sm);font-weight:400;color:var(--ink2);text-align:left}
   .side-nav button.on,.side-set.on{background:var(--chip);color:var(--ink);font-weight:500}
   .side-nav button.on svg{color:var(--sage)}
-  .main{width:100%;padding-bottom:56px}
-  .topbar{min-height:0;margin-bottom:var(--sp-2);padding:14px 0;box-shadow:0 1px 0 var(--line2)}
+  /* 본문: 사이드바와 따로 세로 스크롤. 내용 폭은 예전처럼 최대 1120px 가운데 정렬 */
+  .main{width:auto;max-width:none;margin:0;min-width:0;min-height:0;height:100%;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;padding:0 max(var(--gutter), calc((100% - 1120px) / 2 + var(--gutter))) calc(56px + env(safe-area-inset-bottom,0px)) max(var(--gutter), calc((100% - 1120px) / 2 + var(--gutter)))}
+  .topbar{top:0;min-height:0;margin-bottom:var(--sp-2);padding:14px 0;box-shadow:0 1px 0 var(--line2)}
   .topbar h1{font-size:var(--fs-xl)}
   .topbar .top-add{display:inline-flex}
   .top-acct,.bottomnav,.fab{display:none}
@@ -1111,6 +1115,11 @@ input.input[type=date]::-webkit-date-and-time-value,input.input[type=time]::-web
 .vset-t b{font-size:var(--fs-base);font-weight:600;color:var(--ink)}
 .vset-t span{font-size:var(--fs-xs);line-height:1.45;color:var(--ink2)}
 .vset-r > .seg{flex:none}
+
+/* 저축 목표 한 카드 · 권장 범위는 아래로 */
+.sv-a{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.sv-b{margin-top:-14px;border-top:1px solid var(--line2);border-top-left-radius:0;border-top-right-radius:0}
+.stack > .sv-rec{order:2}
 </style>
 </head>
 <body>
@@ -18894,9 +18903,14 @@ function monthStats(data, m) {
     const txs = all.filter((t) => t.scope !== 'business');
     const biz = all.filter((t) => t.scope === 'business');
     const by = (arr, type) => arr.filter((t) => t.type === type);
-    const exp = by(txs, 'expense');
+    // 개인 소비: 대출 원금 상환은 빚을 갚는 이동이라 빼요 (순현금흐름과 같은 기준)
+    const exp = by(txs, 'expense').filter((t) => t.category !== LOAN_PRINCIPAL_CAT);
+    const loanPaid = sum(by(txs, 'expense').filter((t) => t.category === LOAN_PRINCIPAL_CAT), amt);
     const drawn = sum(by(txs, 'draw'), amt);
-    const income = sum(by(txs, 'income'), amt) + drawn;
+    // 소득 = 개인 수입(근로·프리랜서·기타) + 사업 순이익(매출 − 경비). 사업 인출과 '사업' 수입원으로 받은 개인 입금은 이동이라 빼요.
+    const srcs = sourcesOf(data, true);
+    const isBizSrc = (t) => { const id = sourceOf(t, data); const x = id && srcs.find((o) => o.id === id); return !!(x && x.kind === 'business'); };
+    const persIncome = sum(by(txs, 'income').filter((t) => !isBizSrc(t)), amt);
     const expense = sum(exp, amt);
     const saving = sum(by(txs, 'saving'), amt);
     const invest = sum(by(txs, 'saving').filter((t) => t.category === '투자'), amt);
@@ -18906,12 +18920,14 @@ function monthStats(data, m) {
     const occs = allOccs.filter((o) => o.scope !== 'business');
     const bizOccs = allOccs.filter((o) => o.scope === 'business');
     const fixedUnpaid = sum(occs, (o) => o.remaining);
+    const spendUnpaid = sum(occs.filter((o) => o.rule.category !== LOAN_PRINCIPAL_CAT), (o) => o.remaining);
     const fixedTotal = fixedPaid + fixedUnpaid;
     const variable = expense - fixedPaid;
     const byCat = {};
     exp.forEach((t) => { byCat[t.category || '기타'] = (byCat[t.category || '기타'] || 0) + t.amount; });
     const subscription = sum(occs.filter((o) => o.rule.category === '구독 서비스'), (o) => o.effective);
-    const sales = sum(by(biz, 'income'), amt), costs = sum(by(biz, 'expense'), amt);
+    const sales = sum(by(biz, 'income'), amt), costs = sum(by(biz, 'expense').filter((t) => t.category !== LOAN_PRINCIPAL_CAT), amt);
+    const income = persIncome + sales - costs;
     const worklogs = live(data.worklog).filter((w) => w.date && w.date.startsWith(m));
     const bizLogs = worklogs.filter((w) => w.kind !== 'job' && w.kind !== 'poker');
     const pokerLogs = worklogs.filter((w) => w.kind === 'poker');
@@ -18928,7 +18944,7 @@ function monthStats(data, m) {
     const work = { minutes: sum(bizLogs, (w) => w.minutes), days: new Set(bizLogs.map((w) => w.date)).size, byType, byJob, jobMinutes: sum(Object.values(byJob), (j) => j.minutes), jobPay: sum(Object.values(byJob), (j) => j.pay), jobNet: sum(Object.values(byJob), (j) => j.net),
         pokerMinutes: sum(pokerLogs, (w) => w.minutes), poker: { count: pokerLogs.length, buyin: sum(pokerLogs, (w) => w.buyin), fee: sum(pokerLogs, (w) => w.fee), prize: sum(pokerLogs, (w) => w.prize), profit: sum(pokerLogs, pokerProfit) } };
     return {
-        m, all, txs, worklogs, work, txCount: all.length, cf: cashFlowOf(data, all), income, drawn, expense, saving, invest, savingOnly: saving - invest, tax, fixedPaid, fixedUnpaid, fixedTotal, variable, byCat, occs, allOccs, subscription,
+        m, all, txs, worklogs, work, txCount: all.length, cf: cashFlowOf(data, all), income, persIncome, drawn, loanPaid, spendUnpaid, expense, saving, invest, savingOnly: saving - invest, tax, fixedPaid, fixedUnpaid, fixedTotal, variable, byCat, occs, allOccs, subscription,
         remaining: income - expense - saving - tax,
         fixedRatio: ratio(fixedTotal, income), spendRatio: ratio(expense, income), savingRate: ratio(saving, income),
         biz: { count: biz.length, sales, costs, profit: sales - costs, vatPaid: sum(by(biz, 'tax'), amt), drawn, fixedTotal: sum(bizOccs, (o) => o.effective), fixedUnpaid: sum(bizOccs, (o) => o.remaining) },
@@ -19010,10 +19026,6 @@ function useWidth() {
         roRef.current.disconnect(); }, []);
     return [ref, w];
 }
-const Money = ({ v, sign, className }) => (React.createElement("span", { className: cx('num', className) },
-    sign && v > 0 ? '+' : '',
-    won(v),
-    React.createElement("small", null, "\uC6D0")));
 function Seg({ value, onChange, options, small, full }) {
     const ref = useRef(null);
     // 가로 스크롤 탭: 선택한 탭이 화면 밖이면 보이도록 이동
@@ -19578,12 +19590,15 @@ function App() {
     // 스크롤하면 헤더 아래 구분선을 보여 콘텐츠와 자연스럽게 구분
     const [scrolled, setScrolled] = useState(false);
     useEffect(() => {
-        const on = () => setScrolled(window.scrollY > 4);
+        // 넓은 화면은 본문(main)이, 좁은 화면은 창이 스크롤돼요
+        const el = document.querySelector('main.main');
+        const on = () => setScrolled(window.scrollY > 4 || !!(el && el.scrollTop > 4));
         on();
         window.addEventListener('scroll', on, { passive: true });
-        return () => window.removeEventListener('scroll', on);
+        if (el) el.addEventListener('scroll', on, { passive: true });
+        return () => { window.removeEventListener('scroll', on); if (el) el.removeEventListener('scroll', on); };
     }, []);
-    useEffect(() => { history.replaceState(null, '', '#' + page); window.scrollTo(0, 0); }, [page]);
+    useEffect(() => { history.replaceState(null, '', '#' + page); window.scrollTo(0, 0); const el = document.querySelector('main.main'); if (el) el.scrollTop = 0; }, [page]);
     const statsOf = useMemo(() => {
         const cache = {};
         return (m) => cache[m] || (cache[m] = monthStats(data, m));
@@ -19894,6 +19909,8 @@ function SheetRouter({ sheet }) {
 }
 /* ───────── 알림 ───────── */
 const DEFAULT_PREFS = { fixedDays: [7, 3, 1], budgetLevels: [80, 90, 100], spendUpPct: 20, spendUpMin: 30000, incomeDropPct: 20, marginDropPp: 5, hourlyDropPct: 15, profitTarget: 0, taxDays: [30, 14, 7, 3, 1, 0], off: {} };
+const INSIGHT_KEEP = ['budgetForecast', 'overspend', 'cashRisk', 'spendUp', 'taxReserve'];
+const BUILT_INSIGHTS = ['budgetForecast', 'cashRisk', 'emergency', 'fixedRatio', 'fixedUp', 'hourlyDrop', 'hourlyUp', 'incomeDrop', 'investConc', 'marginDrop', 'netWorth', 'overspend', 'profitGoal', 'recurring', 'savingCheck', 'spendUp', 'taxReserve'];
 const ALERT_TYPES = [
     ['fixedDue', '고정비 결제 예정', '지출'], ['fixedLate', '결제일 지난 미확인 고정비', '지출'], ['fixedCheck', '납부로 보이는 거래 연결 확인', '지출'],
     ['budget', '예산 사용률', '지출'], ['spendUp', '전월 대비 지출 증가', '지출'], ['overspend', '예상 지출이 수입 초과', '지출'], ['fixedUp', '구독료·고정비 증가', '지출'],
@@ -20047,7 +20064,7 @@ function AlertPrefsSheet({ onClose }) {
         React.createElement("div", { className: "form" },
             React.createElement("div", null,
                 React.createElement("p", { className: "sec-t" }, "\uBC1B\uC744 \uC54C\uB9BC"),
-                React.createElement("ul", { className: "toggles" }, ALERT_TYPES.map(([k, l, c]) => (React.createElement("li", { key: k },
+                React.createElement("ul", { className: "toggles" }, ALERT_TYPES.filter(([k]) => !BUILT_INSIGHTS.includes(k) || INSIGHT_KEEP.includes(k)).map(([k, l, c]) => (React.createElement("li", { key: k },
                     React.createElement("label", { className: "check" },
                         React.createElement("input", { type: "checkbox", checked: !P.off[k], onChange: (e) => setP((p) => ({ ...p, off: { ...p.off, [k]: !e.target.checked } })) }),
                         l,
@@ -20131,6 +20148,8 @@ function normalizeTarget(t) {
     // 자산 추이는 분석 > 자산·흐름으로 이동
     if (T.page === 'assets' && T.assetTab === 'trend') { T.page = 'analysis'; T.anaTab = 'growth'; delete T.assetTab; }
     if (T.page === 'analysis' && T.anaTab === 'asset') T.anaTab = 'growth';
+    // 인사이트 전용 화면은 없어졌어요 → 홈(확인할 일)으로
+    if (T.page === 'analysis' && T.anaTab === 'insight') { T.page = 'home'; delete T.anaTab; }
     return T;
 }
 // 홈 숫자: 기존 계산식 그대로 (예상 순현금흐름 = 남은 돈 − 남은 고정비, 자유롭게 쓸 수 있는 돈 = 예상 순현금흐름 − 저축 목표까지 − 세금 적립)
@@ -20210,7 +20229,7 @@ function homeGoals(data, month, statsOf, firstMonth) {
     const budgets = budgetMap(data);
     const varB = budgets._variable || 0, total = budgets._total || 0;
     const B = varB || total;
-    const budget = B ? { target: B, used: varB ? st.variable : st.expense + st.fixedUnpaid, label: varB ? '변동비 예산' : '이번 달 예산' } : null;
+    const budget = B ? { target: B, used: varB ? st.variable : st.expense + st.spendUnpaid, label: varB ? '변동비 예산' : '이번 달 예산' } : null;
     const save = settings.savingTarget ? { target: settings.savingTarget, have: st.saving } : null;
     const RI = taxProfileOf(data) ? reserveInfo(data, statsOf) : {};
     const rs = Object.values(RI).filter((r) => r.target != null && r.target > 0);
@@ -20550,7 +20569,7 @@ function IncomePanel() {
         React.createElement(IncomeTrend, null),
         React.createElement("section", { className: "card" },
             React.createElement("div", { className: "card-h" },
-                React.createElement("h3", null, "\uAC1C\uC778 \uC218\uC785 (\uC2E4\uC81C \uB4E4\uC5B4\uC628 \uB3C8)"),
+                React.createElement("h3", null, "\uC18C\uB4DD (\uADFC\uB85C\u00B7\uC0AC\uC5C5\u00B7\uAE30\uD0C0)"),
                 React.createElement("b", { className: "num" },
                     won(st.income),
                     "\uC6D0")),
@@ -20576,7 +20595,7 @@ function IncomePanel() {
 const ANA_GROUPS = {
     income: [],
     spend: [['spend', '지출'], ['budget', '예산']],
-    flow: [['flow', '현금흐름'], ['growth', '자산 추이'], ['insight', '인사이트'], ['sim', '시뮬레이션']],
+    flow: [['flow', '현금흐름'], ['growth', '자산 추이'], ['sim', '시뮬레이션']],
 };
 const ANA_TABS = ['income', 'eff', ...ANA_GROUPS.spend.map((x) => x[0]), ...ANA_GROUPS.flow.map((x) => x[0])];
 const anaGroupOf = (t) => (ANA_GROUPS.flow.some((x) => x[0] === t) ? 'flow' : ANA_GROUPS.spend.some((x) => x[0] === t) ? 'spend' : 'income');
@@ -20663,18 +20682,19 @@ function AnalysisPage() {
         e(PeriodSeg, null),
         e(IncomeAnalysis, null),
         biz && e("details", { className: "more-sec", open: t === 'eff' },
-            e("summary", null, "사업·수입원 상세", e("span", null, "효율 · 수입원별 손익 · OAOC")),
+            e("summary", null, "사업·수입원 상세", e("span", null, "효율 · 수입원별 손익 · OAOC · 주문")),
             e("div", { className: "stack" },
                 e(ProfitOverview, null),
                 e(EfficiencyCompare, null),
                 e(IncomePanel, null),
                 e("h3", { className: "sec-t" }, "OAOC 상세"),
-                e(WorkPanel, { mode: "eff" }))))
+                e(WorkPanel, { mode: "eff" }),
+                e("h3", { className: "sec-t" }, "주문"),
+                e(OrdersPanel, null))))
         : t === 'spend' ? e(SpendAnalysis, { part: "spend" }, e(RecurringCard, null))
             : t === 'budget' ? e(BudgetPanel, null)
                 : t === 'flow' ? e(SpendAnalysis, { part: "flow" })
                     : t === 'growth' ? e(AssetGrowthPanel, null)
-                        : t === 'insight' ? e(InsightsPanel, null)
                             : e(React.Fragment, null,
                                 e("h3", { className: "sec-t" }, "다음 달 예상"),
                                 e(FlowForecast, null),
@@ -22812,7 +22832,7 @@ function buildInsights(data, statsOf, firstMonth, P) {
     const out = [];
     if (!firstMonth)
         return out;
-    const add = (x) => { if (!(P.off && P.off[x.type]))
+    const add = (x) => { if (INSIGHT_KEEP.includes(x.type) && !(P.off && P.off[x.type]))
         out.push(x); };
     const t = today(), tm = thisMonth(), pm = addM(tm, -1), day = +t.slice(8), D = dim(tm);
     const st = statsOf(tm), pv = statsOf(pm);
@@ -22823,7 +22843,7 @@ function buildInsights(data, statsOf, firstMonth, P) {
     if (has(prev3[2]) && has(pm)) {
         const avg = sum(prev3, (m) => statsOf(m).income) / 3;
         if (avg > 0 && pv.income < avg * (1 - (P.incomeDropPct || 20) / 100))
-            add({ type: 'incomeDrop', key: `incomedown:${pm}`, level: 'warn', cat: '수입', title: `${mShort(pm)} 개인 수입이 평균보다 ${Math.round(-change(pv.income, avg))}% 적었어요`, body: `${mShort(pm)} ${won(pv.income)}원 · 직전 3개월 평균 ${won(avg)}원`, why: '고정비와 저축 계획을 평균 수입에 맞춰 두었다면 이번 달 현금이 부족해질 수 있어요.', action: '변동비 예산을 줄이거나 이번 달 저축 목표를 낮춰 현금흐름을 맞춰 보세요.', target: { page: 'analysis', anaTab: 'income', month: pm } });
+            add({ type: 'incomeDrop', key: `incomedown:${pm}`, level: 'warn', cat: '수입', title: `${mShort(pm)} 소득이 평균보다 ${Math.round(-change(pv.income, avg))}% 적었어요`, body: `${mShort(pm)} ${won(pv.income)}원 · 직전 3개월 평균 ${won(avg)}원`, why: '고정비와 저축 계획을 평균 수입에 맞춰 두었다면 이번 달 현금이 부족해질 수 있어요.', action: '변동비 예산을 줄이거나 이번 달 저축 목표를 낮춰 현금흐름을 맞춰 보세요.', target: { page: 'analysis', anaTab: 'income', month: pm } });
     }
     // 2. 고정비 비중 증가
     const prevMs = [1, 2, 3].map((k) => addM(tm, -k)).filter(has);
@@ -22842,7 +22862,7 @@ function buildInsights(data, statsOf, firstMonth, P) {
         if (bm._total && projected > bm._total && st.expense <= bm._total)
             add({ type: 'budgetForecast', key: `budgetfc:${tm}`, level: 'warn', cat: '지출', title: '지금 추세라면 이번 달 예산을 넘을 것 같아요', body: `예상 지출 ${won(projected)}원 · 예산 ${won(bm._total)}원`, why: '예산을 넘긴 만큼 저축이나 세금 준비금에서 메워야 해요.', action: `남은 ${D - day + 1}일 동안 하루 ${won(Math.max(0, bm._total - st.expense - st.fixedUnpaid) / (D - day + 1))}원 안에서 써 보세요.`, target: { page: 'plan', planTab: 'budget' } });
         if (st.income > 0 && projected > st.income)
-            add({ type: 'overspend', key: `overspend:${tm}`, level: 'warn', cat: '지출', title: '이번 달 지출이 수입을 넘을 수 있어요', body: `지금 속도면 예상 지출 ${won(projected)}원 · 개인 수입 ${won(st.income)}원`, why: '수입보다 많이 쓰면 그만큼 모아둔 돈이 줄어요.', action: '남은 기간 변동비를 줄이거나 미룰 수 있는 지출을 다음 달로 넘겨 보세요.', target: { page: 'analysis', anaTab: 'spend', month: tm } });
+            add({ type: 'overspend', key: `overspend:${tm}`, level: 'warn', cat: '지출', title: '이번 달 지출이 수입을 넘을 수 있어요', body: `지금 속도면 예상 지출 ${won(projected)}원 · 소득 ${won(st.income)}원`, why: '수입보다 많이 쓰면 그만큼 모아둔 돈이 줄어요.', action: '남은 기간 변동비를 줄이거나 미룰 수 있는 지출을 다음 달로 넘겨 보세요.', target: { page: 'analysis', anaTab: 'spend', month: tm } });
     }
     // 4. 카테고리 지출 증가
     if (has(pm))
@@ -22952,7 +22972,7 @@ function IncomeTrend() {
         firstMonth ? React.createElement(BarChart, { labels: series.map(mShort), series: top.map((id, i) => ({ name: sourceName(data, id), color: PALETTE[i % PALETTE.length], values: totals.map((t) => (t ? Math.max(0, (t[id] || {}).earned || 0) : null)) })) }) : React.createElement("p", { className: "muted small" }, "\uAE30\uB85D\uC774 \uC313\uC774\uBA74 \uBCF4\uC5EC\uB4DC\uB824\uC694."),
         React.createElement("div", { className: "mini-rows" },
             React.createElement("div", null,
-                React.createElement("span", null, "\uC218\uC785 \uBCC0\uB3D9\uC131 (6\uAC1C\uC6D4, \uAC1C\uC778 \uC218\uC785)"),
+                React.createElement("span", null, "\uC218\uC785 \uBCC0\uB3D9\uC131 (6\uAC1C\uC6D4, \uC18C\uB4DD)"),
                 React.createElement("b", { className: "num" }, ip.ok ? `${fmtPct(ip.cv * 100)} · 표준편차 ${won(ip.sd)}원` : `데이터 부족 (${ip.have}/3개월)`)),
             React.createElement("div", null,
                 React.createElement("span", null, "\uBCF4\uC218\uC801\uC73C\uB85C \uBCF8 \uC6D4 \uC218\uC785"),
@@ -22960,7 +22980,7 @@ function IncomeTrend() {
             React.createElement("div", null,
                 React.createElement("span", null, "\uC218\uC785\uC6D0 \uC9D1\uC911\uB3C4 (\uAC00\uC7A5 \uD070 \uC218\uC785\uC6D0 \uBE44\uC911)"),
                 React.createElement("b", { className: "num" }, share != null ? `${sourceName(data, top[0])} ${fmtPct(share)}` : '—'))),
-        React.createElement("p", { className: "small muted" }, "\uBCC0\uB3D9\uC131 = \uC6D4\uBCC4 \uAC1C\uC778 \uC218\uC785\uC758 \uD45C\uC900\uD3B8\uCC28 \u00F7 \uD3C9\uADE0. \uBCF4\uC218\uC801 \uC218\uC785 = \uCD5C\uADFC 3\uAC1C\uC6D4 \uD3C9\uADE0\uACFC (6\uAC1C\uC6D4 \uD3C9\uADE0 \u2212 \uD45C\uC900\uD3B8\uCC28) \uC911 \uC791\uC740 \uAC12.")));
+        React.createElement("p", { className: "small muted" }, "\uBCC0\uB3D9\uC131 = \uC6D4\uBCC4 \uC18C\uB4DD\uC758 \uD45C\uC900\uD3B8\uCC28 \u00F7 \uD3C9\uADE0. \uBCF4\uC218\uC801 \uC218\uC785 = \uCD5C\uADFC 3\uAC1C\uC6D4 \uD3C9\uADE0\uACFC (6\uAC1C\uC6D4 \uD3C9\uADE0 \u2212 \uD45C\uC900\uD3B8\uCC28) \uC911 \uC791\uC740 \uAC12.")));
 }
 function EfficiencyCompare() {
     const { data, month, statsOf, firstMonth } = useApp();
@@ -23032,7 +23052,7 @@ function FlowForecast() {
             React.createElement("span", { className: "est-tag" }, "\uC608\uCE21")),
         React.createElement(Seg, { small: true, value: scen, onChange: setScen, options: [[0, '지금 그대로'], [-10, '수입 −10%'], [-20, '수입 −20%'], [-30, '수입 −30%']] }),
         !fc.ok ? React.createElement("p", { className: "muted small", style: { marginTop: 10 } },
-            "\uAC1C\uC778 \uC218\uC785 \uAE30\uB85D\uC774 3\uAC1C\uC6D4 \uC774\uC0C1 \uC313\uC774\uBA74 \uC608\uCE21\uD574\uC694 (\uD604\uC7AC ",
+            "\uC18C\uB4DD \uAE30\uB85D\uC774 3\uAC1C\uC6D4 \uC774\uC0C1 \uC313\uC774\uBA74 \uC608\uCE21\uD574\uC694 (\uD604\uC7AC ",
             fc.have,
             "\uAC1C\uC6D4).") : (React.createElement(React.Fragment, null,
             React.createElement("div", { className: "table-wrap", style: { marginTop: 10 } },
@@ -23130,28 +23150,6 @@ function AssetGrowthPanel() {
                 React.createElement(BarChart, { labels: series.map(mShort), series: [{ name: '저축', color: 'var(--sage)', values: cumS }, { name: '투자 납입', color: 'var(--c-var)', values: cumI }] }),
                 React.createElement("p", { className: "small muted" }, "\uD22C\uC790\uB294 \uB123\uC740 \uC6D0\uAE08\uC774\uC5D0\uC694. \uD3C9\uAC00\uC561\uACFC \uC218\uC775\uB960\uC740 \uC790\uC0B0 \u203A \uD22C\uC790\uC5D0\uC11C \uBCFC \uC218 \uC788\uC5B4\uC694.")))));
 }
-function InsightsPanel() {
-    const { data, statsOf, firstMonth, go } = useApp();
-    const prefs = { ...DEFAULT_PREFS, ...(((data.settings.settings || {}).alertPrefs) || {}) };
-    const list = buildInsights(data, statsOf, firstMonth, prefs);
-    if (!list.length)
-        return React.createElement(Empty, { title: "\uC9C0\uAE08\uC740 \uADFC\uAC70\uAC00 \uCDA9\uBD84\uD55C \uC778\uC0AC\uC774\uD2B8\uAC00 \uC5C6\uC5B4\uC694." }, firstMonth ? '기록이 더 쌓이거나 변화가 생기면 이유와 함께 알려드려요. 데이터가 부족할 때는 조언을 만들지 않아요.' : '기록을 시작하면 분석해 드려요.');
-    return (React.createElement("div", { className: "stack" },
-        list.map((x) => (React.createElement("section", { key: x.key, className: cx('card insight', 'lv-' + x.level) },
-            React.createElement("div", { className: "alert-top" },
-                React.createElement("span", { className: cx('lv', LEVELS[x.level][1]) }, LEVELS[x.level][0]),
-                React.createElement("span", { className: "muted small" }, x.cat)),
-            React.createElement("p", { className: "alert-t" }, x.title),
-            React.createElement("p", { className: "alert-b" }, x.body),
-            React.createElement("dl", { className: "ins-dl" },
-                React.createElement("dt", null, "\uC65C \uC911\uC694\uD55C\uAC00"),
-                React.createElement("dd", null, x.why),
-                React.createElement("dt", null, "\uACE0\uB824\uD560 \uD589\uB3D9"),
-                React.createElement("dd", null, x.action)),
-            React.createElement("button", { className: "link", onClick: () => go(x.target) }, "\uAD00\uB828 \uD654\uBA74 \uBCF4\uAE30 \u203A")))),
-        React.createElement("p", { className: "small muted" }, "\uC778\uC0AC\uC774\uD2B8\uB294 \uAE30\uB85D\uD55C \uB370\uC774\uD130\uC640 \uD45C\uC2DC\uB41C \uACC4\uC0B0 \uAE30\uC900\uC73C\uB85C\uB9CC \uB9CC\uB4E4\uC5B4\uC694. \uC911\uC694(\uC8FC\uC758 \uC774\uC0C1) \uC778\uC0AC\uC774\uD2B8\uB294 \uD83D\uDD14 \uC54C\uB9BC\uC13C\uD130\uC5D0\uB3C4 \uD55C \uBC88\uB9CC \uD45C\uC2DC\uB3FC\uC694.")));
-}
-/* ───────── 계획: 예산 · 저축 · 비상자금 · 시뮬레이션 ───────── */
 function planBaseline(data, statsOf, firstMonth) {
     const tm = thisMonth();
     const ms = [1, 2, 3].map((k) => addM(tm, -k)).filter((m) => firstMonth && m >= firstMonth);
@@ -23193,7 +23191,7 @@ function BudgetPanel() {
     const total = budgets._total || 0, varB = budgets._variable || 0;
     const remainDays = month === tm ? dim(month) - +t.slice(8) + 1 : month > tm ? dim(month) : 0;
     const B = varB || total;
-    const used = varB ? st.variable : st.expense + st.fixedUnpaid;
+    const used = varB ? st.variable : st.expense + st.spendUnpaid;
     const left = B - used;
     const pct = B ? Math.round((used / B) * 100) : 0;
     const r = 46, c = 2 * Math.PI * r;
@@ -23268,7 +23266,7 @@ function BudgetPanel() {
                 "\uB0A9\uBD80 ",
                 won(st.fixedPaid),
                 " \u00B7 \uB0A8\uC74C ",
-                won(st.fixedUnpaid)))));
+                won(st.spendUnpaid)))));
 }
 function SavingPlanPanel() {
     const { data, statsOf, firstMonth, month, openSheet } = useApp();
@@ -23283,7 +23281,7 @@ function SavingPlanPanel() {
     const recentGoal = (gid) => { const ms = [0, 1, 2].map((k) => addM(thisMonth(), -k)); return sum(live(data.tx).filter((t) => t.type === 'saving' && t.goalId === gid && ms.includes(t.date.slice(0, 7))), (t) => t.amount) / 3; };
     const avgSave = R.b.saving;
     return (React.createElement("div", { className: "stack" },
-        React.createElement("section", { className: "card" },
+        React.createElement("details", { className: "more-sec sv-rec" }, React.createElement("summary", null, "\uAD8C\uC7A5 \uC800\uCD95 \uBC94\uC704", React.createElement("span", null, "\uC218\uC785\u00B7\uD544\uC218 \uC9C0\uCD9C\uB85C \uACC4\uC0B0\uD55C \uCD94\uC815\uCE58")), React.createElement("section", { className: "card" },
             React.createElement("div", { className: "card-h" },
                 React.createElement("h3", null, "\uAD8C\uC7A5 \uC800\uCD95 \uBC94\uC704"),
                 React.createElement("span", { className: "est-tag" }, "\uCD94\uC815")),
@@ -23328,10 +23326,10 @@ function SavingPlanPanel() {
                             won(R.max),
                             "\uC6D0"))),
                 React.createElement("p", { className: "small muted" }, "\uC218\uC785 \uBCC0\uB3D9\uC131\uC774 \uD074\uC218\uB85D \uBC94\uC704\uAC00 \uB113\uC5B4\uC838\uC694. \uC218\uC785\uC774 \uC801\uC740 \uB2EC\uC5D0\uB294 \uC544\uB798\uCABD \uAE08\uC561\uC744, \uB9CE\uC740 \uB2EC\uC5D0\uB294 \uC704\uCABD \uAE08\uC561\uC744 \uAE30\uC900\uC73C\uB85C \uC0BC\uC544 \uBCF4\uC138\uC694."))) : React.createElement("p", { className: "muted small" },
-                "\uAC1C\uC778 \uC218\uC785\uC774 3\uAC1C\uC6D4 \uC774\uC0C1 \uC313\uC5EC\uC57C \uBCC0\uB3D9\uC131\uAE4C\uC9C0 \uACE0\uB824\uD55C \uBC94\uC704\uB97C \uACC4\uC0B0\uD574\uC694 (\uD604\uC7AC ",
+                "\uC18C\uB4DD\uC774 3\uAC1C\uC6D4 \uC774\uC0C1 \uC313\uC5EC\uC57C \uBCC0\uB3D9\uC131\uAE4C\uC9C0 \uACE0\uB824\uD55C \uBC94\uC704\uB97C \uACC4\uC0B0\uD574\uC694 (\uD604\uC7AC ",
                 R.have,
-                "\uAC1C\uC6D4).")),
-        React.createElement("section", { className: "card" },
+                "\uAC1C\uC6D4)."))),
+        React.createElement("section", { className: "card sv-a" },
             React.createElement("div", { className: "card-h" },
                 React.createElement("h3", null,
                     mShort(month),
@@ -23349,7 +23347,7 @@ function SavingPlanPanel() {
                     React.createElement("span", null, "\uB2EC\uC131\uB960"),
                     React.createElement("b", { className: "num" }, settings.savingTarget ? fmtPct(ratio(st.saving, settings.savingTarget)) : '목표 미설정')),
                 React.createElement("div", null,
-                    React.createElement("span", null, "\uC800\uCD95\uB960 (\uC800\uCD95\u00B7\uD22C\uC790 \u00F7 \uAC1C\uC778 \uC218\uC785)"),
+                    React.createElement("span", null, "\uC800\uCD95\uB960 (\uC800\uCD95\u00B7\uD22C\uC790 \u00F7 \uC18C\uB4DD)"),
                     React.createElement("b", { className: "num" }, fmtPct(st.savingRate))),
                 R.ok && settings.savingTarget > R.base && React.createElement("div", null,
                     React.createElement("span", { className: "warn-t" }, "\uBAA9\uD45C\uAC00 \uAD8C\uC7A5 \uBC94\uC704\uBCF4\uB2E4 \uB192\uC544\uC694"),
@@ -23358,7 +23356,7 @@ function SavingPlanPanel() {
                         won(settings.savingTarget - R.base),
                         "\uC6D0"))),
             React.createElement(LineChart, { labels: series.map(mShort), series: [{ name: '월별 저축률', color: 'var(--sage)', values: rates }] })),
-        React.createElement("section", { className: "card" },
+        React.createElement("section", { className: "card sv-b" },
             React.createElement("div", { className: "card-h" },
                 React.createElement("h3", null, "\uBAA9\uC801\uBCC4 \uBAA9\uD45C"),
                 React.createElement("button", { className: "link", onClick: () => openSheet('goal') }, "\uBAA9\uD45C \uCD94\uAC00")),
@@ -23520,7 +23518,7 @@ function SimulationPanel() {
                             React.createElement("th", null, "\uC9C0\uAE08"),
                             React.createElement("th", null, "\uBC14\uAFB8\uBA74"))),
                     React.createElement("tbody", null,
-                        row('개인 수입', income0, income1),
+                        row('소득', income0, income1),
                         row('고정비', b.fixed, fixed1),
                         row('생활비 (변동비 평균)', b.variable, b.variable),
                         row('세금 준비금', b.taxM, b.taxM),
@@ -24351,12 +24349,6 @@ function ScenarioPanel() {
             React.createElement("button", { className: "btn small", onClick: save }, "\uBAA9\uD45C\u00B7\uC131\uD5A5\u00B7\uAC00\uC815 \uC800\uC7A5"))));
 }
 /* ───────── 사업 ───────── */
-function BusinessPage() {
-    const { bizTab, setBizTab } = useApp();
-    return (React.createElement("div", { className: "stack" },
-        React.createElement(Seg, { value: bizTab, onChange: setBizTab, options: [['summary', '요약'], ['work', '근무'], ['orders', '주문'], ['tax', '세금']] }),
-        bizTab === 'work' ? React.createElement(WorkPanel, null) : bizTab === 'orders' ? React.createElement(OrdersPanel, null) : bizTab === 'tax' ? React.createElement(TaxPanel, null) : React.createElement(BizSummary, null)));
-}
 function BizSummary() {
     const { month, statsOf, firstMonth, openSheet } = useApp();
     const st = statsOf(month), pv = statsOf(addM(month, -1));
@@ -24819,7 +24811,7 @@ function FixedPage() {
                         React.createElement("small", null, "\uC6D0")),
                     React.createElement(Delta, { cur: total, prev: prevTotal, good: tab === 'expense' ? 'down' : 'up', hasPrev: prevTotal > 0 || total > 0 })),
                 tab === 'expense' && React.createElement("div", { className: "ratio-box" },
-                    React.createElement("p", { className: "stat-l" }, "\uAC1C\uC778 \uC218\uC785 \uB300\uBE44"),
+                    React.createElement("p", { className: "stat-l" }, "\uC18C\uB4DD \uB300\uBE44"),
                     React.createElement("p", { className: "stat-v num" }, fmtPct(st.fixedRatio)))),
             tab === 'expense' && React.createElement(Progress, { value: st.fixedTotal, max: st.income, tone: "dark" }),
             React.createElement("div", { className: "mini-rows" },
@@ -25460,7 +25452,7 @@ function EntrySheet({ tx, prefill, onClose }) {
     const moveNote = {
         transfer: '내 계좌끼리 옮긴 돈은 수입·지출에 포함되지 않아요. 대출 계좌로 보내면 남은 원금이 줄어요.',
         cardpay: '카드 사용액은 쓴 날 지출로 이미 잡혀 있어요. 카드대금 납부는 지출로 다시 세지 않고 카드 빚을 갚는 이동으로만 기록해요.',
-        draw: '사업에서 개인으로 가져온 돈이에요. 개인 수입에는 잡히고, 사업 매출로는 다시 세지 않아요.',
+        draw: '사업에서 개인으로 가져온 돈이에요. 이미 사업소득에 들어 있어서 소득으로 다시 세지 않아요.',
     }[type];
     const methods = payMethodsOf(data);
     const payVal = pmNew ? '__new' : payMethod ? 'pm:' + payMethod : accountId;
@@ -25864,82 +25856,6 @@ function MyPage({ part = 'settings' }) {
                 React.createElement(AccountPanel, null),
                 (status === 'error' || status === 'quota') && React.createElement("button", { className: "btn small", onClick: retry }, "\uB3D9\uAE30\uD654 \uB2E4\uC2DC \uC2DC\uB3C4")))),
         part === 'settings' && React.createElement(ViewSettings, null),
-        part === 'assets' && (React.createElement(React.Fragment, null,
-            React.createElement("section", { className: "card" },
-                React.createElement("div", { className: "card-h" },
-                    React.createElement("h3", null, "\uC790\uC0B0\u00B7\uACC4\uC88C"),
-                    React.createElement("button", { className: "link", onClick: () => openSheet('account') }, "\uACC4\uC88C \uCD94\uAC00")),
-                React.createElement("div", { className: "asset-sum" },
-                    React.createElement("div", null,
-                        React.createElement("span", { className: "muted small" }, "\uC21C\uC790\uC0B0"),
-                        React.createElement("p", { className: cx('num big', netWorth < 0 && 'neg') },
-                            won(netWorth),
-                            "\uC6D0")),
-                    React.createElement("div", null,
-                        React.createElement("span", { className: "muted small" }, "\uC2E4\uC81C \uC4F8 \uC218 \uC788\uB294 \uB3C8"),
-                        React.createElement("p", { className: cx('num big', usable < 0 && 'neg') }, accounts.length ? won(usable) + '원' : '—'))),
-                accounts.length > 0 && React.createElement("p", { className: "small muted" },
-                    "\uC4F8 \uC218 \uC788\uB294 \uB3C8 = \uAC1C\uC778 \uD604\uAE08\u00B7\uC785\uCD9C\uAE08 ",
-                    won(cash),
-                    " \u2212 \uCE74\uB4DC \uACB0\uC81C \uC608\uC815 ",
-                    won(cardDue),
-                    " \u2212 \uC774\uBC88 \uB2EC \uB0A8\uC740 \uACE0\uC815\uBE44 ",
-                    won(curSt.fixedUnpaid)),
-                groups.length ? groups.map((g) => (React.createElement("div", { key: g.k, className: "acc-group" },
-                    React.createElement("p", { className: "sec-t" }, ACC_KINDS[g.k]),
-                    React.createElement("ul", { className: "rows" }, g.items.map((a) => (React.createElement("li", { key: a.id },
-                        React.createElement("button", { className: "row", onClick: () => openSheet('account', { acc: a }) },
-                            React.createElement("span", { className: "row-main" },
-                                React.createElement("span", { className: "row-t" },
-                                    a.name,
-                                    a.scope === 'business' && React.createElement("span", { className: "badge" }, "\uC0AC\uC5C5")),
-                                a.memo && React.createElement("span", { className: "row-s" }, a.memo)),
-                            React.createElement("span", { className: cx('row-amt num', bal[a.id] < 0 && 'neg') }, a.kind === 'card' ? (bal[a.id] < 0 ? `결제 예정 ${won(-bal[a.id])}` : won(bal[a.id])) : won(bal[a.id])))))))))) : React.createElement("p", { className: "muted small" }, "\uACC4\uC88C\uB97C \uCD94\uAC00\uD558\uBA74 \uC794\uC561\u00B7\uCE74\uB4DC \uACB0\uC81C \uC608\uC815\uC561\u00B7\uC21C\uC790\uC0B0\uC774 \uAC70\uB798\uC5D0 \uB9DE\uCDB0 \uC790\uB3D9\uC73C\uB85C \uACC4\uC0B0\uB3FC\uC694.")))),
-        part === 'saving' && (React.createElement(React.Fragment, null,
-            React.createElement("section", { className: "card" },
-                React.createElement("div", { className: "card-h" },
-                    React.createElement("h3", null, "\uC800\uCD95 \uBAA9\uD45C"),
-                    React.createElement("div", { className: "row-gap" },
-                        React.createElement("button", { className: "link", onClick: () => openSheet('target') }, "\uC6D4 \uBAA9\uD45C"),
-                        React.createElement("button", { className: "link", onClick: () => openSheet('goal') }, "\uBAA9\uD45C \uCD94\uAC00"))),
-                React.createElement("div", { className: "mini-rows" },
-                    React.createElement("div", null,
-                        React.createElement("span", null,
-                            mShort(month),
-                            " \uC800\uCD95\u00B7\uD22C\uC790"),
-                        React.createElement("b", { className: "num" },
-                            won(st.saving),
-                            "\uC6D0",
-                            settings.savingTarget ? ` / ${won(settings.savingTarget)}원` : '')),
-                    settings.savingTarget > 0 && React.createElement(Progress, { value: st.saving, max: settings.savingTarget, tone: "sage" }),
-                    React.createElement("div", null,
-                        React.createElement("span", null, "\uB2EC\uC131\uB960"),
-                        React.createElement("b", { className: "num" }, settings.savingTarget ? fmtPct(ratio(st.saving, settings.savingTarget)) : '월 목표 미설정')),
-                    React.createElement("div", null,
-                        React.createElement("span", null, "\uC800\uCD95\uB960"),
-                        React.createElement("b", { className: "num" }, fmtPct(st.savingRate))),
-                    React.createElement("div", null,
-                        React.createElement("span", null, "\uB204\uC801 \uC800\uCD95\u00B7\uD22C\uC790"),
-                        React.createElement("b", { className: "num" },
-                            won(cumSaving),
-                            "\uC6D0"))),
-                goals.length > 0 && React.createElement("ul", { className: "goal-list" }, goals.map((g) => (React.createElement("li", { key: g.id },
-                    React.createElement("button", { className: "row", onClick: () => openSheet('goal', { goal: g }) },
-                        React.createElement("span", { className: "row-main" },
-                            React.createElement("span", { className: "row-t" }, g.name),
-                            React.createElement("span", { className: "row-s num" },
-                                won(savedBy[g.id] || 0),
-                                " / ",
-                                won(g.target),
-                                "\uC6D0 \u00B7 ",
-                                fmtPct(ratio(savedBy[g.id] || 0, g.target))))),
-                    React.createElement(Progress, { value: savedBy[g.id] || 0, max: g.target, tone: "sage" })))))))),
-        part === 'budget' && (React.createElement(React.Fragment, null,
-            React.createElement("section", { className: "card" },
-                React.createElement("div", { className: "card-h" },
-                    React.createElement("h3", null, "\uC608\uC0B0"),
-                    React.createElement("button", { className: "link", onClick: () => openSheet('budget') }, "\uC124\uC815")),
-                React.createElement(BudgetSummary, null)))),
         part === 'settings' && (React.createElement(React.Fragment, null,
             React.createElement("section", { className: "card" },
                 React.createElement("div", { className: "card-h" },
