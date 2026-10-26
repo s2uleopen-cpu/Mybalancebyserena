@@ -1223,6 +1223,7 @@ html,body,#root{height:100%;overflow:hidden}
 .entry .amount-help{display:block;text-align:center;font-size:11px}
 .entry>.field:first-child{margin-bottom:12px}
 .entry .entry-details{margin-top:16px}
+.message-input{margin:12px 0;min-height:130px;resize:vertical}.message-raw{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;font:12px/1.6 inherit;background:var(--chip);padding:12px;border-radius:12px;max-height:200px;overflow:auto}.message-candidate{border:1px solid var(--line);border-radius:16px;padding:14px;margin:14px 0}.message-candidate .hcard-h{flex-wrap:wrap}.message-candidate .check{font-size:12px}
 </style>
 </head>
 <body>
@@ -18721,7 +18722,8 @@ function useStore() {
   changes.forEach(({kind,rec})=>{const b=bucketOf(kind,rec);R.queue[b]={...(R.queue[b]||{}),[rec.id]:rec};});
   setStatus('syncing');clearTimeout(R.timer);R.timer=setTimeout(flushQueue,300);
  },[flushQueue]);
- const commit=useCallback(changes=>{
+ const commit=useCallback((changes,expectedSession)=>{
+  if(expectedSession!==undefined&&expectedSession!==ref.current.epoch+'|'+ref.current.key)throw new Error('계정이 변경됐어요. 가져오기를 다시 열어 주세요.');
   if(!changes.length)return true;
   const R=ref.current;
   const base=mergeData(R.data,loadLocal(R.key)||emptyData());
@@ -18811,7 +18813,7 @@ function useStore() {
   })().catch(e=>{if(!stopped){console.error(e);setStatus('error');}});
   return()=>{stopped=true;disconnect();unAuth?.();};
  },[apply,enqueue,saveDisk]);
- return {data,user,status,choice,commit,retry,localState,lastSaved};
+ return {data,user,status,choice,commit,retry,localState,lastSaved,getSessionToken:()=>ref.current.epoch+'|'+ref.current.key,getCurrentData:()=>ref.current.data};
 }
 
 /* ───────── 계산 ───────── */
@@ -19920,7 +19922,7 @@ function SyncChoice() {
 }
 function SheetRouter({ sheet }) {
     const { closeSheet, finishSheet } = useApp();
-    const C = { moneyAdvisor: MoneyAdvisorSheet, profile: ProfileSheet, basis: BasisSheet, valuation: ValuationSheet, investFlow: InvestFlowSheet, emergency: EmergencySheet, categories: CategorySheet, sources: SourceSheet, cardImport: CardImportSheet, estimate: EstimateSheet, filing: FilingSheet, taxProfile: TaxProfileSheet, reserveRates: ReserveRatesSheet, work: WorkSheet, workPrefs: WorkPrefsSheet, jobs: JobsSheet, order: OrderSheet, alerts: AlertSheet, alertPrefs: AlertPrefsSheet, entry: EntrySheet, addPick: AddPickSheet, pay: PaySheet, bulk: BulkSheet, rule: RuleSheet, account: AccountSheet, loan: LoanSheet, loanPay: LoanPaymentSheet, budget: BudgetSheet, goal: GoalSheet, biz: BizSheet, target: TargetSheet, importer: ImportSheet }[sheet.type];
+    const C = { messageImport: MessageImportSheet, moneyAdvisor: MoneyAdvisorSheet, profile: ProfileSheet, basis: BasisSheet, valuation: ValuationSheet, investFlow: InvestFlowSheet, emergency: EmergencySheet, categories: CategorySheet, sources: SourceSheet, cardImport: CardImportSheet, estimate: EstimateSheet, filing: FilingSheet, taxProfile: TaxProfileSheet, reserveRates: ReserveRatesSheet, work: WorkSheet, workPrefs: WorkPrefsSheet, jobs: JobsSheet, order: OrderSheet, alerts: AlertSheet, alertPrefs: AlertPrefsSheet, entry: EntrySheet, addPick: AddPickSheet, pay: PaySheet, bulk: BulkSheet, rule: RuleSheet, account: AccountSheet, loan: LoanSheet, loanPay: LoanPaymentSheet, budget: BudgetSheet, goal: GoalSheet, biz: BizSheet, target: TargetSheet, importer: ImportSheet }[sheet.type];
     const value = useMemo(() => ({ leaving: !!sheet.leaving, swap: !!sheet.swap, done: () => finishSheet(sheet.k) }), [sheet, finishSheet]);
     return React.createElement(SheetCtx.Provider, { value }, React.createElement(C, { key: sheet.k, ...sheet.props, onClose: closeSheet }));
 }
@@ -25336,12 +25338,13 @@ function AddPickSheet({ onClose }) {
     const { openSheet } = useApp();
     const h = React.createElement;
     const opts = [
+        ['messageImport', 'copy', '📋 거래 알림 붙여넣기', '문자·카카오톡·은행 알림 분석 후 저장'],
         ['expense', 'receipt', '나간 돈', '지출 · 세금 · 카드 결제'],
         ['income', 'wallet', '들어온 돈', '개인 · 사업 수입'],
         ['transfer', 'repeat', '옮긴 돈', '저축 · 내 계좌 이체 · 카드대금 · 사업 인출'],
     ];
     return (h(Sheet, { title: "무엇을 기록할까요?", onClose },
-        h("div", { className: "pick-list" }, opts.map(([type, ic, t, d]) => h("button", { key: type, type: "button", className: "pick-i", onClick: () => openSheet('entry', { prefill: { type } }) },
+        h("div", { className: "pick-list" }, opts.map(([type, ic, t, d]) => h("button", { key: type, type: "button", className: "pick-i", onClick: () => type==='messageImport'?openSheet('messageImport'):openSheet('entry', { prefill: { type } }) },
             h("span", { className: "pick-ic" }, h(Icon, { n: ic, s: 22 })),
             h("span", { className: "pick-t" }, h("b", null, t), h("span", null, d)),
             h(Icon, { n: "right", s: 16, className: "chev" }))))));
@@ -25379,7 +25382,7 @@ function loanPaymentChanges(data, loan, form, old = []) {
  }});
  return changes;
 }
-function LoanPaymentSheet({loanId,paymentId,legacy,initialPrincipal,initialInterest,initialDate,initialFrom,onClose}) {
+function LoanPaymentSheet({loanId,paymentId,legacy,initialPrincipal,initialInterest,initialDate,initialFrom,onDraft,onClose}) {
  const {data,commit,toast,setMonth,accounts,openSheet}=useApp(),h=React.createElement;
  const loan=data.account[loanId];
  const old=paymentId?live(data.tx).filter(t=>t.paymentId===paymentId):legacy?[data.tx[legacy.id]||legacy]:[];
@@ -25399,14 +25402,15 @@ function LoanPaymentSheet({loanId,paymentId,legacy,initialPrincipal,initialInter
  const save=()=>{if(lock.current)return;lock.current=true;try{
   if(!confirmed)throw new Error('기존 금액의 원금·이자 구분을 확인해 주세요.');
   const changes=loanPaymentChanges(data,loan,{...f,date:old.length||dateTouched?f.date:today()},old);
+  if(onDraft){onDraft(changes);onClose();return;}
   commit(changes);setMonth(changes.find(c=>c.kind==='tx'&&!c.rec.deleted).rec.date.slice(0,7));toast('납부를 기기에 저장했어요');onClose();
  }catch(e){setErr(e.message);lock.current=false;}};
  const cancel=async()=>{if(!(await ask({title:'이 납부를 취소할까요?',body:'원금과 이자가 함께 취소되고 계좌·대출 잔액이 복원돼요.',confirmLabel:'납부 취소',danger:true})))return;
   try{commit(old.map(rec=>({kind:'tx',rec:{...rec,deleted:true}})));toast('납부를 취소했어요');onClose();}catch(e){setErr(e.message);}};
  const candidates=live(data.tx).filter(t=>!t.paymentId&&t.date?.slice(0,7)===date.slice(0,7)&&['대출 상환','대출 이자'].includes(t.category));
- return h(Sheet,{title:paymentId?'대출 납부 수정':legacy?'기존 상환 연결':'대출 납부',onClose,dirty:JSON.stringify(f)!==JSON.stringify(initial),footer:h('div',{className:'grow'},h('p',{className:'small'},'기록 날짜: '+date.replace(/-/g,'.')),h('div',{className:'dual-btns'},paymentId&&h('button',{className:'btn',onClick:cancel},'납부 취소'),h('button',{className:'btn primary grow',onClick:save},paymentId?'수정 저장':'납부 완료')))},
+ return h(Sheet,{title:paymentId?'대출 납부 수정':legacy?'기존 상환 연결':'대출 납부',onClose,dirty:JSON.stringify(f)!==JSON.stringify(initial),footer:h('div',{className:'grow'},h('p',{className:'small'},'기록 날짜: '+date.replace(/-/g,'.')),h('div',{className:'dual-btns'},paymentId&&h('button',{className:'btn',onClick:cancel},'납부 취소'),h('button',{className:'btn primary grow',onClick:save},onDraft?'검토 완료 (아직 저장 안 함)':paymentId?'수정 저장':'납부 완료')))},
   h('h3',null,loan.name),h('p',{className:'muted'},`${loan.lender||''} · 남은 원금 ${won(Math.max(0,-(accountBalances(data)[loanId]||0)))}원`),
-  h('p',{className:'note'},'예정 금액은 수정할 수 있어요. 납부 완료 시에만 출금·대출 잔액에 반영돼요.'),
+  h('p',{className:'note'},onDraft?'원금·이자 합계가 알림 금액과 같은지 확인해 주세요. 목록에서 최종 저장할 때 반영돼요.':'예정 금액은 수정할 수 있어요. 납부 완료 시에만 출금·대출 잔액에 반영돼요.'),
   h(Field,{label:'출금 계좌'},h('select',{className:'input',value:f.from,onChange:set('from')},h('option',{value:''},'선택'),accounts.filter(a=>!['loan','card'].includes(a.kind)).map(a=>h('option',{key:a.id,value:a.id},a.name)))),
   h('div',{className:'form-2'},h(Field,{label:'원금'},h(AmountInput,{value:f.principal,onChange:set('principal')})),h(Field,{label:'이자'},h(AmountInput,{value:f.interest,onChange:set('interest')}))),
   h('p',{className:'note'},`총 출금 ${won(Number(f.principal)+Number(f.interest))}원 · 대출 원금 감소 ${won(f.principal)}원`),
@@ -25421,7 +25425,7 @@ function EntrySheet(props) {
  return t?.paymentId?React.createElement(LoanPaymentSheet,{loanId:t.loanId,paymentId:t.paymentId,onClose:props.onClose}):React.createElement(EntrySheetBase,props);
 }
 
-function EntrySheetBase({ tx, prefill, onClose }) {
+function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
     const { data, commit, toast, accounts, openSheet, setMonth } = useApp();
     const h = React.createElement;
     const isEdit = !!tx;
@@ -25459,8 +25463,8 @@ function EntrySheetBase({ tx, prefill, onClose }) {
     const [settleAcc, setSettleAcc] = useState(sp0 ? sp0.settleAccountId || '' : '');
     const [adding, setAdding] = useState(false);
     const [newSrc, setNewSrc] = useState('');
-    const [date, setDate] = useState(tx ? tx.date : today());
-    const [dateTouched,setDateTouched]=useState(false),[clock,setClock]=useState(today());
+    const [date, setDate] = useState(tx ? tx.date : importedDate || today());
+    const [dateTouched,setDateTouched]=useState(!!importedDate),[clock,setClock]=useState(today());
     const [selectedLoan,setSelectedLoan]=useState('');
     const saveLock=useRef(false);
     useEffect(()=>{const t=setInterval(()=>setClock(today()),1000);return()=>clearInterval(t);},[]);
@@ -25668,7 +25672,7 @@ function EntrySheetBase({ tx, prefill, onClose }) {
                 Object.assign(rec, { evidence, nonDeductible, vatDeductible: vatType === 'taxable' && QUALIFY.includes(evidence) && !nonDeductible });
         }
         const changes = [{ kind: 'tx', rec }];
-        if (repeat && !isEdit && (tab === 'income' || tab === 'expense') && !isTax) {
+        if (repeat && !onDraft && !isEdit && (tab === 'income' || tab === 'expense') && !isTax) {
             const rid = newId(), m = date.slice(0, 7);
             rec.ruleId = rid;
             rec.occMonth = m;
@@ -25680,6 +25684,7 @@ function EntrySheetBase({ tx, prefill, onClose }) {
             const s0 = data.settings.settings || { id: 'settings' };
             changes.push({ kind: 'settings', rec: { ...s0, id: 'settings', payMethods: [...payMethodsOf(data), pm] } });
         }
+        if(onDraft){try{onDraft(changes);onClose();}catch(error){setErr(error.message);}return;}
         saveLock.current=true;
         try { commit(changes); } catch(error) {saveLock.current=false;setErr(error.message);return;}
         setMonth(date.slice(0,7));
@@ -25756,12 +25761,12 @@ function EntrySheetBase({ tx, prefill, onClose }) {
     const dirty=formSnapshot!==initialSnapshot.current;
     const Chip = (on, label, onClick, key, extra) => h("button", { key: key || label, type: "button", className: cx('chip', on && 'on', extra), onClick, "aria-pressed": !!on }, label);
     const showOrder = isBiz && !!orderId && live(data.order).length > 0;
-    if(selectedLoan) return h(LoanPaymentSheet,{loanId:selectedLoan,legacy:isEdit?tx:null,initialDate:dateTouched?date:undefined,initialFrom:accountId,initialPrincipal:catVal==='대출 이자'?0:!isEdit&&n?n:undefined,initialInterest:!isEdit&&n&&catVal==='대출 이자'?n:undefined,onClose:()=>{setSelectedLoan('');onClose();}});
-    return (h(Sheet, { title: isEdit ? '거래 수정' : '기록하기', onClose, dirty, footer: (h(React.Fragment, null,
+    if(selectedLoan) return h(LoanPaymentSheet,{loanId:selectedLoan,onDraft,legacy:isEdit?tx:null,initialDate:dateTouched?date:undefined,initialFrom:accountId,initialPrincipal:catVal==='대출 이자'?0:!isEdit&&n?n:undefined,initialInterest:!isEdit&&n&&catVal==='대출 이자'?n:onDraft?0:undefined,onClose:()=>{setSelectedLoan('');onClose();}});
+    return (h(Sheet, { title: onDraft?'가져올 거래 검토':isEdit ? '거래 수정' : '기록하기', onClose, dirty, footer: (h(React.Fragment, null,
             h("span",{className:"small entry-save-date"},"기록 날짜: "+effectiveDate.replace(/-/g,".")),
             isEdit && h("button", { className: "icon-btn", onClick: remove, "aria-label": "삭제" }, h(Icon, { n: "trash" })),
             isEdit && h("button", { className: "btn", onClick: copy }, h(Icon, { n: "copy", s: 16 }), "복사"),
-            h("button", { className: "btn primary grow", onClick: save }, isEdit ? '수정 저장' : '저장'))) },
+            h("button", { className: "btn primary grow", onClick: save }, onDraft?'검토 완료 (아직 저장 안 함)':isEdit ? '수정 저장' : '저장'))) },
         h("div", { className: "entry" },
                 h(Field, { label: "날짜" },
                     h("input", { className: "input", type: "date", value: effectiveDate, onChange: (e) => {setDateTouched(true);setDate(e.target.value);} })),
@@ -25907,10 +25912,10 @@ function EntrySheetBase({ tx, prefill, onClose }) {
                 h(Field, { label: "메모" },
                     h("input", { className: "input", value: memo, onChange: (e) => setMemo(e.target.value), placeholder: "예: 점심, 쿠팡" })),
                 tab === 'income' && !isBiz && catVal === '사업 수익' && h("p", { className: "note" }, "사업 계좌를 따로 쓰고 있다면 ‘이체 › 사업 인출’로 기록하는 게 더 정확해요. 둘 다 기록하면 개인 수입이 두 번 잡혀요."),
-                !isEdit && (tab === 'income' || tab === 'expense') && !isTax && (h("label", { className: "check" },
+                !onDraft && !isEdit && (tab === 'income' || tab === 'expense') && !isTax && (h("label", { className: "check" },
                     h("input", { type: "checkbox", checked: repeat, onChange: (e) => setRepeat(e.target.checked) }),
                     "매월 같은 날 반복 (", tab === 'income' ? '정기수입' : '고정비', "으로 등록)")),
-                tab !== 'transfer' && h("button", { type: "button", className: "btn small", onClick: saveFav },
+                !onDraft && tab !== 'transfer' && h("button", { type: "button", className: "btn small", onClick: saveFav },
                     h(Icon, { n: "star", s: 15 }),
                     "지금 입력을 즐겨찾기로 저장"))))));
 }
@@ -26359,6 +26364,8 @@ function validateBackup(j) {
    if(!r.deleted&&k==='tx'){
     if(!['income','expense','tax','saving','transfer','cardpay','draw'].includes(r.type)||!validDate(r.date)||!Number.isSafeInteger(r.amount)||r.amount<=0)fail('거래 '+id+' 유형·날짜·금액 오류');
    }
+   if(k==='tx'&&r.messageImport){const m=r.messageImport;if(!obj(m)||m.version!==1||['batchId','candidateId','fingerprint','identity','approval','time'].some(k=>typeof m[k]!=='string')||(m.raw!==undefined&&(typeof m.raw!=='string'||m.raw.length>100000)))fail('거래 알림 출처 정보 오류');}
+   if(k==='settings'&&r.messageImport){const m=r.messageImport;if(!obj(m)||(m.ignore!==undefined&&(!Array.isArray(m.ignore)||m.ignore.some(v=>typeof v!=='string'||v.length>80)))||(m.mappings!==undefined&&(!Array.isArray(m.mappings)||m.mappings.some(v=>!obj(v)||typeof v.identity!=='string'||typeof v.accountId!=='string'))))fail('알림 연결 설정 오류');}
    walk(r,k+'.'+id);
   });
  });
@@ -26474,6 +26481,162 @@ function DataSection({ busy, setBusy }) {
             " \uC911 \uC788\uB294 \uC5F4\uB9CC \uC77D\uC5B4\uC694), \uC774\uBBF8 \uC788\uB294 \uAC70\uB798\uC640 \uB611\uAC19\uC740 \uC904\uC740 \uAC74\uB108\uB6F0\uC5B4\uC694."),
         React.createElement("input", { ref: fileRef, type: "file", accept: ".json,.csv,.xlsx,.xls", hidden: true, onChange: onFile })));
 }
+/* Transaction message import: parsing and review never write transactions. */
+const MESSAGE_PARSER_VERSION=1;
+function messageFingerprint(text){let a=2166136261,b=5381;for(const c of text.replace(/\s+/g,' ').trim()){a=Math.imul(a^c.charCodeAt(0),16777619);b=Math.imul(b,33)^c.charCodeAt(0);}return (a>>>0).toString(16)+(b>>>0).toString(16);}
+function splitTransactionMessages(text){
+ const normalized=String(text||'').replace(/\r\n?/g,'\n').trim();
+ if(!normalized)return [];
+ // Explicit separators and repeated message headers; never split every line.
+ return normalized.split(/\n\s*---+\s*\n|\n\s*\n|(?=\[Web발신\])/i).map(x=>x.trim()).filter(Boolean);
+}
+function parseTransactionMessages(text,{data=emptyData(),date=today(),ignore=[]}={}){
+ if(text.length>100000)throw new Error('한 번에 100,000자 이하로 나눠 붙여넣어 주세요.');
+ const blocks=splitTransactionMessages(text);if(blocks.length>100)throw new Error('한 번에 최대 100건까지 검토할 수 있어요.');
+ return blocks.map((raw,index)=>{
+  const warnings=[],errors=[];let cleaned=raw;
+  ignore.filter(x=>x&&x.length<=80).forEach(x=>{cleaned=cleaned.split(x).join('');});
+  if(cleaned!==raw)warnings.push('문구 정리 적용: 원문과 분석 결과를 비교해 주세요.');
+  // Safety signals are read from the original, even when a removal rule matches them.
+  const blocked=/취소|환불|거절|승인실패|승인 실패|인증번호|인증 번호|\(광고\)/.test(raw);
+  if(blocked)errors.push('취소·환불·거절·인증·광고 문구는 자동 가져오기 대상이 아니에요. 기존 거래에서 직접 확인해 주세요.');
+  const full=[...cleaned.matchAll(/\b(20\d{2})[.\/-](\d{1,2})[.\/-](\d{1,2})(?!\d)/g)];
+  const korean=cleaned.match(/(20\d{2})년\s*(\d{1,2})월\s*(\d{1,2})일/);
+  const short=cleaned.match(/(?:^|[^\d.\/-])(\d{1,2})[\/.-](\d{1,2})(?![\d.\/-])/);
+  let parsedDate='',dateNeedsConfirm=false;
+  const fm=full[0]||korean;
+  if(fm)parsedDate=fm[1]+'-'+pad(+fm[2])+'-'+pad(+fm[3]);
+  else if(short){let year=+date.slice(0,4);if(+date.slice(5,7)===1&&+short[1]===12)year--;parsedDate=year+'-'+pad(+short[1])+'-'+pad(+short[2]);dateNeedsConfirm=true;warnings.push('연도가 없어 제안한 연도를 확인해 주세요.');}
+  else{parsedDate=date;dateNeedsConfirm=true;warnings.push('날짜가 없어 오늘을 제안했어요. 실제 거래일을 확인해 주세요.');}
+  if(!validDate(parsedDate))errors.push('실제로 없는 날짜예요. 원문을 고친 후 다시 분석해 주세요.');
+  if(full.length>1)warnings.push('날짜가 여러 개예요. 한 거래인지 확인하고 필요하면 나눠 주세요.');
+  const time=cleaned.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
+  const amounts=[...cleaned.matchAll(/([+-]?\d[\d,]*(?:\.\d+)?)\s*원/g)].map(m=>({amount:Number(m[1].replaceAll(',','')),index:m.index,prefix:cleaned.slice(Math.max(0,m.index-16),m.index)}));
+  const candidates=amounts.filter(m=>!/(?:잔액|누적|한도|출금가능|총사용액|총 사용액)\s*[:：]?\s*$/.test(m.prefix));
+  let amount=candidates.length===1?candidates[0].amount:0;
+  if(!candidates.length)errors.push('원화 거래 금액을 찾지 못했어요. 잔액·한도만 있는 알림은 저장하지 않아요.');
+  if(candidates.length>1)warnings.push('금액이 여러 개예요. 거래 금액을 직접 선택하거나 알림을 나눠 주세요.');
+  if(candidates.some(m=>m.amount<0))errors.push('음수 금액은 양수로 바꾸지 않아요. 취소·환불 여부를 직접 확인해 주세요.');
+  if(amount&&(!Number.isSafeInteger(amount)||amount<=0||amount>999999999999))errors.push('금액은 1원 이상, 12자리 이하의 정수여야 해요.');
+  if(/USD|EUR|JPY|달러|엔화|유로|\$/.test(raw)&&!amount)errors.push('외화는 원화 환산 금액을 확인한 후 직접 기록해 주세요.');
+  let type=/카드대금|카드 대금|결제대금/.test(cleaned)?'cardpay':/이체/.test(cleaned)?'transfer':/입금/.test(cleaned)?'income':/출금/.test(cleaned)?'expense':/승인|결제/.test(cleaned)?'expense':'';
+  if(!type)warnings.push('거래 유형을 확인할 수 없어요.');
+  if(/입금|출금/.test(cleaned))warnings.push('입출금이 수입·소비인지, 이체·카드대금·대출인지 확인해 주세요.');
+  const institution=(cleaned.match(/(?:KB국민|국민|신한|하나|우리|NH농협|농협|기업|IBK|카카오뱅크|토스뱅크|케이뱅크|삼성|현대|롯데|비씨|BC)(?:은행|카드)?/i)||[])[0]||'';
+  const suffix=(cleaned.match(/(?:카드|계좌)?\s*(?:\*{2,}|[•●]{2,}|[xX]{2,})(\d{2,4})/)||cleaned.match(/(?:카드|계좌)\s*[:：]?\s*(\d{4})(?!\d)/)||[])[1]||'';
+  const identity=institution&&suffix?institution+'|'+suffix:'';
+  const mappings=data.settings.settings?.messageImport?.mappings||[];
+  const mapping=identity?mappings.find(m=>m.identity===identity):null;
+  const linked=mapping&&data.account[mapping.accountId]&&!data.account[mapping.accountId].deleted?mapping.accountId:'';
+  const accounts=live(data.account).filter(a=>institution&&[a.name,a.lender].some(v=>v&&(v.includes(institution)||institution.includes(v))));
+  const accountId=linked||(accounts.length===1?accounts[0].id:'');
+  if(!linked)warnings.push(accountId?'결제수단 후보를 제안했어요. 실제 계좌·카드인지 확인해 주세요.':'결제수단을 선택해 주세요. 미연결 저장 시 계좌 잔액에는 반영되지 않아요.');
+  const lines=cleaned.split('\n').map(x=>x.trim()).filter(Boolean);
+  let memo=lines.filter(x=>!/^\[Web발신\]$/i.test(x)&&!/(?:잔액|한도|누적|인증번호)/.test(x)&&!/^\d[\d\s./:\-]*$/.test(x)).slice(-1)[0]||'';
+  memo=memo.replace(/\b\d{6,}\b/g,'[번호 생략]').slice(0,120);
+  let category=type==='income'?'기타 수입':type==='expense'?'기타':'';
+  if(/대출/.test(cleaned))category=/이자/.test(cleaned)?'대출 이자':'대출 상환';
+  else if(type==='expense'){if(/택시|버스|지하철|교통/.test(memo))category='교통';else if(/식당|카페|커피|배달/.test(memo))category='식비';}
+  const fingerprint=messageFingerprint(raw);
+  const approval=(cleaned.match(/승인번호\s*[:：]?\s*([A-Za-z0-9]+)/)||[])[1]||'';
+  return {id:'mc_'+newId(),index:index+1,raw,cleaned,fingerprint,identity,institution,suffix,approval,time:time?pad(+time[1])+':'+time[2]:'',dateNeedsConfirm,warnings,errors,blocked,amountChoices:candidates.map(x=>x.amount),draft:{type,date:parsedDate,amount,category,memo,accountId},reviewed:false,selected:false,duplicateAccepted:false};
+ });
+}
+function messageDuplicateReasons(candidate,data,others=[]){
+ const rows=candidate.records||[candidate.draft],existing=live(data.tx),reasons=[];
+ if(existing.some(t=>t.messageImport?.fingerprint===candidate.fingerprint))reasons.push('같은 원문의 저장 기록');
+ if(candidate.approval&&existing.some(t=>t.messageImport?.approval===candidate.approval&&t.messageImport?.identity===candidate.identity))reasons.push('같은 승인번호');
+ if(rows.some(r=>existing.some(t=>t.date===r.date&&t.amount===r.amount&&t.type===r.type&&(t.accountId||'')===(r.accountId||'')&&(t.toAccountId||'')===(r.toAccountId||'')&&(t.sourceId||'')===(r.sourceId||''))))reasons.push('동일 날짜·금액·유형·계좌의 기존 거래');
+ if(others.some(c=>c.id!==candidate.id&&(c.fingerprint===candidate.fingerprint||(c.records||[c.draft]).some(t=>rows.some(r=>t.date===r.date&&t.amount===r.amount&&t.type===r.type&&(t.accountId||'')===(r.accountId||'')&&(t.toAccountId||'')===(r.toAccountId||'')&&(t.sourceId||'')===(r.sourceId||''))))))reasons.push('이번 붙여넣기의 유사 거래');
+ return [...new Set(reasons)];
+}
+function validateMessageRecord(t,data){
+ if(!['income','expense','tax','saving','transfer','cardpay','draw'].includes(t.type)||!validDate(t.date)||!Number.isSafeInteger(t.amount)||t.amount<=0||t.amount>999999999999)throw new Error('거래 유형·날짜·금액을 확인해 주세요.');
+ for(const k of ['accountId','toAccountId','loanId'])if(t[k]&&(!data.account[t[k]]||data.account[t[k]].deleted))throw new Error('삭제되었거나 없는 계좌예요. 다시 검토해 주세요.');
+ if(['transfer','cardpay'].includes(t.type)&&(!t.accountId||!t.toAccountId||t.accountId===t.toAccountId))throw new Error('보내는 계좌와 받는 계좌를 확인해 주세요.');
+ if(t.type==='cardpay'&&data.account[t.toAccountId]?.kind!=='card')throw new Error('카드대금의 받는 계좌는 카드여야 해요.');
+ if(t.type==='expense'&&['대출 상환','대출 이자'].includes(t.category)&&!t.loanId)throw new Error('대출 거래는 등록 대출을 연결해 주세요.');
+}
+function buildMessageImportChanges(data,items,aux,batchId,options={}){
+ const changes=[],working=clean(data);aux.forEach(c=>{working[c.kind][c.rec.id]=c.rec;changes.push(c);});
+ const selected=items.filter(c=>c.selected);if(!selected.length)throw new Error('검토 완료한 거래를 선택해 주세요.');
+ selected.forEach(c=>{
+  if(!c.reviewed||c.blocked||!c.records?.length)throw new Error(c.index+'번 알림을 먼저 검토해 주세요.');
+  if(live(working.tx).some(t=>t.messageImport?.batchId===batchId&&t.messageImport?.candidateId===c.id))throw new Error('이미 저장된 가져오기예요. 내역을 확인해 주세요.');
+  if(messageDuplicateReasons(c,working,selected).length&&!c.duplicateAccepted)throw new Error(c.index+'번 중복 의심 거래를 확인해 주세요.');
+  let rows=c.records;
+  const loanRow=rows.find(t=>t.loanId);
+  if(loanRow){const L=working.account[loanRow.loanId];if(!L||L.deleted)throw new Error('대출이 삭제됐어요.');const principal=sum(rows.filter(t=>t.type==='transfer'),t=>t.amount),interest=sum(rows.filter(t=>t.type==='expense'),t=>t.amount);rows=loanPaymentChanges(working,L,{date:loanRow.date,from:loanRow.accountId,principal,interest,extra:loanRow.paymentMode==='extra'}).filter(x=>x.kind==='tx').map(x=>x.rec);}
+  rows.forEach((r,i)=>{const rec={...r,id:'mi_'+batchId+'_'+c.id+'_'+i,messageImport:{version:MESSAGE_PARSER_VERSION,batchId,candidateId:c.id,fingerprint:c.fingerprint,identity:c.identity,approval:c.approval,time:c.time,...(options.keepRaw?{raw:c.raw}:{})}};validateMessageRecord(rec,working);changes.push({kind:'tx',rec});working.tx[rec.id]=rec;});
+ });
+ return changes;
+}
+function MessageImportSheet({onClose}){
+ const app=useApp(),{data,commit,toast,setMonth,getSessionToken,getCurrentData}=app,h=React.createElement;
+ const session=useRef(getSessionToken()),alive=useRef(true),lock=useRef(false),batch=useRef(newId());
+ const [text,setText]=useState(''),[items,setItems]=useState([]),[err,setErr]=useState(''),[busy,setBusy]=useState(false),[editing,setEditing]=useState(null),[aux,setAux]=useState([]),[keepRaw,setKeepRaw]=useState(false),[accountForm,setAccountForm]=useState(false),[rawEdit,setRawEdit]=useState(null);
+ const prefs=data.settings.settings?.messageImport||{};
+ const [ignore,setIgnore]=useState((prefs.ignore||['[Web발신]']).join('\n')),[remember,setRemember]=useState(true),[dateConfirmed,setDateConfirmed]=useState(false);
+ const current=()=>alive.current&&getSessionToken()===session.current;
+ useEffect(()=>()=>{alive.current=false;},[]);
+ useEffect(()=>{if(!current()){setItems([]);setText('');setEditing(null);onClose();}},[app.user,app.status,getSessionToken()]);
+ const temp=useMemo(()=>{const d=clean(data);aux.forEach(c=>{d[c.kind][c.rec.id]=c.rec;});return d;},[data,aux]);
+ const addAux=changes=>setAux(old=>{const map=new Map(old.map(c=>[c.kind+'|'+c.rec.id,c]));changes.forEach(c=>map.set(c.kind+'|'+c.rec.id,c));return [...map.values()];});
+ const update=(id,patch)=>setItems(xs=>xs.map(c=>c.id===id?{...c,...patch}:c));
+ const paste=async()=>{if(busy)return;setBusy(true);setErr('');try{if(!navigator.clipboard?.readText)throw new Error();const value=await navigator.clipboard.readText();if(current())setText(value);}catch(e){if(current())setErr('클립보드 읽기를 사용할 수 없어요. 아래 입력란을 길게 눌러 붙여넣거나 Ctrl+V를 사용해 주세요.');}finally{if(current())setBusy(false);}};
+ const analyze=()=>{if(!current())return;try{const next=parseTransactionMessages(text,{data:temp,ignore:ignore.split('\n').map(s=>s.trim()).filter(Boolean)});setItems(next);setErr('');batch.current=newId();}catch(e){setErr(e.message);}};
+ const review=c=>{setDateConfirmed(!c.dateNeedsConfirm);setEditing({...c,editDraft:{...(c.records?.length===1&&!c.records[0].loanId?c.records[0]:c.draft)}});setErr('');};
+ const finishReview=changes=>{
+  if(!current())throw new Error('계정이 변경됐어요. 다시 열어 주세요.');
+  const records=changes.filter(c=>c.kind==='tx'&&!c.rec.deleted).map(c=>c.rec);if(!records.length)throw new Error('거래 내용이 없어요.');
+  records.forEach(t=>validateMessageRecord(t,temp));
+  if(records.some(t=>t.loanId)&&sum(records,t=>t.amount)!==Number(editing.editDraft.amount))throw new Error('원금+이자 합계가 알림 금액과 달라요. 금액을 확인한 뒤 다시 검토해 주세요.');
+  const candidate={...editing,records,reviewed:true,selected:true,duplicateAccepted:false,rememberAccount:remember};
+  if(messageDuplicateReasons(candidate,temp,items).length)candidate.selected=false;
+  update(editing.id,candidate);addAux(changes.filter(c=>c.kind!=='tx'));
+
+ };
+ const stagedApp={...app,data:temp,accounts:live(temp.account),commit:addAux,toast:()=>{},setMonth:()=>{},openSheet:()=>setErr('추가 등록은 검토 목록으로 돌아가 아래 ‘계좌·카드 추가’에서 진행해 주세요.')};
+ const save=()=>{if(lock.current||!current())return;lock.current=true;try{
+  const latest=getCurrentData();const s=latest.settings.settings||{id:'settings'},stagedSettings=aux.find(c=>c.kind==='settings'&&c.rec.id==='settings')?.rec;
+  const unique=(a,b)=>[...new Map([...(a||[]),...(b||[])].map(v=>[v.id,v])).values()];
+  const mappings=[...(s.messageImport?.mappings||[])];items.filter(c=>c.selected&&c.rememberAccount&&c.identity&&c.records?.[0]?.accountId).forEach(c=>{const i=mappings.findIndex(m=>m.identity===c.identity),m={identity:c.identity,accountId:c.records[0].accountId};if(i<0)mappings.push(m);else mappings[i]=m;});
+  const settings={...s,messageImport:{...(s.messageImport||{}),mappings,ignore:ignore.split('\n').map(s=>s.trim()).filter(Boolean)}};
+  if(stagedSettings?.sources)settings.sources=unique(s.sources,stagedSettings.sources);
+  if(stagedSettings?.payMethods)settings.payMethods=[...new Set([...(s.payMethods||[]),...stagedSettings.payMethods])];
+  if(stagedSettings?.work?.jobs)settings.work={...(s.work||{}),jobs:unique(s.work?.jobs,stagedSettings.work.jobs)};
+  const changes=buildMessageImportChanges(latest,items,[...aux.filter(c=>!(c.kind==='settings'&&c.rec.id==='settings')),{kind:'settings',rec:settings}],batch.current,{keepRaw});
+  commit(changes,session.current);const records=changes.filter(c=>c.kind==='tx');setMonth(records[0].rec.date.slice(0,7));toast(`${items.filter(c=>c.selected).length}건의 알림을 기기에 저장했어요 · 미선택 ${items.filter(c=>!c.selected).length}건`);setText('');setItems([]);onClose();
+ }catch(e){setErr(e.message);lock.current=false;}};
+ if(rawEdit)return h(Sheet,{title:'알림 원문 수정·나누기',onClose:()=>setRawEdit(null),footer:h('button',{className:'btn primary',onClick:()=>{try{const replacements=parseTransactionMessages(rawEdit.value,{data:temp,ignore:ignore.split('\n').filter(Boolean)});if(!replacements.length)throw new Error('원문을 입력해 주세요.');const next=[...items.slice(0,rawEdit.index),...replacements,...items.slice(rawEdit.index+rawEdit.count)].map((c,i)=>({...c,index:i+1}));setItems(next);setText(next.map(c=>c.raw).join('\n\n'));setRawEdit(null);setErr('');}catch(e){setErr(e.message);}}},'이 알림만 다시 분석')},h('p',{className:'small muted'},'서로 다른 거래 사이에 빈 줄 또는 ---를 넣으세요. 다른 알림의 검토 결과는 유지됩니다.'),h('textarea',{className:'input message-input',value:rawEdit.value,'aria-label':'수정할 알림 원문',onChange:e=>setRawEdit(r=>({...r,value:e.target.value}))}),err&&h('p',{className:'err'},err));
+ if(accountForm)return h(AppCtx.Provider,{value:stagedApp},h(AccountSheet,{onClose:()=>setAccountForm(false)}));
+ if(editing&&editing.formOpen)return h(AppCtx.Provider,{value:stagedApp},h(EntrySheetBase,{key:editing.id,prefill:editing.editDraft,importedDate:editing.editDraft.date,onDraft:finishReview,onClose:()=>setEditing(null)}));
+ if(editing)return h(Sheet,{title:`${editing.index}번 알림 확인`,onClose:()=>setEditing(null),footer:h('button',{className:'btn primary',disabled:!dateConfirmed||!editing.editDraft.type||!validDate(editing.editDraft.date)||!(Number(editing.editDraft.amount)>0),onClick:()=>setEditing(c=>({...c,formOpen:true}))},'분류·결제수단 검토')},
+  h('pre',{className:'message-raw'},editing.raw),h('p',{className:'note'},'추출값을 확인한 뒤 다음 화면에서 분류·결제수단을 선택하세요. 아직 저장되지 않아요.'),
+  h(Field,{label:'거래일'},h('input',{className:'input',type:'date',value:editing.editDraft.date,onChange:e=>{setDateConfirmed(true);setEditing(c=>({...c,editDraft:{...c.editDraft,date:e.target.value}}));}})),
+  editing.dateNeedsConfirm&&h('label',{className:'check'},h('input',{type:'checkbox',checked:dateConfirmed,onChange:e=>setDateConfirmed(e.target.checked)}),'제안된 연도와 날짜가 실제 거래일이 맞아요'),
+  h(Field,{label:'거래 유형'},h('select',{className:'input',value:editing.editDraft.type,onChange:e=>setEditing(c=>({...c,editDraft:{...c.editDraft,type:e.target.value,category:e.target.value==='expense'?'기타':e.target.value==='income'?'기타 수입':''}}))},h('option',{value:''},'선택'),[['expense','지출'],['income','수입'],['transfer','계좌이체'],['cardpay','카드대금'],['saving','저축·투자']].map(([v,l])=>h('option',{key:v,value:v},l)))),
+  h(Field,{label:'거래 금액'},h(AmountInput,{value:editing.editDraft.amount,onChange:v=>setEditing(c=>({...c,editDraft:{...c.editDraft,amount:v}}))})),
+  editing.amountChoices.length>1&&h('div',{className:'chips'},editing.amountChoices.filter(v=>v>0).map((v,i)=>h('button',{key:i,className:'chip',onClick:()=>setEditing(c=>({...c,editDraft:{...c.editDraft,amount:v}}))},won(v)+'원'))),
+  editing.warnings.map((w,i)=>h('p',{key:i,className:'small muted'},w)),err&&h('p',{className:'err'},err));
+ return h(Sheet,{title:'거래 알림 붙여넣기',onClose,dirty:!!text||!!items.length,footer:h('button',{className:'btn primary grow',disabled:!items.some(c=>c.selected),onClick:save},`선택한 ${items.filter(c=>c.selected).length}건 저장`)},
+  h('p',{className:'small muted'},'문자·카카오톡·은행 앱에서 복사한 텍스트를 넣어 주세요. 기기에서 분석하며 검토 완료 후 선택한 거래만 저장해요.'),
+  h('button',{className:'btn',onClick:paste,disabled:busy},busy?'읽는 중…':'📋 클립보드에서 붙여넣기'),
+  h('textarea',{className:'input message-input',rows:6,value:text,maxLength:100000,'aria-label':'거래 알림 원문',placeholder:'알림 여러 건은 빈 줄 또는 ---로 구분하세요.',onChange:e=>{setText(e.target.value);setItems([]);}}),
+  h('details',null,h('summary',null,'문구 정리·계좌 연결 설정'),h('p',{className:'small muted'},'제거할 고정 문구를 한 줄에 하나씩 입력하세요. 금액·날짜·취소 문구는 지우지 마세요. 원문은 미리보기에 유지돼요.'),h('textarea',{className:'input',value:ignore,'aria-label':'제거할 고정 문구',onChange:e=>{setIgnore(e.target.value);setItems([]);}}),h('label',{className:'check'},h('input',{type:'checkbox',checked:remember,onChange:e=>setRemember(e.target.checked)}),'기관명+마스킹 끝자리가 있는 결제수단 연결 기억'),h('label',{className:'check'},h('input',{type:'checkbox',checked:keepRaw,onChange:e=>setKeepRaw(e.target.checked)}),'원문도 거래에 보관 (기본은 보관 안 함)')),
+  h('div',{className:'dual-btns'},h('button',{className:'btn primary',disabled:!text.trim(),onClick:analyze},'알림 분석'),h('button',{className:'btn',onClick:()=>{setText('');setItems([]);setAux([]);setErr('');}},'비우기')),
+  items.length>0&&h('p',{className:'note'},`총 ${items.length}건 · 검토 완료 ${items.filter(c=>c.reviewed).length}건 · 선택 ${items.filter(c=>c.selected).length}건 · 오류 ${items.filter(c=>c.errors.length).length}건 · 중복 의심 ${items.filter(c=>messageDuplicateReasons(c,temp,items).length).length}건`),
+  items.map((c,i)=>{const dup=messageDuplicateReasons(c,temp,items);return h('section',{key:c.id,className:'message-candidate'},h('div',{className:'hcard-h'},h('b',null,`${i+1} / ${items.length} · ${c.reviewed?'검토 완료':'확인 필요'}`),h('label',{className:'check'},h('input',{type:'checkbox','aria-label':`${i+1}번 선택`,checked:c.selected,disabled:!c.reviewed||c.blocked||(dup.length>0&&!c.duplicateAccepted),onChange:e=>update(c.id,{selected:e.target.checked})}),'저장 선택')),
+   h('pre',{className:'message-raw'},c.raw),h('p',null,`${c.draft.date} · ${c.records?won(sum(c.records,t=>t.amount)):won(c.draft.amount)}원 · ${c.institution||'기관 미확인'}`),
+   c.records&&h('p',{className:'small'},c.records.map(t=>`${TYPE_LABEL[t.type]||t.type} / ${t.category||'이체'} / ${temp.account[t.accountId]?.name||t.payMethod||'계좌 미연결'}`).join(' + ')),
+   [...c.errors,...c.warnings].map((w,j)=>h('p',{key:j,className:c.errors.includes(w)?'err':'small muted'},w)),
+   dup.length>0&&h('div',{className:'note'},h('b',null,'중복 의심: '+dup.join(' · ')),h('label',{className:'check'},h('input',{type:'checkbox',checked:c.duplicateAccepted,onChange:e=>update(c.id,{duplicateAccepted:e.target.checked,selected:false})}),'별개의 실제 거래임을 확인했어요')),
+   h('div',{className:'chips'},h('button',{className:'btn small',disabled:!!c.errors.length,onClick:()=>review(c)},c.reviewed?'검토 수정':'검토하기'),h('button',{className:'btn small',onClick:()=>update(c.id,{selected:false})},'건너뛰기'),h('button',{className:'link',onClick:()=>{setRawEdit({index:i,count:1,value:c.raw});setErr('');}},'원문 수정·나누기'),i<items.length-1&&h('button',{className:'link',onClick:()=>{setRawEdit({index:i,count:2,value:c.raw+'\n'+items[i+1].raw});setErr('');}},'다음 알림과 합치기')));}),
+  h('button',{className:'btn',onClick:()=>setAccountForm(true)},'+ 계좌·카드 추가 (최종 저장 때 반영)'),
+  h('p',{className:'small muted'},'일반적인 원화 텍스트 형식만 인식합니다. 취소·환불·외화·인식 오류는 직접 확인이 필요해요. 기관별 실제 알림 전체를 검증한 기능은 아니에요.'),
+  err&&h('p',{className:'err',role:'alert'},err));
+}
+
 function ImportSheet({res,name,onClose}) {
  const {commit,toast}=useApp(),h=React.createElement;
  const [selected,setSelected]=useState(()=>new Set(res.candidates.filter(c=>!c.suspect).map(c=>c.id)));
