@@ -1127,23 +1127,17 @@ input.input[type=date]::-webkit-date-and-time-value,input.input[type=time]::-web
 html,body,#root{min-width:0;width:100%;margin:0}
 .main,.h6-l,.h6-r{min-width:0}
 .home7 .hcard,.h6-kpi{background:var(--surface);border:1px solid var(--line2);box-shadow:0 4px 20px rgba(20,35,65,.025);border-radius:22px}
-.h6-kpi{padding:26px;margin-top:18px}
-.h6-kpi .k-v{font-size:clamp(30px,4vw,44px);line-height:1.2;letter-spacing:-.04em;overflow-wrap:anywhere}
-.h6-kpi .k-io{margin-top:22px;padding-top:18px;gap:12px}
+.h6-kpi{padding:20px;margin-top:0}
+.h6-kpi .k-v{font-size:clamp(28px,3vw,34px);line-height:1.2;letter-spacing:-.04em;overflow-wrap:anywhere}
+.h6-kpi .k-io{margin-top:16px;padding-top:14px;gap:8px}
 .k-explain{font-size:12px;line-height:1.6;color:var(--ink2);margin:16px 0 0}
-.balance-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
-.balance-actions .btn{height:48px;border-radius:13px;background:var(--surface);border:1px solid var(--line);font-weight:600}
-.balance-actions .primary{background:var(--primary);color:#fff;border-color:var(--primary)}
-.coverage{display:flex;gap:10px;padding:18px 4px 4px;color:var(--ink2);font-size:12px;line-height:1.6}
-.coverage b{font-size:13px;font-weight:600;color:var(--ink)}
-.coverage p{margin:2px 0 0}.coverage-dot{width:7px;height:7px;border-radius:50%;background:var(--sage);margin-top:6px;flex:none}
-.home7 .hcard{padding:24px;margin-top:18px}.home7 .hcard-h h2{font-size:17px;letter-spacing:-.025em}
-.saving-value{font-size:clamp(19px,2.3vw,27px);font-weight:700;letter-spacing:-.03em;margin:20px 0 8px;overflow-wrap:anywhere}
+.home7 .hcard{padding:20px;margin-top:14px}.home7 .hcard-h h2{font-size:15px;letter-spacing:-.025em}
+.saving-value{font-size:clamp(18px,2vw,23px);font-weight:700;letter-spacing:-.03em;margin:14px 0 6px;overflow-wrap:anywhere}
 .balance-details{border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
 .balance-details>summary{cursor:pointer;color:var(--ink2);font-size:13px;padding:4px 0;min-height:32px}
 .balance-details .hcard{box-shadow:none;border:0;padding:0;margin-top:16px}
 .recent-details{padding:20px 24px;background:var(--surface);border:1px solid var(--line2);border-radius:20px}
-.ins-t b{font-size:14px;line-height:1.6}.ins-t span{margin-top:3px}.ins-i{padding:16px 0}
+.ins-t b{font-size:13px;line-height:1.5}.ins-t span{margin-top:3px}.ins-i{padding:12px 0}
 .hpill{font-size:12px;min-height:34px;background:var(--bg)}
 .seg{border-radius:12px}.seg button{min-height:38px}.side-nav button{flex-shrink:0}
 button:focus-visible,summary:focus-visible{outline:2px solid var(--sage);outline-offset:3px}
@@ -1155,13 +1149,47 @@ html,body,#root{height:100%;overflow:hidden}
 .side-nav button.on{background:var(--sage-soft);color:var(--sage)}
 .brand{padding:0 10px;font-size:18px;letter-spacing:-.04em}.side-acct{min-width:0}
 .main{padding:0 clamp(24px,3vw,48px) calc(40px + env(safe-area-inset-bottom,0px));scrollbar-gutter:stable}
-.topbar{padding:20px 0;margin-bottom:20px;background:var(--bg)}
-.home6{gap:24px;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);max-width:1180px;margin:auto;padding-top:0}
+.topbar{padding:12px 0;margin-bottom:14px;background:var(--bg)}
+.home6{gap:20px;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);max-width:1180px;margin:auto;padding-top:0}
 .home7 .h6-r .hcard:first-child{margin-top:0}
 }
 @media(min-width:960px) and (max-width:1100px){.app{grid-template-columns:184px minmax(0,1fr)}.main{padding-left:22px;padding-right:22px}.home6{gap:18px;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}.home7 .hcard,.h6-kpi{padding:20px}}
 @media(max-width:959px){.app{padding-top:env(safe-area-inset-top,0px)}.home6{max-width:680px;margin:auto}.home7 .hcard,.h6-kpi{padding:22px}.main{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}.h6-r{margin-top:18px}.bottomnav{padding-bottom:env(safe-area-inset-bottom,0px)}}
 @media(max-width:380px){.home7 .hcard,.h6-kpi{padding:18px}.balance-actions .btn{font-size:13px}.hpill{padding:0 10px}}
+
+
+/* Compact dashboard: one toolbar, consistent type scale and aligned panels. */
+.home-topbar .period-seg{margin:0;justify-content:flex-start;flex:none}
+.home-topbar .period-seg .seg{width:180px;max-width:none;padding:3px}
+.home-topbar .period-seg button{min-height:30px;height:30px;font-size:12px;padding:0 12px}
+.home7 .h6-l>.hcard:first-of-type{margin-top:14px}
+.home7 .k-l{font-size:13px;margin:0 0 10px;line-height:1.5}
+.home7 .k-io-r span{font-size:12px}.home7 .k-io-r b{font-size:15px}
+.home7 .k-s{margin-top:8px}.home7 .k-explain{margin-top:12px;font-size:11px}
+.home7 .saving-value.is-empty{font-family:var(--font);font-size:15px;font-weight:500;letter-spacing:-.01em;color:var(--ink2)}
+.home7 .hs-t b{font-size:16px}.home7 .hs-t span{font-size:12px;line-height:1.5}
+.home7 .hs-row{padding:12px 0}.home7 .inc-total{font-size:25px;margin:12px 0}
+.home7 .ins-t span{display:none}.home7 .ins-i{align-items:center}.home7 .ins-i .chev,.home7 .ins-i .lv{margin-top:0}
+.home7 .hpill{min-height:30px;padding:0 10px}.home7 .balance-details{margin-top:12px;padding-top:10px}
+.home7 .hcard,.home7 .h6-kpi{border-radius:18px}
+@media(min-width:960px){
+.home-topbar .top-l{gap:14px;min-width:0}.home-topbar h1{font-size:16px;margin:0}
+.home-topbar .period-seg{margin-left:6px;padding-left:14px;border-left:1px solid var(--line)}
+.home-topbar .top-r{gap:6px}.home-topbar .month-l{font-size:15px}
+.home7 .h6-kpi{padding:20px}.home7 .h6-kpi .k-v{font-size:34px}
+.home7 .h6-r>.hcard:first-child{margin-top:0}
+}
+@media(min-width:960px) and (max-width:1100px){
+.home-topbar .top-l{gap:8px}.home-topbar .period-seg{padding-left:8px;margin-left:0}.home-topbar .period-seg .seg{width:150px}
+.home-topbar .top-add{padding:0 10px;margin-left:0}.home-topbar .top-r{gap:2px}
+}
+@media(max-width:959px){
+.home-topbar{flex-wrap:wrap;row-gap:8px;padding-bottom:12px;margin-bottom:12px}
+.home-topbar .top-l{display:contents}.home-topbar h1{display:none}
+.home-topbar .month-l{order:0}.home-topbar .top-r{order:1;margin-left:auto}
+.home-topbar .period-seg{order:2;width:100%}.home-topbar .period-seg .seg{width:180px}
+.home7 .h6-kpi,.home7 .hcard{padding:20px}.home7 .h6-kpi .k-v{font-size:30px}
+}
 
 </style>
 </head>
@@ -19732,10 +19760,11 @@ function App() {
                     "\uC124\uC815"),
                 React.createElement(SideAccount, null)),
             React.createElement("main", { className: "main" },
-                React.createElement("header", { className: cx('topbar', scrolled && 'scrolled') },
+                React.createElement("header", { className: cx('topbar', page === 'home' && 'home-topbar', scrolled && 'scrolled') },
                     React.createElement("div", { className: cx('top-l', page === 'settings' && 'no-month') },
                         React.createElement("h1", null, cur.label),
-                        page !== 'settings' && React.createElement(MonthPicker, null)),
+                        page !== 'settings' && React.createElement(MonthPicker, null),
+                        page === 'home' && React.createElement(PeriodSeg, null)),
                     React.createElement("div", { className: "top-r" },
                         React.createElement("button", { className: "icon-btn theme-btn", onClick: () => setTheme(effTheme === 'dark' ? 'light' : 'dark'), "aria-label": effTheme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환', title: effTheme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환' },
                             React.createElement(Icon, { n: effTheme === 'dark' ? 'moon' : 'sun', s: 20 })),
@@ -20334,15 +20363,7 @@ function HomePage() {
     const bLeft = B ? B.target - B.used : 0;
     const biz = bizModeOf(data);
     const pill = (label, onClick) => h("button", { type: "button", className: "hpill", onClick }, label);
-    const imported = live(data.tx).filter(t => t.importedFrom === 'card' && t.date && months.some(m => t.date.startsWith(m))).length;
     const S = savingRange(data, statsOf, firstMonth);
-    const quick = h("div", {className:"balance-actions"},
-        h("button", {className:"btn primary", onClick:()=>openSheet('entry',{prefill:{type:'income'}})}, h(Icon,{n:'plus',s:18}), "수입 기록"),
-        h("button", {className:"btn", onClick:()=>openSheet('cardImport')}, "카드 내역 올리기"));
-    const coverage = h("div", {className:"coverage"},
-        h("span", {className:"coverage-dot"}),
-        h("div",null,h("b",null, imported ? `카드 내역 ${imported}건 반영` : '카드 내역 업로드 전이라면'),
-        h("p",null,"미등록 지출은 계산에 포함되지 않아요. 월말에 모든 카드 내역을 확인해 주세요.")));
     const kpi = h("section", { className: "h6-kpi" },
         h("p", { className: "k-l" },
             user && user.name ? h(React.Fragment, null, h("b", { className: "k-who" }, user.name, "님"), ", ") : null,
@@ -20353,7 +20374,7 @@ function HomePage() {
                 h("span", null, "수입 · 개인 + 사업"), h("b", { className: "num" }, cf.income > 0 ? `+${won(cf.income)}` : won(cf.income), h("small", null, "원"))),
             h("button", { type: "button", className: "k-io-r", onClick: () => go({ page: 'history', tab: 'expense' }) },
                 h("span", null, "지출 · 개인 + 사업"), h("b", { className: "num" }, cf.expense > 0 ? `−${won(cf.expense)}` : won(cf.expense), h("small", null, "원")))),
-        h("p", {className:"k-explain"}, "등록된 거래 기준 · 카드 사용 포함 · 저축·이체 제외 · 통장 잔고와 달라요"),
+        h("p", {className:"k-explain"}, "카드 사용 포함 · 통장 잔고와 달라요"),
         isMonth && h("p", { className: "k-s k-s-end" },
             h("button", { className: "lnk", onClick: () => openSheet('basis') }, "자세히", h(Icon, { n: "right", s: 14 }))));
     const income = h("section", { className: "hcard" },
@@ -20408,14 +20429,14 @@ function HomePage() {
         h(HomeProg, G.em ? { label: '비상자금', value: `${Math.round((G.em.covered || 0) * 10) / 10}개월치`, pct: ratio(G.em.have, G.em.target), warn: G.em.have < G.em.target, sub: `${man(G.em.have)} / ${man(G.em.target)}원 (목표 ${G.em.months}개월)`, onClick: () => go({ page: 'assets', assetTab: 'emergency' }) }
             : { label: '비상자금', value: G.E.hasAcc ? '계산 대기' : '계좌 필요', sub: G.E.hasAcc ? '필수 지출 기록이 쌓이면 필요한 비상자금을 계산해요' : '자산에서 계좌를 등록하면 비상자금을 계산해요', onClick: () => go({ page: 'assets', assetTab: 'emergency' }) }));
     const saving = h("section", {className:"hcard saving-focus"},
-        h("div",{className:"hcard-h"}, h("h2",null,"얼마나 모을 수 있을까요?"),pill('계획 보기',()=>go({page:'assets',assetTab:'saving'}))),
-        h("p",{className:"saving-value num"}, S.ok ? `${won(S.low)} ~ ${won(S.base)}원` : '기록이 쌓이면 계산해요'),
-        h("p",{className:"muted small"},S.ok ? '최근 수입과 지출로 계산한 월 저축 여력 추정이에요. 미등록 지출·대출 상환·사업 운영자금을 확인한 뒤 목표를 정해 주세요.' : '지난달 카드 내역과 수입부터 채워 주세요. 기록이 부족할 때는 저축 가능 금액을 단정하지 않아요.'),
+        h("div",{className:"hcard-h"}, h("h2",null,"월 저축 계획"),pill('계획 보기',()=>go({page:'assets',assetTab:'saving'}))),
+        h("p",{className:cx("saving-value num", !S.ok && "is-empty")}, S.ok ? `${won(S.low)} ~ ${won(S.base)}원` : '아직 계산할 기록이 부족해요'),
+        h("p",{className:"muted small"},S.ok ? '등록된 기록 기준의 월 저축 여력 추정치예요. 계산 기준에서 제외된 지출을 확인해 주세요.' : '지난달 수입·지출을 정리하면 저축 여력을 계산해요.'),
         G.save && h(HomeProg,{label:`${+month.slice(5)}월 저축 목표`,value:`${won(G.save.have)} / ${won(G.save.target)}원`,pct:ratio(G.save.have,G.save.target),onClick:()=>go({page:'assets',assetTab:'saving'})}),
         h("details",{className:"balance-details"},h("summary",null,"계산 기준과 준비금"),
             h("p",{className:"small muted"},"최근 수입과 지난 3개월의 지출을 바탕으로 세금·비상자금 적립을 차감한 기존 계획 기준입니다. 확정 잔고나 인출 가능한 사업 자금과는 달라요."), goals));
     return (h("div", { className: "home6 home7" },
-        h("div", { className: "h6-l" }, h(PeriodSeg, null), kpi, quick, coverage, isMonth && saving, income, spend),
+        h("div", { className: "h6-l" }, kpi, isMonth && saving, income, spend),
         h("div", { className: "h6-r h-side" }, check, upc, summary, isMonth && budget, h("details",{className:"balance-details recent-details"},h("summary",null,"최근 내역 보기"),rec))));
 }
 // 내역: 전체 / 지출 / 수입 / 이동 — 고정비·근무는 지출·수입 안의 칩으로
@@ -24647,9 +24668,9 @@ function TxListPage({ preset = 'all', sub = 'all' }) {
                 exp && inc ? ' · ' : '',
                 inc ? `+${won(inc)}` : '')),
         React.createElement("div", { className: "hs-tools" },
-            React.createElement("button", { className: "btn ghost small", onClick: () => openSheet('cardImport') },
+            type === 'expense' && React.createElement("button", { className: "btn ghost small", onClick: () => openSheet('cardImport') },
                 React.createElement(Icon, { n: "receipt", s: 15 }),
-                "\uCE74\uB4DC \uBA85\uC138\uC11C"),
+                "카드 내역 올리기"),
             React.createElement("button", { className: "btn ghost small", onClick: () => openSheet('bulk') },
                 React.createElement(Icon, { n: "rows", s: 15 }),
                 "\uC77C\uAD04 \uC785\uB825")),
