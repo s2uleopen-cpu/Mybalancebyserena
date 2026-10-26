@@ -936,6 +936,52 @@ input.input[type=date]::-webkit-date-and-time-value,input.input[type=time]::-web
 .h6-pos .bar{order:3;margin:2px 0 0}
 @media (min-width:600px){.home6{--h6-gap:var(--sp-5);--h6-v:24px}}
 @media (min-width:960px){.h6-pos{margin-top:var(--sp-3)}}
+
+/* ── 홈 메인 카드: 이번 달 순현금흐름 + 들어온/나간 돈 ── */
+.h6-kpi .k-io{display:grid;grid-template-columns:minmax(0,1fr);row-gap:6px;margin:var(--sp-4) 0 0;padding:var(--sp-3) 0 0;border-top:1px solid var(--line)}
+.h6-kpi .k-io-r{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,max-content);align-items:baseline;column-gap:var(--sp-3);width:100%;padding:2px 0;text-align:left;color:inherit;border-radius:var(--r-xs)}
+.h6-kpi .k-io-r span{font-size:var(--fs-sm);line-height:20px;color:var(--ink2)}
+.h6-kpi .k-io-r b{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:baseline;column-gap:1px;font-size:var(--fs-md);font-weight:600;line-height:1.3;color:var(--ink);text-align:right;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.h6-kpi .k-io-r b small{font-size:var(--fs-xs);font-weight:500;color:var(--ink2)}
+.h6-kpi .k-io-r:active{opacity:.7}
+.h6-kpi .k-s-end{justify-content:flex-end}
+.h6-flow .result:first-child{margin-top:0;padding-top:0;border-top:0}
+.h-basis .sub dt,.h-basis .sub dd{font-size:var(--fs-sm);color:var(--ink2)}
+
+/* ── 정보 구조 단순화: 하단 4개 · 상단 탭 3~4개 · 세부 분류는 칩/필터 ── */
+.bottomnav{grid-template-columns:repeat(4,1fr)}
+.sub-chips{display:flex;flex-wrap:nowrap;gap:6px;margin-top:calc(var(--sp-1) * -1);overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.sub-chips::-webkit-scrollbar{display:none}
+.sub-chips .chip{flex:none;height:32px;padding:0 14px;font-size:var(--fs-sm)}
+.back-btn{margin-left:-8px;margin-right:2px}
+/* 홈 카드 */
+.home7 .hcard{margin-top:var(--sp-4);padding:var(--sp-4) var(--sp-5);border-radius:var(--r-xl);background:var(--raised);min-width:0}
+.home7 .h6-l > .hcard:first-of-type{margin-top:var(--sp-4)}
+.hcard-h{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-3);margin:0 0 var(--sp-2)}
+.hcard-h h2{margin:0;font-size:var(--fs-md);font-weight:600;color:var(--ink)}
+.hp-row{display:flex;flex-direction:column;gap:6px;width:100%;padding:10px 0;text-align:left;color:inherit;border-radius:var(--r-sm);min-width:0}
+.hp-row + .hp-row{border-top:1px solid var(--line)}
+.hp-row:active{opacity:.7}
+.hp-top{display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-3);min-width:0}
+.hp-l{font-size:var(--fs-sm);color:var(--ink2);min-width:0}
+.hp-top b{font-size:var(--fs-base);font-weight:600;color:var(--ink);white-space:nowrap}
+.hp-bar{display:block;height:6px;border-radius:3px;background:var(--chip);overflow:hidden}
+.hp-bar i{display:block;height:100%;border-radius:3px;background:var(--sage)}
+.hp-bar i.over{background:var(--warn)}
+.hp-s{font-size:var(--fs-xs);line-height:1.45;color:var(--ink2);overflow-wrap:anywhere}
+.hp-empty{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:6px 0 4px;font-size:var(--fs-sm);color:var(--ink2)}
+.hp-empty p{margin:0}
+.home7 .rows{margin:0 calc(var(--sp-2) * -1)}
+.ins-list{display:flex;flex-direction:column}
+.ins-i{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;gap:10px;width:100%;padding:12px 0;text-align:left;color:var(--ink);border-radius:var(--r-sm)}
+.ins-i + .ins-i{border-top:1px solid var(--line)}
+.ins-i .lv{margin-top:1px}
+.ins-t{display:flex;flex-direction:column;gap:3px;min-width:0}
+.ins-t b{font-size:var(--fs-sm);font-weight:500;line-height:1.45}
+.ins-t span{font-size:var(--fs-xs);line-height:1.45;color:var(--ink2);overflow-wrap:anywhere}
+.ins-i .chev{margin-top:2px;color:var(--ink3)}
+.hc-more{margin-top:var(--sp-2)}
+@media (min-width:960px){.home7 .h6-r .hcard:first-child{margin-top:0}}
 </style>
 </head>
 <body>
@@ -18676,6 +18722,44 @@ function occurrences(data, m, kind = 'expense') {
         .sort((a, b) => a.day - b.day || a.rule.name.localeCompare(b.rule.name));
 }
 const amt = (t) => t.amount;
+/* ───────── 순현금흐름 (홈·계산 근거·내역 합계·분석이 함께 쓰는 단일 규칙) ─────────
+   순현금흐름 = 실제 현금 수입 − 실제 현금 지출. 개인·사업 거래를 모두 포함해요.
+   · 수입: 수입 거래 전체(개인·사업)
+   · 지출: 지출 거래 전체(개인·사업, 카드 사용 포함) + 세금 실제 납부
+           더치페이는 실제로 나간 돈 기준 (내가 결제: 전체 − 받은 정산금 / 상대방 결제: 보낸 정산금)
+   · 별도 분류(합계 제외): 저축·투자, 계좌 간 이체, 카드대금 납부(카드 사용 때 이미 지출), 대출 원금 상환
+           (대출 계좌로 이체·‘대출 상환’ 지출), 대출 실행(대출 계좌에서 이체), 세금 적립(적립 계좌로 이체), 사업 인출(사업→개인 이동) */
+const LOAN_PRINCIPAL_CAT = '대출 상환';
+const dutchGot = (t) => sum(t.split.parts || [], (p) => Math.min(p.settled || 0, p.share || 0));
+const dutchCashOut = (t) => (t.split.payer === 'other' ? dutchGot(t) : (t.split.total || t.amount) - dutchGot(t));
+function cashFlowOf(data, txs) {
+    const acc = {};
+    live(data.account).forEach((a) => { acc[a.id] = a; });
+    const z = () => ({ income: 0, expense: 0, tax: 0, dutchAdj: 0, nIn: 0, nOut: 0 });
+    const P = z(), B = z();
+    const sep = { saving: 0, transfer: 0, cardpay: 0, loan: 0, loanIn: 0, reserve: 0, draw: 0 };
+    txs.forEach((t) => {
+        const S = t.scope === 'business' ? B : P, a = t.amount || 0;
+        if (t.type === 'income') { S.income += a; S.nIn++; }
+        else if (t.type === 'expense') {
+            if (t.category === LOAN_PRINCIPAL_CAT) sep.loan += a;
+            else { S.expense += a; S.nOut++; if (t.split) S.dutchAdj += dutchCashOut(t) - a; }
+        }
+        else if (t.type === 'tax') { S.tax += a; S.nOut++; }
+        else if (t.type === 'draw') sep.draw += a;
+        else if (t.type === 'saving') sep.saving += a;
+        else if (t.type === 'cardpay') sep.cardpay += a;
+        else if (t.type === 'transfer') {
+            const to = acc[t.toAccountId], from = acc[t.accountId];
+            if (to && to.kind === 'loan') sep.loan += a;
+            else if (from && from.kind === 'loan') sep.loanIn += a;
+            else if (to && to.kind === 'reserve') sep.reserve += a;
+            else sep.transfer += a;
+        }
+    });
+    [P, B].forEach((S) => { S.in = S.income; S.out = S.expense + S.tax + S.dutchAdj; S.net = S.in - S.out; });
+    return { income: P.in + B.in, expense: P.out + B.out, net: P.net + B.net, personal: P, business: B, sep };
+}
 function monthStats(data, m) {
     const all = live(data.tx).filter((t) => t.date && t.date.startsWith(m));
     const txs = all.filter((t) => t.scope !== 'business');
@@ -18715,7 +18799,7 @@ function monthStats(data, m) {
     const work = { minutes: sum(bizLogs, (w) => w.minutes), days: new Set(bizLogs.map((w) => w.date)).size, byType, byJob, jobMinutes: sum(Object.values(byJob), (j) => j.minutes), jobPay: sum(Object.values(byJob), (j) => j.pay), jobNet: sum(Object.values(byJob), (j) => j.net),
         pokerMinutes: sum(pokerLogs, (w) => w.minutes), poker: { count: pokerLogs.length, buyin: sum(pokerLogs, (w) => w.buyin), fee: sum(pokerLogs, (w) => w.fee), prize: sum(pokerLogs, (w) => w.prize), profit: sum(pokerLogs, pokerProfit) } };
     return {
-        m, all, txs, worklogs, work, txCount: all.length, income, drawn, expense, saving, invest, savingOnly: saving - invest, tax, fixedPaid, fixedUnpaid, fixedTotal, variable, byCat, occs, allOccs, subscription,
+        m, all, txs, worklogs, work, txCount: all.length, cf: cashFlowOf(data, all), income, drawn, expense, saving, invest, savingOnly: saving - invest, tax, fixedPaid, fixedUnpaid, fixedTotal, variable, byCat, occs, allOccs, subscription,
         remaining: income - expense - saving - tax,
         fixedRatio: ratio(fixedTotal, income), spendRatio: ratio(expense, income), savingRate: ratio(saving, income),
         biz: { count: biz.length, sales, costs, profit: sales - costs, vatPaid: sum(by(biz, 'tax'), amt), drawn, fixedTotal: sum(bizOccs, (o) => o.effective), fixedUnpaid: sum(bizOccs, (o) => o.remaining) },
@@ -19221,11 +19305,11 @@ function Donut({ items, size = 150, center, fmt }) {
 const PAGES = [
     { id: 'home', label: '홈', icon: 'home' },
     { id: 'history', label: '내역', icon: 'list' },
-    { id: 'analysis', label: '분석', icon: 'chart' },
-    { id: 'plan', label: '계획', icon: 'target' },
+    { id: 'plan', label: '플랜', icon: 'target' },
     { id: 'assets', label: '자산', icon: 'wallet' },
 ];
 const SETTINGS_PAGE = { id: 'settings', label: '설정', icon: 'gear' };
+const REPORT_PAGE = { id: 'analysis', label: '리포트', icon: 'chart' };
 function App() {
     const store = useStore();
     const { data, commit } = store;
@@ -19235,10 +19319,23 @@ function App() {
         const T = normalizeTarget({ page: h });
         return PAGES.some((p) => p.id === T.page) || T.page === 'settings' ? T.page : 'home';
     });
-    const [histTab, setHistTab] = useState(() => (location.hash.slice(1) === 'fixed' ? 'fixed' : 'all'));
+    // 예전 탭 이름(고정비·근무·저축·세금·투자·부채·추이 등)으로 와도 새 구조의 탭+칩으로 연결해요
+    const [histTab, setHistTabRaw] = useState(() => (location.hash.slice(1) === 'fixed' ? 'expense' : 'all'));
+    const [histSub, setHistSub] = useState(() => (location.hash.slice(1) === 'fixed' ? 'fixed' : 'all'));
+    const setHistTab = useCallback((t) => {
+        if (t === 'fixed') { setHistTabRaw('expense'); setHistSub('fixed'); }
+        else if (t === 'work') { setHistTabRaw('income'); setHistSub('work'); }
+        else { setHistTabRaw(['all', 'expense', 'income', 'move'].includes(t) ? t : 'all'); setHistSub('all'); }
+    }, []);
     const [anaTab, setAnaTab] = useState('income');
-    const [assetTab, setAssetTab] = useState('all');
-    const [planTab, setPlanTab] = useState(() => (location.hash.slice(1) === 'business' ? 'tax' : 'budget'));
+    const [assetTab, setAssetTabRaw] = useState('all');
+    const setAssetTab = useCallback((t) => setAssetTabRaw(t === 'cash' || t === 'deposit' ? 'accounts' : t === 'debt' || t === 'trend' ? 'invest' : t), []);
+    const [planTab, setPlanTabRaw] = useState(() => (location.hash.slice(1) === 'business' ? 'goal' : 'budget'));
+    const [goalSub, setGoalSub] = useState(() => (location.hash.slice(1) === 'business' ? 'tax' : 'saving'));
+    const setPlanTab = useCallback((t) => {
+        if (t === 'saving' || t === 'emergency' || t === 'tax') { setPlanTabRaw('goal'); setGoalSub(t); }
+        else setPlanTabRaw(t === 'goal' || t === 'sim' ? t : 'budget');
+    }, []);
     const [bizTab, setBizTab] = useState('summary');
     const [month, setMonth] = useState(thisMonth());
     const [sheet, setSheet] = useState(null);
@@ -19344,6 +19441,8 @@ function App() {
         if (!raw)
             return;
         const target = normalizeTarget(raw);
+        if (target.page === 'analysis' && target.anaTab === 'asset') { target.page = 'assets'; target.assetTab = 'trend'; delete target.anaTab; }
+        if (target.page === 'analysis' && target.anaTab === 'insight') { target.page = 'home'; delete target.anaTab; }
         if (!target.sheet)
             closeSheet();
         if (target.month)
@@ -19362,10 +19461,10 @@ function App() {
             openSheet(target.sheet[0], target.sheet[1] || {});
     }, [openSheet, closeSheet]);
     const activeTxId = sheet && !sheet.leaving && sheet.type === 'entry' && sheet.props.tx ? sheet.props.tx.id : null;
-    const ctx = { ...store, activeTxId, data, commit, month, setMonth, statsOf, firstMonth, accounts, openSheet, closeSheet, finishSheet, toast, setPage, theme, setTheme, effTheme, histTab, setHistTab, anaTab, setAnaTab, planTab, setPlanTab, assetTab, setAssetTab, bizTab, setBizTab, alerts, go };
-    const cur = PAGES.find((p) => p.id === page) || SETTINGS_PAGE;
+    const ctx = { ...store, activeTxId, data, commit, month, setMonth, statsOf, firstMonth, accounts, openSheet, closeSheet, finishSheet, toast, setPage, theme, setTheme, effTheme, histTab, setHistTab, histSub, setHistSub, goalSub, setGoalSub, anaTab, setAnaTab, planTab, setPlanTab, assetTab, setAssetTab, bizTab, setBizTab, alerts, go };
+    const cur = PAGES.find((p) => p.id === page) || (page === 'analysis' ? REPORT_PAGE : SETTINGS_PAGE);
     // 일반 '+ 기록' 버튼은 거래를 기록하는 화면(홈·내역)에만, 전용 추가 버튼이 있는 탭(고정비·근무)에서는 숨겨요
-    const showAdd = page === 'home' || (page === 'history' && histTab !== 'fixed' && histTab !== 'work');
+    const showAdd = page === 'home' || (page === 'history' && !((histTab === 'expense' && histSub === 'fixed') || (histTab === 'income' && histSub === 'work')));
     const Page = { home: HomePage, history: HistoryPage, analysis: AnalysisPage, plan: PlanPage, assets: AssetsPage, settings: SettingsPage }[page] || HomePage;
     return (React.createElement(AppCtx.Provider, { value: ctx },
         React.createElement("div", { className: "app" },
@@ -19381,6 +19480,7 @@ function App() {
             React.createElement("main", { className: "main" },
                 React.createElement("header", { className: cx('topbar', scrolled && 'scrolled') },
                     React.createElement("div", { className: cx('top-l', page === 'settings' && 'no-month') },
+                        page === 'analysis' && React.createElement("button", { className: "icon-btn back-btn", onClick: () => setPage('home'), "aria-label": "홈으로 돌아가기" }, React.createElement(Icon, { n: "left" })),
                         React.createElement("h1", null, cur.label),
                         page !== 'settings' && React.createElement(MonthPicker, null)),
                     React.createElement("div", { className: "top-r" },
@@ -19395,7 +19495,7 @@ function App() {
                             "\uAE30\uB85D\uD558\uAE30"))),
                 React.createElement("div", { className: "content" },
                     React.createElement(Page, null))),
-            React.createElement("nav", { className: "bottomnav", "aria-label": "\uBA54\uB274" }, PAGES.map((p) => React.createElement(NavBtn, { key: p.id, p: p, on: page === p.id, onClick: () => setPage(p.id) }))),
+            React.createElement("nav", { className: "bottomnav", "aria-label": "\uBA54\uB274" }, PAGES.map((p) => React.createElement(NavBtn, { key: p.id, p: p, on: page === p.id || (page === 'analysis' && p.id === 'home'), onClick: () => setPage(p.id) }))),
             showAdd && React.createElement("button", { className: "fab", onClick: () => openSheet('entry'), "aria-label": "\uC218\uC785\u00B7\uC9C0\uCD9C \uAE30\uB85D\uD558\uAE30" },
                 React.createElement(Icon, { n: "plus", s: 20 }),
                 React.createElement("span", null, "\uAE30\uB85D")),
@@ -19828,182 +19928,172 @@ function normalizeTarget(t) {
 // 홈 숫자: 기존 계산식 그대로 (예상 순현금흐름 = 남은 돈 − 남은 고정비, 자유롭게 쓸 수 있는 돈 = 예상 순현금흐름 − 저축 목표까지 − 세금 적립)
 function homeNumbers(data, month, statsOf) {
     const st = statsOf(month);
-    const tm = thisMonth(), t = today();
+    const cf = st.cf;
     const settings = data.settings.settings || {};
-    const savingLeft = settings.savingTarget ? Math.max(0, settings.savingTarget - st.saving) : 0;
-    const RI = taxProfileOf(data) ? reserveInfo(data, statsOf) : {};
-    const reserveIds = live(data.account).filter((a) => a.kind === 'reserve').map((a) => a.id);
-    const reservedNow = sum(st.all.filter((x) => x.type === 'transfer' && reserveIds.includes(x.toAccountId)), (x) => x.amount);
-    const taxLeft = month === tm ? Math.max(0, sum(Object.values(RI), (r) => r.monthly || 0) - reservedNow) : 0;
-    const flow = st.remaining - st.fixedUnpaid;
-    const free = flow - savingLeft - taxLeft;
-    const remainDays = month === tm ? dim(month) - +t.slice(8) + 1 : month > tm ? dim(month) : 0;
-    return { st, settings, savingLeft, taxLeft, flow, free, remainDays };
+    // 예상 순현금흐름: 이번 달 순현금흐름에서 저축·투자와 아직 안 낸 고정비(개인·사업)를 뺀 값
+    const fixedUnpaid = sum(st.allOccs, (o) => o.remaining);
+    const flow = cf.net - cf.sep.saving - fixedUnpaid;
+    return { st, cf, settings, fixedUnpaid, flow };
+}
+// 실제 잔고: 계좌가 있고 이 달까지의 모든 입출금이 계좌에 연결돼 있을 때만 계산해요 (아니면 표시하지 않음)
+function realBalanceOf(data, month) {
+    const accs = live(data.account).filter((a) => a.kind === 'cash' || a.kind === 'deposit' || a.kind === 'reserve');
+    if (!accs.length)
+        return { ok: false, why: '등록된 계좌가 없어요.' };
+    const end = `${month}-${pad(dim(month))}`;
+    const unlinked = live(data.tx).filter((t) => t.date <= end && !t.accountId && !(t.type === 'expense' && t.split && t.split.payer === 'other' && !dutchGot(t)) && (t.type !== 'saving' || !t.toAccountId)).length;
+    if (unlinked)
+        return { ok: false, why: `계좌가 연결되지 않은 거래가 ${unlinked}건 있어 정확한 잔고를 계산할 수 없어요.` };
+    const v = accountValuesAt(data, month >= thisMonth() ? today() : end);
+    return { ok: true, value: sum(accs, (a) => v[a.id] || 0), n: accs.length };
 }
 function BasisSheet({ onClose }) {
-    const { data, month, statsOf } = useApp();
+    const { data, month, statsOf, go } = useApp();
+    const h = React.createElement;
+    const [view, setView] = useState('all');
     const H = homeNumbers(data, month, statsOf);
-    const st = H.st;
-    const rows = [['수입', st.income, ''], ['지출', st.expense, '−'], ['저축·투자', st.saving, '−'], ...(st.tax > 0 ? [['세금 납부', st.tax, '−']] : []), ['남은 고정비', st.fixedUnpaid, '−']];
-    return (React.createElement(Sheet, { title: "\uACC4\uC0B0 \uADFC\uAC70", onClose: onClose },
-        React.createElement("dl", { className: "calc h-basis" },
-            rows.map(([l, v, sg]) => React.createElement("div", { key: l },
-                React.createElement("dt", null, l),
-                React.createElement("dd", { className: "num" },
-                    sg ? `${sg} ` : '',
-                    won(v),
-                    "\uC6D0"))),
-            React.createElement("div", { className: "sum" },
-                React.createElement("dt", null, "\uC608\uC0C1 \uC21C\uD604\uAE08\uD750\uB984"),
-                React.createElement("dd", { className: "num" },
-                    won(H.flow),
-                    "\uC6D0")),
-            React.createElement("div", null,
-                React.createElement("dt", null, "\uC800\uCD95 \uBAA9\uD45C\uAE4C\uC9C0 \uB0A8\uC740 \uAE08\uC561"),
-                React.createElement("dd", { className: "num" },
-                    "\u2212 ",
-                    won(H.savingLeft),
-                    "\uC6D0")),
-            React.createElement("div", null,
-                React.createElement("dt", null, "\uC138\uAE08 \uC801\uB9BD (\uC774\uBC88 \uB2EC \uB0A8\uC740 \uBAAB)"),
-                React.createElement("dd", { className: "num" },
-                    "\u2212 ",
-                    won(H.taxLeft),
-                    "\uC6D0")),
-            React.createElement("div", { className: "sum big" },
-                React.createElement("dt", null, "\uC790\uC720\uB86D\uAC8C \uC4F8 \uC218 \uC788\uB294 \uB3C8"),
-                React.createElement("dd", { className: "num" },
-                    won(H.free),
-                    "\uC6D0"))),
-        React.createElement("p", { className: "calc-note" },
-            "\uB0A8\uC740 \uB3C8 ",
-            won(st.remaining),
-            "\uC6D0 = \uC218\uC785 \u2212 \uC9C0\uCD9C \u2212 \uC800\uCD95\u00B7\uD22C\uC790 \u2212 \uC138\uAE08 \uB0A9\uBD80. \uD558\uB8E8 \uC0AC\uC6A9 \uAC00\uB2A5 \uAE08\uC561 = \uC790\uC720\uB86D\uAC8C \uC4F8 \uC218 \uC788\uB294 \uB3C8 \u00F7 \uB0A8\uC740 ",
-            H.remainDays,
-            "\uC77C. \uC138\uAE08 \uC801\uB9BD ",
-            H.taxLeft ? `${won(H.taxLeft)}원` : '0원',
-            ".")));
+    const cf = H.cf, P = cf.personal, B = cf.business, X = cf.sep;
+    const sg = (v) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${won(Math.abs(v))}원`;
+    const row = (l, v, sign, cls, key) => h("div", { key: key || l, className: cls }, h("dt", null, l), h("dd", { className: "num" }, sign ? `${sign} ` : '', won(v), "원"));
+    const subRows = (S, who) => [
+        S.tax > 0 && row(`└ ${who}세금 납부`, S.tax, '', 'sub'),
+        S.dutchAdj !== 0 && row(`└ 더치페이 정산 차이 (${S.dutchAdj > 0 ? '먼저 낸 돈' : '아직 안 보낸 돈'})`, Math.abs(S.dutchAdj), S.dutchAdj > 0 ? '+' : '−', 'sub'),
+    ];
+    const T = view === 'personal' ? { inL: '개인 수입', outL: '개인 지출', netL: '개인 순현금흐름', S: P }
+        : view === 'business' ? { inL: '사업 매출 및 기타 수입', outL: '사업 운영비 및 기타 지출', netL: '사업 순현금흐름', S: B }
+            : { inL: '전체 수입', outL: '전체 지출', netL: '순현금흐름', S: { in: cf.income, out: cf.expense, net: cf.net } };
+    const seps = [['저축·투자', X.saving], ['계좌 간 이체', X.transfer], ['카드대금 납부 (사용할 때 이미 지출)', X.cardpay], ['대출 원금 상환', X.loan], ['대출 실행 (대출 계좌에서 받은 돈)', X.loanIn], ['세금 적립 (적립 계좌로 이동)', X.reserve], ['사업 인출 (사업 → 개인 이동)', X.draw]].filter(([, v]) => v > 0);
+    const bal = realBalanceOf(data, month);
+    return (h(Sheet, { title: "계산 근거", onClose },
+        h("div", { className: "stack" },
+            h(Seg, { full: true, value: view, onChange: setView, options: [['all', '전체'], ['personal', '개인'], ['business', '사업']] }),
+            h("dl", { className: "calc h-basis" },
+                row(T.inL, T.S.in, '+', null, 'in'),
+                view === 'all' && row('└ 개인', P.in, '', 'sub', 'ip'),
+                view === 'all' && row('└ 사업', B.in, '', 'sub', 'ib'),
+                row(T.outL, T.S.out, '−', null, 'out'),
+                view === 'all' && row('└ 개인', P.out, '', 'sub', 'op'),
+                view === 'all' && row('└ 사업', B.out, '', 'sub', 'ob'),
+                view === 'all' && (P.tax + B.tax) > 0 && row('└ 이 중 세금 납부', P.tax + B.tax, '', 'sub', 'ot'),
+                view === 'personal' && subRows(P, ''),
+                view === 'business' && subRows(B, '부가세 등 '),
+                view === 'all' && (P.dutchAdj + B.dutchAdj) !== 0 && row('└ 이 중 더치페이 정산 차이', Math.abs(P.dutchAdj + B.dutchAdj), P.dutchAdj + B.dutchAdj > 0 ? '+' : '−', 'sub', 'od'),
+                h("div", { className: "sum" }, h("dt", null, T.netL), h("dd", { className: cx('num', T.S.net < 0 && 'neg') }, sg(T.S.net)))),
+            h("p", { className: "small muted" }, view === 'personal' ? '개인으로 기록한 수입·지출만 더해요. 사업에서 가져온 돈(사업 인출)은 돈이 옮겨진 것이라 아래 별도 항목에 따로 보여요.'
+                : view === 'business' ? '사업으로 기록한 매출·경비와 부가세 등 사업 쪽 세금을 더해요. 매출·경비는 부가세 포함 금액이에요.'
+                    : '개인 + 사업 = 전체예요. 카드로 쓴 돈은 쓴 날 지출로 잡고, 카드대금 납부는 다시 빼지 않아요.'),
+            h("button", { type: "button", className: "link", onClick: () => { onClose(); go({ page: 'history', tab: 'all' }); } }, "이 달 상세 거래 내역 보기", h(Icon, { n: "right", s: 14 })),
+            h("h4", { className: "sec-t" }, "순현금흐름에서 제외한 항목 (별도 분류)"),
+            seps.length ? h("dl", { className: "calc" }, seps.map(([l, v]) => row(l, v, '', null))) : h("p", { className: "small muted" }, "이 달에는 따로 분류할 이동·저축·대출 거래가 없어요."),
+            h("h4", { className: "sec-t" }, "예상 순현금흐름 (홈 아래)"),
+            h("dl", { className: "calc" },
+                row('이번 달 순현금흐름', cf.net, ''),
+                row('저축·투자', X.saving, '−'),
+                row('남은 고정비 (개인·사업)', H.fixedUnpaid, '−'),
+                h("div", { className: "sum" }, h("dt", null, "예상 순현금흐름"), h("dd", { className: cx('num', H.flow < 0 && 'neg') }, sg(H.flow)))),
+            h("h4", { className: "sec-t" }, "실제 잔고"),
+            bal.ok ? h("dl", { className: "calc" }, row(`현금·예금 계좌 ${bal.n}개 잔고 합계`, bal.value, ''))
+                : h("p", { className: "small muted" }, "순현금흐름은 한 달 동안 들어오고 나간 돈의 차이라 통장 잔고와 달라요. ", bal.why, " 계좌별 기초잔액과 입출금을 모두 연결하면 여기 표시돼요."))));
+}
+// 홈: 요약 대시보드 — 순현금흐름 · 예산 진행 · 목표(저축·세금·비상자금) · 최근 거래 · 인사이트
+function homeGoals(data, month, statsOf, firstMonth) {
+    const st = statsOf(month);
+    const settings = data.settings.settings || {};
+    const budgets = budgetMap(data);
+    const varB = budgets._variable || 0, total = budgets._total || 0;
+    const B = varB || total;
+    const budget = B ? { target: B, used: varB ? st.variable : st.expense + st.fixedUnpaid, label: varB ? '변동비 예산' : '이번 달 예산' } : null;
+    const save = settings.savingTarget ? { target: settings.savingTarget, have: st.saving } : null;
+    const RI = taxProfileOf(data) ? reserveInfo(data, statsOf) : {};
+    const rs = Object.values(RI).filter((r) => r.target != null && r.target > 0);
+    const tax = rs.length ? { target: sum(rs, (r) => r.target), have: sum(rs, (r) => Math.min(Math.max(0, r.have || 0), r.target)), labels: rs.map((r) => r.label).join('·') } : null;
+    const E = emergencyInfo(data, statsOf, firstMonth);
+    const em = E.target ? { target: E.target, have: E.fund, covered: E.covered, months: E.months } : null;
+    return { st, budget, save, tax, em, E, hasTaxProfile: !!taxProfileOf(data) };
+}
+function HomeProg({ label, value, pct, sub, warn, onClick }) {
+    const p = Math.max(0, Math.min(100, pct || 0));
+    return (React.createElement("button", { type: "button", className: "hp-row", onClick },
+        React.createElement("span", { className: "hp-top" },
+            React.createElement("span", { className: "hp-l" }, label),
+            React.createElement("b", { className: cx('num', warn && 'warn-t') }, value)),
+        pct != null && React.createElement("span", { className: "bar hp-bar", "aria-hidden": "true" }, React.createElement("i", { className: cx(warn && 'over'), style: { width: `${p}%` } })),
+        sub && React.createElement("span", { className: "hp-s" }, sub)));
 }
 function HomePage() {
-    const { data, month, statsOf, firstMonth, alerts, go, accounts, openSheet, user } = useApp();
-    const { st, settings, flow, free, remainDays } = homeNumbers(data, month, statsOf);
-    const tm = thisMonth(), t = today();
-    const endOf = (m) => `${m}-${pad(dim(m))}`;
-    const nwNow = accounts.length ? netWorthAt(data, month >= tm ? t : endOf(month)) : null;
-    const nwPrev = accounts.length ? netWorthAt(data, endOf(addM(month, -1))) : null;
-    const nwCh = nwNow != null && firstMonth && addM(month, -1) >= firstMonth ? change(nwNow, nwPrev) : null;
-    const man = (v) => (Math.abs(v) >= 1e6 ? React.createElement(React.Fragment, null,
-        v < 0 ? '-' : '',
-        Math.round(Math.abs(v) / 1e4).toLocaleString('ko-KR'),
-        React.createElement("small", null, "\uB9CC\uC6D0")) : React.createElement(React.Fragment, null,
-        won(v),
-        React.createElement("small", null, "\uC6D0")));
-    const manTxt = (v) => (v >= 1e4 && v % 1e3 === 0 ? `${Math.round(v / 1e3) / 10}만` : won(v));
-    const goal = settings.savingTarget || 0;
-    const savePct = goal ? Math.round(ratio(st.saving, goal)) : null;
-    const active = alerts.filter((a) => !a.snoozeUntil);
-    const urgent = active.find((a) => a.level === 'critical');
-    const rest = active.filter((a) => a !== urgent).slice(0, urgent ? 2 : 3);
-    const flowTxt = `${flow > 0 ? '+' : ''}${won(flow)}`;
-    return (React.createElement("div", { className: "home6" },
-        React.createElement("div", { className: "h6-l" },
-            React.createElement("section", { className: "h6-kpi" },
-                React.createElement("p", { className: "k-l" },
-                    user && user.name ? React.createElement(React.Fragment, null,
-                        React.createElement("b", { className: "k-who" },
-                            user.name,
-                            "\uB2D8"),
-                        ", ") : null,
-                    month === tm ? '이번 달' : mShort(month),
-                    " \uC790\uC720\uB86D\uAC8C \uC4F8 \uC218 \uC788\uB294 \uB3C8"),
-                React.createElement("p", { className: cx('k-v num hero-v', free < 0 && 'neg') },
-                    won(free),
-                    React.createElement("small", null, "\uC6D0")),
-                React.createElement("p", { className: "k-s" },
-                    React.createElement("span", null, free > 0 && remainDays > 0 ? React.createElement(React.Fragment, null,
-                        "\uB0A8\uC740 ",
-                        remainDays,
-                        "\uC77C \u00B7 \uD558\uB8E8 ",
-                        React.createElement("b", { className: "num" },
-                            won(free / remainDays),
-                            "\uC6D0")) : month < tm ? '지난 달 결과예요' : '남은 금액이 없어요'),
-                    React.createElement("button", { className: "lnk", onClick: () => openSheet('basis') },
-                        "\uACC4\uC0B0 \uADFC\uAC70",
-                        React.createElement(Icon, { n: "right", s: 14 })))),
-            React.createElement("section", { className: "h6-flow" },
-                React.createElement("div", { className: "io" },
-                    React.createElement("button", { className: "io-item inc", onClick: () => go({ page: 'history', tab: 'income' }) },
-                        React.createElement("span", { className: "io-l" }, "\uB4E4\uC5B4\uC628 \uB3C8"),
-                        React.createElement("b", { className: "io-v num" },
-                            st.income > 0 ? `+${won(st.income)}` : won(st.income),
-                            React.createElement("small", null, "\uC6D0"))),
-                    React.createElement("button", { className: "io-item exp", onClick: () => go({ page: 'history', tab: 'expense' }) },
-                        React.createElement("span", { className: "io-l" }, "\uB098\uAC04 \uB3C8"),
-                        React.createElement("b", { className: "io-v num" },
-                            st.expense > 0 ? `−${won(st.expense)}` : won(st.expense),
-                            React.createElement("small", null, "\uC6D0")))),
-                React.createElement("button", { className: "result", onClick: () => go({ page: 'analysis', anaTab: 'flow' }) },
-                    React.createElement("span", { className: "r-l" },
-                        "\uC608\uC0C1 \uC21C\uD604\uAE08\uD750\uB984",
-                        React.createElement("em", null, "\uC800\uCD95\u00B7\uB0A8\uC740 \uACE0\uC815\uBE44 \uBC18\uC601")),
-                    React.createElement("b", { className: cx('r-v num', flow < 0 && 'neg') },
-                        flowTxt,
-                        React.createElement("small", null, "\uC6D0"))))),
-        React.createElement("div", { className: "h6-r h-side" },
-            React.createElement("section", { className: "h6-pos" },
-                React.createElement("button", { className: "p", onClick: () => go({ page: 'assets' }) },
-                    React.createElement("span", { className: "p-l" }, "\uC21C\uC790\uC0B0"),
-                    nwNow != null ? React.createElement(React.Fragment, null,
-                        React.createElement("b", { className: cx('p-v num', nwNow < 0 && 'neg') }, man(nwNow)),
-                        React.createElement("span", { className: "p-s num" }, nwCh == null ? '지난달 기록 없음' : `${nwCh >= 0 ? '↑ +' : '↓ −'}${Math.abs(Math.round(nwCh * 10) / 10)}% 지난달 대비`)) : React.createElement(React.Fragment, null,
-                        React.createElement("b", { className: "p-v muted-v" }, "\uACC4\uC88C \uBBF8\uB4F1\uB85D"),
-                        React.createElement("span", { className: "p-s" }, "\uC790\uC0B0\uC5D0\uC11C \uACC4\uC88C \uCD94\uAC00"))),
-                React.createElement("button", { className: "p", onClick: () => go({ page: 'plan', planTab: 'saving' }) },
-                    React.createElement("span", { className: "p-l" },
-                        +month.slice(5),
-                        "\uC6D4 \uC800\uCD95 \uBAA9\uD45C"),
-                    goal ? React.createElement(React.Fragment, null,
-                        React.createElement("b", { className: "p-v num" },
-                            savePct,
-                            React.createElement("small", null, "%")),
-                        React.createElement("span", { className: "bar", "aria-hidden": "true" },
-                            React.createElement("i", { style: { width: `${Math.min(100, savePct)}%` } })),
-                        React.createElement("span", { className: "p-s num" },
-                            manTxt(st.saving),
-                            " / ",
-                            manTxt(goal),
-                            "\uC6D0")) : React.createElement(React.Fragment, null,
-                        React.createElement("b", { className: "p-v muted-v" }, "\uBBF8\uC124\uC815"),
-                        React.createElement("span", { className: "p-s" }, "\uACC4\uD68D\uC5D0\uC11C \uBAA9\uD45C \uC815\uD558\uAE30")))),
-            React.createElement("section", { className: "h6-alerts" },
-                React.createElement("h2", null,
-                    "\uD655\uC778\uD560 \uD56D\uBAA9 ",
-                    React.createElement("span", { className: "num" }, active.length),
-                    active.length > 3 && React.createElement("button", { className: "lnk", onClick: () => openSheet('alerts') },
-                        "\uC804\uCCB4",
-                        React.createElement(Icon, { n: "right", s: 14 }))),
-                urgent && (React.createElement("button", { className: "urgent h-alert", onClick: () => go(urgent.target) },
-                    React.createElement("span", { className: "u-ic" },
-                        React.createElement(Icon, { n: "alert", s: 20 })),
-                    React.createElement("span", { className: "u-t" },
-                        React.createElement("b", null, urgent.title),
-                        React.createElement("span", null, urgent.body)),
-                    React.createElement(Icon, { n: "right", s: 16, className: "chev" }))),
-                rest.map((a) => (React.createElement("button", { key: a.key, className: "ali h-alert", onClick: () => go(a.target) },
-                    React.createElement("i", { className: cx('dot2', a.level === 'warn' && 'warn') }),
-                    React.createElement("span", { className: "at" }, a.title),
-                    React.createElement(Icon, { n: "right", s: 15, className: "chev" })))),
-                !active.length && React.createElement("p", { className: "hm-empty" }, "\uC9C0\uAE08 \uD655\uC778\uD560 \uC77C\uC774 \uC5C6\uC5B4\uC694.")))));
+    const { data, month, statsOf, firstMonth, alerts, go, openSheet, user } = useApp();
+    const { cf } = homeNumbers(data, month, statsOf);
+    const G = homeGoals(data, month, statsOf, firstMonth);
+    const tm = thisMonth();
+    const sgn = (v) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${won(Math.abs(v))}`;
+    const man = (v) => (Math.abs(v) >= 1e4 ? `${Math.round(v / 1e3) / 10}만` : won(v));
+    const recent = useMemo(() => live(data.tx).filter((t) => t.date && t.date.startsWith(month)).sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5), [data, month]);
+    const prefs = { ...DEFAULT_PREFS, ...(((data.settings.settings || {}).alertPrefs) || {}) };
+    const ins = useMemo(() => { try { return buildInsights(data, statsOf, firstMonth, prefs); } catch (e) { return []; } }, [data, statsOf, firstMonth]);
+    const rank = { critical: 0, warn: 1, info: 2 };
+    const active = alerts.filter((a) => !a.snoozeUntil).sort((a, b) => (rank[a.level] || 2) - (rank[b.level] || 2));
+    const items = active.slice(0, 2);
+    ins.forEach((x) => { if (items.length < 2 && !items.some((i) => i.key === x.key)) items.push(x); });
+    const B = G.budget;
+    const bLeft = B ? B.target - B.used : 0;
+    const h = React.createElement;
+    return (h("div", { className: "home6 home7" },
+        h("div", { className: "h6-l" },
+            h("section", { className: "h6-kpi" },
+                h("p", { className: "k-l" },
+                    user && user.name ? h(React.Fragment, null, h("b", { className: "k-who" }, user.name, "님"), ", ") : null,
+                    month === tm ? '이번 달' : mShort(month), " 순현금흐름"),
+                h("p", { className: cx('k-v num hero-v', cf.net < 0 && 'neg') }, sgn(cf.net), h("small", null, "원")),
+                h("div", { className: "k-io" },
+                    h("button", { type: "button", className: "k-io-r", onClick: () => go({ page: 'history', tab: 'income' }) },
+                        h("span", null, "들어온 돈"), h("b", { className: "num" }, cf.income > 0 ? `+${won(cf.income)}` : won(cf.income), h("small", null, "원"))),
+                    h("button", { type: "button", className: "k-io-r", onClick: () => go({ page: 'history', tab: 'expense' }) },
+                        h("span", null, "나간 돈"), h("b", { className: "num" }, cf.expense > 0 ? `−${won(cf.expense)}` : won(cf.expense), h("small", null, "원")))),
+                h("p", { className: "k-s k-s-end" },
+                    h("button", { className: "lnk", onClick: () => openSheet('basis') }, "계산 근거", h(Icon, { n: "right", s: 14 })))),
+            h("section", { className: "hcard" },
+                h("div", { className: "hcard-h" }, h("h2", null, "예산"), h("button", { className: "lnk", onClick: () => go({ page: 'plan', planTab: 'budget' }) }, B ? '자세히' : '예산 정하기', h(Icon, { n: "right", s: 14 }))),
+                B ? h(HomeProg, { label: B.label, value: bLeft >= 0 ? `${won(bLeft)}원 남음` : `${won(-bLeft)}원 초과`, pct: (B.used / B.target) * 100, warn: bLeft < 0, sub: `${won(B.used)} / ${won(B.target)}원 사용`, onClick: () => go({ page: 'plan', planTab: 'budget' }) })
+                    : h("div", { className: "hp-empty" },
+                        h("p", null, "예산을 정하면 남은 금액과 진행률을 보여드려요."),
+                        h("p", { className: "hp-s num" }, "대신 이번 달 지출 요약: 개인 ", won(cf.personal.out), "원 · 사업 ", won(cf.business.out), "원"))),
+            h("section", { className: "hcard" },
+                h("div", { className: "hcard-h" }, h("h2", null, "목표"), h("button", { className: "lnk", onClick: () => go({ page: 'plan', planTab: 'goal' }) }, "자세히", h(Icon, { n: "right", s: 14 }))),
+                h(HomeProg, G.save ? { label: `${+month.slice(5)}월 저축`, value: `${Math.round(ratio(G.save.have, G.save.target))}%`, pct: ratio(G.save.have, G.save.target), sub: `${man(G.save.have)} / ${man(G.save.target)}원`, onClick: () => go({ page: 'plan', planTab: 'saving' }) }
+                    : { label: `${+month.slice(5)}월 저축`, value: '목표 미설정', sub: `이번 달 저축 ${won(G.st.saving)}원 · 목표를 정하면 진행률을 보여드려요`, onClick: () => go({ page: 'plan', planTab: 'saving' }) }),
+                h(HomeProg, G.tax ? { label: `세금 적립 (${G.tax.labels})`, value: `${Math.round(ratio(G.tax.have, G.tax.target))}%`, pct: ratio(G.tax.have, G.tax.target), warn: G.tax.have < G.tax.target, sub: `${man(G.tax.have)} / ${man(G.tax.target)}원 준비`, onClick: () => go({ page: 'plan', planTab: 'tax' }) }
+                    : { label: '세금 적립', value: G.hasTaxProfile ? '적립 기준 미설정' : '사업자 설정 필요', sub: G.hasTaxProfile ? '적립률을 정하면 예상 세금 대비 준비금을 보여드려요' : '사업자 설정을 하면 세금 일정과 적립 목표를 계산해요', onClick: () => go({ page: 'plan', planTab: 'tax' }) }),
+                h(HomeProg, G.em ? { label: '비상자금', value: `${Math.round((G.em.covered || 0) * 10) / 10}개월치`, pct: ratio(G.em.have, G.em.target), warn: G.em.have < G.em.target, sub: `${man(G.em.have)} / ${man(G.em.target)}원 (목표 ${G.em.months}개월)`, onClick: () => go({ page: 'plan', planTab: 'emergency' }) }
+                    : { label: '비상자금', value: G.E.hasAcc ? '계산 대기' : '계좌 필요', sub: G.E.hasAcc ? '필수 지출 기록이 쌓이면 필요한 비상자금을 계산해요' : '자산에서 계좌를 등록하면 비상자금을 계산해요', onClick: () => go({ page: 'plan', planTab: 'emergency' }) }))),
+        h("div", { className: "h6-r h-side" },
+            h("section", { className: "hcard" },
+                h("div", { className: "hcard-h" }, h("h2", null, "최근 거래"), recent.length > 0 && h("button", { className: "lnk", onClick: () => go({ page: 'history', tab: 'all' }) }, "전체", h(Icon, { n: "right", s: 14 }))),
+                recent.length ? h("ul", { className: "rows" }, recent.map((t) => h(TxRow, { key: t.id, t, showDate: true })))
+                    : h("div", { className: "hp-empty" }, h("p", null, mShort(month), " 거래가 아직 없어요."), h("button", { className: "btn small", onClick: () => openSheet('entry') }, h(Icon, { n: "plus", s: 15 }), "첫 거래 기록하기"))),
+            h("section", { className: "hcard" },
+                h("div", { className: "hcard-h" }, h("h2", null, "인사이트"), active.length + ins.length > 2 && h("button", { className: "lnk", onClick: () => openSheet('alerts') }, "전체", h(Icon, { n: "right", s: 14 }))),
+                items.length ? h("div", { className: "ins-list" }, items.map((x) => h("button", { key: x.key, type: "button", className: cx('ins-i', 'lv-' + x.level), onClick: () => go(x.target) },
+                    h("span", { className: cx('lv', (LEVELS[x.level] || LEVELS.info)[1]) }, (LEVELS[x.level] || LEVELS.info)[0]),
+                    h("span", { className: "ins-t" }, h("b", null, x.title), x.body && h("span", null, x.body)),
+                    h(Icon, { n: "right", s: 15, className: "chev" }))))
+                    : h("div", { className: "hp-empty" }, h("p", null, "지금은 근거가 충분한 인사이트가 없어요."), h("p", { className: "hp-s" }, "기록이 쌓이면 변화와 이유를 알려드려요.")),
+                h("button", { type: "button", className: "link hc-more", onClick: () => go({ page: 'analysis', anaTab: 'income' }) }, "이번 달 리포트 보기 (수익·지출·현금흐름)", h(Icon, { n: "right", s: 14 }))))));
 }
+// 내역: 전체 / 지출 / 수입 / 이동 — 고정비·근무는 지출·수입 안의 칩으로
+const HIST_SUBS = { expense: [['all', '전체'], ['fixed', '고정비'], ['var', '변동']], income: [['all', '전체'], ['work', '근무'], ['biz', '사업'], ['etc', '기타']] };
 function HistoryPage() {
-    const { histTab, setHistTab } = useApp();
+    const { histTab, setHistTab, histSub, setHistSub } = useApp();
+    const subs = HIST_SUBS[histTab];
+    const sub = subs && subs.some(([v]) => v === histSub) ? histSub : 'all';
     return (React.createElement("div", { className: "stack" },
         React.createElement("div", { className: "tabs-scroll ul-tabs" },
-            React.createElement(Seg, { value: histTab, onChange: setHistTab, options: [['all', '전체'], ['expense', '지출'], ['income', '수입'], ['fixed', '고정비'], ['work', '근무'], ['move', '이체·저축']] })),
-        histTab === 'fixed' ? React.createElement(FixedPage, null) : histTab === 'work' ? React.createElement(WorkPanel, { mode: "log" }) : React.createElement(TxListPage, { preset: histTab })));
+            React.createElement(Seg, { value: histTab, onChange: setHistTab, options: [['all', '전체'], ['expense', '지출'], ['income', '수입'], ['move', '이동']] })),
+        subs && React.createElement("div", { className: "chips sub-chips", role: "group", "aria-label": histTab === 'expense' ? '지출 유형' : '수입 유형' },
+            subs.map(([v, l]) => React.createElement("button", { key: v, type: "button", className: cx('chip', sub === v && 'on'), "aria-pressed": sub === v, onClick: () => setHistSub(v) }, l))),
+        histTab === 'expense' && sub === 'fixed' ? React.createElement(FixedPage, null)
+            : histTab === 'income' && sub === 'work' ? React.createElement(WorkPanel, { mode: "log" })
+                : React.createElement(TxListPage, { key: histTab, preset: histTab, sub })));
 }
-// 한 달 돈의 흐름을 겹치지 않게 나눠요: 이체·저축·카드대금·사업 인출은 집계 제외, 대출 원금 상환과 세금은 따로,
-// 예상 급여(근무 기록)는 참고로만 보여주고 실제 입금(수입 기록)만 더해요. 포커 손익은 활동 기록 기준이에요.
 const LABOR_KINDS = ['salary', 'job', 'freelance'];
 function flowParts(data, statsOf, m) {
     const s = statsOf(m);
@@ -20027,7 +20117,7 @@ function flowParts(data, statsOf, m) {
     const dutchPay = sum(sp.filter((t) => t.split.payer === 'other'), (t) => (t.split.myShare || t.amount) - dGot(t));
     const W = s.work;
     return {
-        income, expense, tax, loanRepay: loanRepay + loanPrincipal, moved, net: income - expense - tax - loanRepay - loanPrincipal - (dutchCash - dutchOwn),
+        income: s.cf.income, expense: s.cf.expense, tax, dutchAdj: s.cf.personal.dutchAdj + s.cf.business.dutchAdj, loanRepay: s.cf.sep.loan, moved: s.cf.sep.saving + s.cf.sep.transfer + s.cf.sep.cardpay + s.cf.sep.draw + s.cf.sep.reserve + s.cf.sep.loanIn, net: s.cf.net,
         dutchN: sp.length, dutchOwn, dutchCash, dutchRecv, dutchPay,
         sales: s.biz.sales, costs: s.biz.costs, bizProfit: s.biz.profit, bizMinutes: W.minutes,
         labor, expected: W.jobNet, jobMinutes: W.jobMinutes,
@@ -20051,9 +20141,9 @@ function ProfitOverview() {
     const cfg = {
         all: { label: '순현금흐름', key: 'net', sign: true,
             chart: [{ name: '전체 수입', color: 'var(--sage)', values: pick((p) => p.income) }, { name: '전체 지출', color: 'var(--c-var)', values: pick((p) => p.expense) }, { name: '순현금흐름', color: 'var(--c-fixed)', values: pick((p) => p.net) }],
-            lines: [['전체 수입', '+', cur.income], ['전체 지출', '−', cur.expense], ['세금 납부', '−', cur.tax], ['대출 원금 상환', '−', cur.loanRepay], ...(cur.dutchN && cur.dutchCash !== cur.dutchOwn ? [[cur.dutchCash > cur.dutchOwn ? '더치페이 미정산 (먼저 낸 돈)' : '더치페이 미정산 (아직 안 보낸 돈)', cur.dutchCash > cur.dutchOwn ? '−' : '+', Math.abs(cur.dutchCash - cur.dutchOwn)]] : [])],
-            extra: [...(cur.dutchN ? [['더치페이 실제 현금 유출', `${won(cur.dutchCash)}원`], ['더치페이 최종 내 소비액', `${won(cur.dutchOwn)}원`], ['미정산 받을 돈 / 보낼 돈', `${won(cur.dutchRecv)} / ${won(cur.dutchPay)}원`]] : []), ['사업 순수익 (세전)', `${signed(cur.bizProfit)}원`], ['근로 수입 (실제 입금)', `${won(cur.labor)}원`], ['포커 손익 (참고)', `${signed(cur.poker)}원`]],
-            note: `전체 수입·지출은 개인과 사업을 합친 금액이에요. 계좌 이체·저축·카드대금·사업 인출 ${won(cur.moved)}원은 돈의 위치만 바뀐 것이라 수입·지출에 넣지 않았어요. 예상 급여는 실제 입금이 아니라 더하지 않아요. 지출은 더치페이 내 부담금 기준이고, 대출 원금 상환은 부채 감소, 이자는 지출로 따로 잡아요. 포커 손익은 ‘수입·지출에 자동 반영’한 기록만 포함돼요.` },
+            lines: [['전체 수입', '+', cur.income], ['전체 지출', '−', cur.expense]],
+            extra: [...(cur.tax ? [['└ 지출 중 세금 납부', `${won(cur.tax)}원`]] : []), ...(cur.dutchAdj ? [['└ 지출 중 더치페이 정산 차이', `${signed(cur.dutchAdj)}원`]] : []), ...(cur.loanRepay ? [['대출 원금 상환 (별도 분류)', `${won(cur.loanRepay)}원`]] : []), ...(cur.dutchN ? [['더치페이 실제 현금 유출', `${won(cur.dutchCash)}원`], ['더치페이 최종 내 소비액', `${won(cur.dutchOwn)}원`], ['미정산 받을 돈 / 보낼 돈', `${won(cur.dutchRecv)} / ${won(cur.dutchPay)}원`]] : []), ['사업 순수익 (세전)', `${signed(cur.bizProfit)}원`], ['근로 수입 (실제 입금)', `${won(cur.labor)}원`], ['포커 손익 (참고)', `${signed(cur.poker)}원`]],
+            note: `전체 수입·지출은 개인과 사업을 합친 금액이에요. 계좌 이체·저축·카드대금·사업 인출 ${won(cur.moved)}원은 돈의 위치만 바뀐 것이라 수입·지출에 넣지 않았어요. 홈·계산 근거와 같은 기준이에요: 순현금흐름 = 전체 수입 − 전체 지출(세금 납부·더치페이 실제 지출 포함). 대출 원금 상환은 부채 감소라 별도로 보여주고, 이자는 지출에 포함돼요. 예상 급여는 실제 입금이 아니라 더하지 않아요. 포커 손익은 ‘수입·지출에 자동 반영’한 기록만 포함돼요.` },
         biz: { label: '사업 순수익 (세전)', key: 'bizProfit', sign: true,
             chart: [{ name: '매출', color: 'var(--sage)', values: pick((p) => p.sales) }, { name: '경비', color: 'var(--c-var)', values: pick((p) => p.costs) }, { name: '순수익', color: 'var(--c-fixed)', values: pick((p) => p.bizProfit) }],
             lines: [['매출', '+', cur.sales], ['사업 경비', '−', cur.costs]],
@@ -20174,30 +20264,40 @@ function IncomePanel() {
         React.createElement("h3", { className: "sec-t" }, "\uC0AC\uC5C5(OAOC) \uC0C1\uC138"),
         React.createElement(BizSummary, null)));
 }
+
 function AnalysisPage() {
     const { anaTab, setAnaTab } = useApp();
     return (React.createElement("div", { className: "stack" },
         React.createElement("div", { className: "tabs-scroll ul-tabs" },
-            React.createElement(Seg, { value: anaTab === 'eff' ? 'income' : anaTab, onChange: setAnaTab, options: [['income', '수익'], ['spend', '지출'], ['flow', '현금흐름'], ['asset', '자산'], ['insight', '인사이트']] })),
-        anaTab === 'income' || anaTab === 'eff' ? React.createElement(React.Fragment, null,
-            React.createElement(ProfitOverview, null),
-            React.createElement(EfficiencyCompare, null),
-            React.createElement(IncomePanel, null),
-            React.createElement("h3", { className: "sec-t" }, "OAOC \uC0C1\uC138"),
-            React.createElement(WorkPanel, { mode: "eff" }))
-            : anaTab === 'spend' ? React.createElement(SpendAnalysis, { part: "spend" },
-                React.createElement(RecurringCard, null))
-                : anaTab === 'flow' ? React.createElement(SpendAnalysis, { part: "flow" },
-                    React.createElement(FlowForecast, null))
-                    : anaTab === 'asset' ? React.createElement(AssetGrowthPanel, null)
-                        : React.createElement(InsightsPanel, null)));
+            React.createElement(Seg, { value: anaTab === 'eff' ? 'income' : anaTab, onChange: setAnaTab, options: [['income', '수익'], ['spend', '지출'], ['flow', '현금흐름']] })),
+        anaTab === 'spend' ? React.createElement(SpendAnalysis, { part: "spend" },
+            React.createElement(RecurringCard, null))
+            : anaTab === 'flow' ? React.createElement(SpendAnalysis, { part: "flow" })
+                : React.createElement(React.Fragment, null,
+                    React.createElement(ProfitOverview, null),
+                    React.createElement(EfficiencyCompare, null),
+                    React.createElement(IncomePanel, null),
+                    React.createElement("h3", { className: "sec-t" }, "OAOC 상세"),
+                    React.createElement(WorkPanel, { mode: "eff" }))));
 }
+// 플랜: 예산 / 목표(저축·비상자금·세금 적립) / 시뮬레이션
+const GOAL_SUBS = [['saving', '저축'], ['emergency', '비상자금'], ['tax', '세금 적립']];
 function PlanPage() {
-    const { planTab, setPlanTab } = useApp();
+    const { planTab, setPlanTab, goalSub, setGoalSub } = useApp();
     return (React.createElement("div", { className: "stack" },
         React.createElement("div", { className: "tabs-scroll ul-tabs" },
-            React.createElement(Seg, { value: planTab, onChange: setPlanTab, options: [['budget', '이번 달'], ['saving', '저축'], ['emergency', '비상자금'], ['tax', '세금'], ['sim', '시뮬레이션']] })),
-        planTab === 'tax' ? React.createElement(TaxPanel, null) : planTab === 'saving' ? React.createElement(SavingPlanPanel, null) : planTab === 'emergency' ? React.createElement(EmergencyPanel, null) : planTab === 'sim' ? React.createElement(SimulationPanel, null) : React.createElement(BudgetPanel, null)));
+            React.createElement(Seg, { value: planTab, onChange: setPlanTab, options: [['budget', '예산'], ['goal', '목표'], ['sim', '시뮬레이션']] })),
+        planTab === 'goal' && React.createElement("div", { className: "chips sub-chips", role: "group", "aria-label": "목표 종류" },
+            GOAL_SUBS.map(([v, l]) => React.createElement("button", { key: v, type: "button", className: cx('chip', goalSub === v && 'on'), "aria-pressed": goalSub === v, onClick: () => setGoalSub(v) }, l))),
+        planTab === 'goal' ? (goalSub === 'tax' ? React.createElement(TaxPanel, null) : goalSub === 'emergency' ? React.createElement(EmergencyPanel, null) : React.createElement(SavingPlanPanel, null))
+            : planTab === 'sim' ? React.createElement(React.Fragment, null,
+                React.createElement("h3", { className: "sec-t" }, "다음 달 예상"),
+                React.createElement(FlowForecast, null),
+                React.createElement("h3", { className: "sec-t" }, "지출 변화 시뮬레이션"),
+                React.createElement(SimulationPanel, null),
+                React.createElement("h3", { className: "sec-t" }, "목표 달성 예상"),
+                React.createElement(ScenarioPanel, null))
+                : React.createElement(BudgetPanel, null)));
 }
 function SettingsPage() { return React.createElement(MyPage, { part: "settings" }); }
 /* ───────── 근무 기록 · 주문 ───────── */
@@ -23192,14 +23292,16 @@ function AssetsPage() {
     const { assetTab, setAssetTab } = useApp();
     return (React.createElement("div", { className: "stack" },
         React.createElement("div", { className: "tabs-scroll ul-tabs" },
-            React.createElement(Seg, { value: assetTab === 'cash' || assetTab === 'deposit' ? 'accounts' : assetTab, onChange: setAssetTab, options: [['all', '전체'], ['accounts', '계좌'], ['invest', '투자'], ['debt', '부채'], ['trend', '추이']] })),
-        assetTab === 'accounts' || assetTab === 'cash' || assetTab === 'deposit' ? React.createElement(AccountListPanel, { kinds: ['cash', 'card', 'deposit', 'reserve'], title: "\uACC4\uC88C" })
-            : assetTab === 'invest' ? React.createElement(InvestPanel, null)
-                : assetTab === 'debt' ? React.createElement(DebtPanel, null)
-                    : assetTab === 'trend' ? React.createElement(React.Fragment, null,
-                        React.createElement(AssetGrowthPanel, null),
-                        React.createElement(ScenarioPanel, null))
-                        : React.createElement(AssetOverview, null)));
+            React.createElement(Seg, { value: assetTab, onChange: setAssetTab, options: [['all', '요약'], ['accounts', '계좌'], ['invest', '투자·부채']] })),
+        assetTab === 'accounts' ? React.createElement(AccountListPanel, { kinds: ['cash', 'card', 'deposit', 'reserve'], title: "계좌" })
+            : assetTab === 'invest' ? React.createElement(React.Fragment, null,
+                React.createElement("h3", { className: "sec-t" }, "투자 자산"),
+                React.createElement(InvestPanel, null),
+                React.createElement("h3", { className: "sec-t" }, "대출·카드 미결제"),
+                React.createElement(DebtPanel, null),
+                React.createElement("h3", { className: "sec-t" }, "자산·부채 추이"),
+                React.createElement(AssetGrowthPanel, null))
+                : React.createElement(AssetOverview, null)));
 }
 function AssetOverview() {
     const { data, statsOf, firstMonth, openSheet, accounts, go } = useApp();
@@ -23972,7 +24074,9 @@ function TxRow({ t, showDate }) {
             React.createElement("span", { className: "row-amt num" }, t.amount < 0 ? `+${won(-t.amount)}` : `${sign}${won(t.amount)}`))));
 }
 /* ───────── 내역 ───────── */
-function TxListPage({ preset = 'all' }) {
+const tagsOf = (t) => ((t.memo || '').match(/#[^\s#.,]+/g) || []);
+const isWorkIncome = (t) => t.scope !== 'business' && ((t.sourceId && String(t.sourceId).startsWith('job_')) || t.incType === 'job' || !!t.jobPay);
+function TxListPage({ preset = 'all', sub = 'all' }) {
     const { data, month, openSheet } = useApp();
     const [q, setQ] = useState('');
     const [typeSel, setType] = useState('all');
@@ -23980,6 +24084,12 @@ function TxListPage({ preset = 'all' }) {
     const [cat, setCat] = useState('all');
     const [allTime, setAllTime] = useState(false);
     const [scope, setScope] = useState('all');
+    const [accF, setAccF] = useState('all');
+    const [tagF, setTagF] = useState('all');
+    const [fvF, setFvF] = useState('all');
+    const [srcF, setSrcF] = useState('all');
+    const fv = preset === 'expense' && sub !== 'all' ? sub : fvF;
+    const src = preset === 'income' && sub !== 'all' ? sub : srcF;
     const [showF, setShowF] = useState(false);
     // 닫힌 필터 패널은 inert로 키보드·스크린리더에서 제외 (React 18은 inert 속성을 직접 지원하지 않아 DOM으로 설정)
     const filterRef = useRef(null);
@@ -23995,12 +24105,22 @@ function TxListPage({ preset = 'all' }) {
             l = l.filter((t) => (o.type === 'move' ? (MOVE_TYPES.includes(t.type) && t.type !== 'tax') || t.type === 'saving' : o.type === 'income' ? t.type === 'income' || t.type === 'draw' : o.type === 'expense' ? t.type === 'expense' || t.type === 'tax' : t.type === o.type));
         if (o.cat !== 'all')
             l = l.filter((t) => t.category === o.cat);
+        if (o.acc !== 'all')
+            l = l.filter((t) => t.accountId === o.acc || t.toAccountId === o.acc || (t.split && t.split.settleAccountId === o.acc));
+        if (o.tag !== 'all')
+            l = l.filter((t) => tagsOf(t).includes(o.tag));
+        if (o.fv !== 'all')
+            l = l.filter((t) => (t.type !== 'expense' && t.type !== 'tax') || (o.fv === 'fixed' ? !!t.ruleId : !t.ruleId));
+        if (o.src !== 'all')
+            l = l.filter((t) => (t.type !== 'income' && t.type !== 'draw') || (o.src === 'work' ? isWorkIncome(t) : o.src === 'biz' ? t.scope === 'business' : !isWorkIncome(t) && t.scope !== 'business'));
         const s = q.trim().toLowerCase();
         if (s)
             l = l.filter((t) => [t.memo, t.source, t.category, String(t.amount)].some((x) => x && String(x).toLowerCase().includes(s)));
         return l.sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || 0) - (a.createdAt || 0));
     };
-    const list = useMemo(() => filt({ allTime, scope, type, cat }), [data, month, q, type, cat, allTime, scope]);
+    const list = useMemo(() => filt({ allTime, scope, type, cat, acc: accF, tag: tagF, fv, src }), [data, month, q, type, cat, allTime, scope, accF, tagF, fv, src]);
+    const allTags = useMemo(() => [...new Set(live(data.tx).flatMap(tagsOf))].sort(), [data]);
+    const accList = live(data.account);
     const groups = useMemo(() => {
         const g = [];
         list.forEach((t) => { let last = g[g.length - 1]; if (!last || last.date !== t.date) {
@@ -24010,14 +24130,15 @@ function TxListPage({ preset = 'all' }) {
         return g;
     }, [list]);
     const cats = type === 'income' ? [...incCats(), ...bizIncCats()] : type === 'saving' ? SAVING_CATS : [...expCats(), ...bizExpCats(), ...TAX_KINDS];
-    const inc = sum(list.filter((t) => t.type === 'income' || t.type === 'draw'), (t) => t.amount);
-    const exp = sum(list.filter((t) => t.type === 'expense' || t.type === 'tax'), (t) => t.amount);
+    const lcf = cashFlowOf(data, list);
+    const inc = lcf.income;
+    const exp = lcf.expense;
     const td = today();
     const ydD = new Date();
     ydD.setDate(ydD.getDate() - 1);
     const yd = ymd(ydD);
     const dayName = (d) => { const dt = new Date(d + 'T00:00:00'); return `${dt.getMonth() + 1}월 ${dt.getDate()}일 ${'일월화수목금토'[dt.getDay()]}`; };
-    const nF = (allTime ? 1 : 0) + (scope !== 'all' ? 1 : 0) + (cat !== 'all' ? 1 : 0) + (preset === 'all' && typeSel !== 'all' ? 1 : 0);
+    const nF = (allTime ? 1 : 0) + (scope !== 'all' ? 1 : 0) + (cat !== 'all' ? 1 : 0) + (preset === 'all' && typeSel !== 'all' ? 1 : 0) + (accF !== 'all' ? 1 : 0) + (tagF !== 'all' ? 1 : 0) + (fvF !== 'all' && preset !== 'expense' ? 1 : 0) + (srcF !== 'all' && preset !== 'income' ? 1 : 0);
     const Chip = ({ on, children, onClick }) => React.createElement("button", { type: "button", className: cx('chip', on && 'on'), onClick: onClick }, children);
     return (React.createElement("div", { className: "stack hist2" },
         React.createElement("div", { className: "hs-bar" },
@@ -24038,14 +24159,28 @@ function TxListPage({ preset = 'all' }) {
             React.createElement("div", { className: "chips" }, [['all', '전체'], ['personal', '개인'], ['business', '사업']].map(([v, l]) => React.createElement(Chip, { key: v, on: scope === v, onClick: () => setScope(v) }, l))),
             preset === 'all' && React.createElement(React.Fragment, null,
                 React.createElement("p", { className: "hs-fl" }, "\uC720\uD615"),
-                React.createElement("div", { className: "chips" }, [['all', '전체'], ['expense', '지출'], ['income', '수입'], ['saving', '저축'], ['move', '이체·저축']].map(([v, l]) => React.createElement(Chip, { key: v, on: typeSel === v, onClick: () => { setType(v); setCat('all'); } }, l)))),
+                React.createElement("div", { className: "chips" }, [['all', '전체'], ['expense', '지출'], ['income', '수입'], ['move', '이동']].map(([v, l]) => React.createElement(Chip, { key: v, on: typeSel === v, onClick: () => { setType(v); setCat('all'); } }, l)))),
+            (type === 'all' || type === 'expense') && preset !== 'expense' && React.createElement(React.Fragment, null,
+                React.createElement("p", { className: "hs-fl" }, "고정 / 변동"),
+                React.createElement("div", { className: "chips" }, [['all', '전체'], ['fixed', '고정'], ['var', '변동']].map(([v, l]) => React.createElement(Chip, { key: v, on: fvF === v, onClick: () => setFvF(v) }, l)))),
+            (type === 'all' || type === 'income') && preset !== 'income' && React.createElement(React.Fragment, null,
+                React.createElement("p", { className: "hs-fl" }, "수입원"),
+                React.createElement("div", { className: "chips" }, [['all', '전체'], ['work', '근무'], ['biz', '사업'], ['etc', '기타']].map(([v, l]) => React.createElement(Chip, { key: v, on: srcF === v, onClick: () => setSrcF(v) }, l)))),
+            accList.length > 0 && React.createElement(React.Fragment, null,
+                React.createElement("p", { className: "hs-fl" }, "계좌"),
+                React.createElement("select", { className: "input", value: accF, onChange: (e) => setAccF(e.target.value), "aria-label": "계좌" },
+                    React.createElement("option", { value: "all" }, "전체 계좌"),
+                    accList.map((a) => React.createElement("option", { key: a.id, value: a.id }, a.name)))),
+            React.createElement("p", { className: "hs-fl" }, "태그"),
+            allTags.length ? React.createElement("div", { className: "chips" }, [['all', '전체'], ...allTags.map((t) => [t, t])].map(([v, l]) => React.createElement(Chip, { key: v, on: tagF === v, onClick: () => setTagF(v) }, l)))
+                : React.createElement("p", { className: "small muted" }, "메모에 #태그(예: #출근, #거래처)를 적으면 여기서 모아볼 수 있어요."),
             type !== 'move' && React.createElement(React.Fragment, null,
                 React.createElement("p", { className: "hs-fl" }, "\uCE74\uD14C\uACE0\uB9AC"),
                 React.createElement("select", { className: "input", value: cat, onChange: (e) => setCat(e.target.value), "aria-label": "\uCE74\uD14C\uACE0\uB9AC" },
                     React.createElement("option", { value: "all" }, "\uC804\uCCB4 \uCE74\uD14C\uACE0\uB9AC"),
                     cats.map((c) => React.createElement("option", { key: c }, c)))),
             React.createElement("div", { className: "hs-fbtns" },
-                React.createElement("button", { className: "btn", onClick: () => { setAllTime(false); setScope('all'); setCat('all'); setType('all'); } }, "\uCD08\uAE30\uD654"),
+                React.createElement("button", { className: "btn", onClick: () => { setAllTime(false); setScope('all'); setCat('all'); setType('all'); setAccF('all'); setTagF('all'); setFvF('all'); setSrcF('all'); } }, "\uCD08\uAE30\uD654"),
                 React.createElement("button", { className: "btn primary grow", onClick: () => setShowF(false) },
                     "\uACB0\uACFC ",
                     list.length,
@@ -25200,14 +25335,14 @@ function SpendAnalysis({ part = 'spend', children }) {
                 React.createElement("div", { className: "card-h" },
                     React.createElement("h3", null, "\uC218\uC785\uACFC \uC9C0\uCD9C")),
                 React.createElement(BarChart, { labels: labels, series: [
-                        { name: '수입', color: 'var(--sage)', values: ss.map((s) => s && s.income) },
-                        { name: '지출', color: 'var(--c-fixed)', values: ss.map((s) => s && s.expense) },
+                        { name: '수입', color: 'var(--sage)', values: ss.map((s) => s && s.cf.income) },
+                        { name: '지출', color: 'var(--c-fixed)', values: ss.map((s) => s && s.cf.expense) },
                     ] })),
             React.createElement("section", { className: "card" },
                 React.createElement("div", { className: "card-h" },
                     React.createElement("h3", null, "\uC21C\uD604\uAE08\uD750\uB984"),
-                    React.createElement("span", { className: "muted small" }, "\uC218\uC785 \u2212 \uC9C0\uCD9C \u2212 \uC800\uCD95\u00B7\uD22C\uC790")),
-                React.createElement(BarChart, { labels: labels, series: [{ name: '순현금흐름', color: (v) => (v < 0 ? 'var(--neg)' : 'var(--sage)'), values: ss.map((s) => s && s.remaining) }] })))),
+                    React.createElement("span", { className: "muted small" }, "수입 − 지출 (개인·사업, 저축·이체 제외)")),
+                React.createElement(BarChart, { labels: labels, series: [{ name: '순현금흐름', color: (v) => (v < 0 ? 'var(--neg)' : 'var(--sage)'), values: ss.map((s) => s && s.cf.net) }] })))),
         part === 'spend' && (React.createElement(React.Fragment, null,
             React.createElement("section", { className: "card" },
                 React.createElement("div", { className: "card-h" },
@@ -25260,10 +25395,10 @@ function SpendAnalysis({ part = 'spend', children }) {
                             return (React.createElement("tr", { key: m },
                                 React.createElement("td", null, mLabel(m)),
                                 s ? React.createElement(React.Fragment, null,
-                                    React.createElement("td", { className: "num" }, won(s.income)),
-                                    React.createElement("td", { className: "num" }, won(s.expense)),
+                                    React.createElement("td", { className: "num" }, won(s.cf.income)),
+                                    React.createElement("td", { className: "num" }, won(s.cf.expense)),
                                     React.createElement("td", { className: "num" }, won(s.saving)),
-                                    React.createElement("td", { className: cx('num', s.remaining < 0 && 'neg') }, won(s.remaining)),
+                                    React.createElement("td", { className: cx('num', s.cf.net < 0 && 'neg') }, won(s.cf.net)),
                                     React.createElement("td", { className: "num" }, fmtPct(s.fixedRatio)),
                                     React.createElement("td", { className: "num" }, fmtPct(s.savingRate))) : React.createElement("td", { colSpan: "6", className: "muted" }, "\uAE30\uB85D \uC5C6\uC74C")));
                         })))))))));
