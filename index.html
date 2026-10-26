@@ -1213,6 +1213,11 @@ html,body,#root{height:100%;overflow:hidden}
 [data-theme="dark"] .money-bar.good,[data-theme="dark"] .money-detail.good{--hint-fg:#79cca8}
 [data-theme="dark"] .money-bar.warn,[data-theme="dark"] .money-detail.warn{--hint-fg:#e3bc77}
 @media(max-width:360px){.money-message{gap:7px;padding:5px}.money-emoji{width:30px;height:30px;font-size:21px}.money-settings{width:34px}}
+/* Advisor and summary share the column edges and a consistent card gap. */
+.home7 .h6-l > .money-bar{width:100%;box-sizing:border-box;margin:0 0 14px;border-radius:18px}
+.home7 .h6-l > .h6-kpi{margin:0;width:100%;box-sizing:border-box}
+.money-settings{flex-shrink:0}
+.money-bar{cursor:pointer}
 </style>
 </head>
 <body>
@@ -20262,7 +20267,7 @@ function HomeProg({ label, value, pct, sub, warn, onClick }) {
 }
 const ADVISOR_TOPICS={saving:'저축',spend:'소비습관 개선',income:'수입',invest:'투자 관리'};
 function moneyHints(data,date,localState='saved',status='local') {
- const settings=data.settings.settings||{},prefs=settings.moneyAdvisor||{},topics=prefs.topics||Object.keys(ADVISOR_TOPICS),primary=prefs.primary||'saving';
+ const settings=data.settings.settings||{},prefs=settings.moneyAdvisor||{},topics=prefs.topics||Object.keys(ADVISOR_TOPICS),primary=topics.includes(prefs.primary)?prefs.primary:(topics[0]||'saving');
  const month=date.slice(0,7),prev=addM(month,-1),day=+date.slice(8),out=[];
  const put=(key,topic,tone,title,body,target,priority=0)=>{
   if(!priority&&(!topics.includes(topic)||prefs.reduced?.[topic]))return;
@@ -20311,8 +20316,17 @@ function moneyHints(data,date,localState='saved',status='local') {
  if(investmentGoal>0&&investing>=investmentGoal)put('investgoal:'+month,'invest','good','이번 달 투자 적립 목표를 달성했어요!',`기록된 납입 ${won(investing)}원 / 목표 ${won(investmentGoal)}원. 수익률과는 별개예요.`,{page:'assets',assetTab:'invest'});
  const unsettled=txs.filter(t=>t.split&&t.split.payer!=='other').map(t=>({t,n:sum(t.split.parts||[],p=>Math.max(0,(p.share||0)-(p.settled||0)))})).filter(x=>x.n>0);
  if(unsettled.length)put('dutch','spend','info',`정산받을 금액 ${won(sum(unsettled,x=>x.n))}원이 남아 있어요.`,`${unsettled.length}건의 공동 결제 기록 기준이에요. 실제 정산 여부를 확인해 주세요.`,{sheet:['entry',{tx:unsettled[0].t}]});
+ // A selected goal always has a truthful neutral card when no measured insight qualifies.
+ if(!out.some(a=>a.topic===primary&&!a.priority)){
+  const neutral={
+   saving:['저축 목표부터 함께 챙겨볼까요?','저축을 우선으로 살펴보고 있어요. 목표와 저축 기록이 쌓이면 달성률을 알려드려요.',{page:'assets',assetTab:'saving'}],
+   spend:['소비 습관을 함께 살펴볼게요.','소비습관 개선을 우선으로 살펴보고 있어요. 예산과 비교할 지출 기록이 쌓이면 변화를 알려드려요.',{sheet:['budget',{}]}],
+   income:['수입의 변화를 함께 살펴볼게요.','수입을 우선으로 살펴보고 있어요. 지난달 같은 기간과 비교할 기록이 쌓이면 증감을 알려드려요.',{page:'history',histTab:'income'}],
+   invest:['투자 적립과 자산 구성을 챙겨볼게요.','투자 관리를 우선으로 살펴보고 있어요. 투자 계좌와 목표를 등록하면 기록을 기준으로 안내해요.',{page:'assets',assetTab:'invest'}]
+  }[primary];
+  out.push({key:'empty',tone:'info',topic:primary,title:neutral[0],body:neutral[1],target:neutral[2],score:110});
+ }
  out.sort((a,b)=>b.score-a.score||a.key.localeCompare(b.key));
- if(!out.length)out.push({key:'empty',tone:'info',topic:primary,title:current.length?'관심 목표를 기준으로 기록을 살펴보고 있어요.':'이번 달 기록을 시작해 볼까요?',body:'비교할 기록이나 설정된 목표가 부족하면 성과를 단정하지 않아요. 관심 분야와 목표를 설정해 주세요.',target:{sheet:['entry',{}]},score:0});
  return out;
 }
 function useMoneyHints(){const {data,localState,status}=useApp();const [date,setDate]=useState(today());useEffect(()=>{const id=setInterval(()=>setDate(today()),30000);return()=>clearInterval(id);},[]);return {date,hints:useMemo(()=>moneyHints(data,date,localState,status),[data,date,localState,status])};}
@@ -20321,31 +20335,33 @@ function advisorVisual(a) {
  if(a.key==='sync')return {emoji:'☁️',label:'연결 확인'};
  if(a.key.startsWith('balance:'))return {emoji:'💳',label:'잔액 확인'};
  if(a.priority)return {emoji:'🔔',label:'납부 알림'};
- if(a.key==='empty')return {emoji:'👋',label:'오늘의 머니 비서'};
+ if(a.key==='empty')return {emoji:{saving:'🐷',spend:'🛒',income:'💰',invest:'📈'}[a.topic],label:ADVISOR_TOPICS[a.topic]+' 우선'};
  if(a.key==='dutch')return {emoji:'🤝',label:'정산 알림'};
  const emoji={saving:'🐷',spend:'🛒',income:'💰',invest:'📈'}[a.topic]||'💬';
  return {emoji,label:a.tone==='good'?'잘하고 있어요':a.tone==='warn'?'살펴볼까요?':(ADVISOR_TOPICS[a.topic]||'오늘의')+' 알림'};
 }
 function MoneyAdvisorBar(){
  const {openSheet}=useApp(),{hints}=useMoneyHints(),a=hints[0],v=advisorVisual(a),h=React.createElement;
- return h('section',{className:'money-bar '+a.tone,'aria-label':'오늘의 머니 비서'},
-  h('button',{className:'money-message',onClick:()=>openSheet('moneyAdvisor'),title:a.title,'aria-label':v.label+'. '+a.title+'. 상세 보기'},
+ return h('section',{className:'money-bar '+a.tone,'aria-label':'오늘의 머니 비서',onClick:e=>{if(e.target===e.currentTarget)openSheet('moneyAdvisor');}},
+  h('button',{type:'button',className:'money-message','aria-haspopup':'dialog',onClick:()=>openSheet('moneyAdvisor'),title:a.title,'aria-label':v.label+'. '+a.title+'. 상세 보기'},
    h('span',{className:'money-emoji','aria-hidden':true},v.emoji),
    h('span',{className:'money-copy'},h('span',{className:'money-kicker'},v.label,a.tone==='good'&&h('span',{'aria-hidden':true},' ✨')),h('span',{className:'money-title'},a.title)),
    h('span',{className:'money-chevron','aria-hidden':true},'›')),
-  h('button',{className:'money-settings','aria-label':'머니 비서 관심 분야 설정',onClick:()=>openSheet('moneyAdvisor',{showPrefs:true})},h(Icon,{n:'gear',s:17})));
+  h('button',{type:'button',className:'money-settings','aria-haspopup':'dialog','aria-label':'머니 비서 관심 분야 설정',onClick:()=>openSheet('moneyAdvisor',{showPrefs:true})},h(Icon,{n:'gear',s:17})));
 }
 function MoneyAdvisorSheet({onClose,showPrefs=false}){
  const {data,commit,toast,openSheet,go,retry}=useApp(),{date,hints}=useMoneyHints(),h=React.createElement;
  const s=data.settings.settings||{id:'settings'},p=s.moneyAdvisor||{};
  const [editing,setEditing]=useState(showPrefs),[topics,setTopics]=useState(p.topics||Object.keys(ADVISOR_TOPICS)),[primary,setPrimary]=useState(p.primary||'saving'),[savingGoal,setSavingGoal]=useState(p.savingGoal||s.savingTarget||0),[investGoal,setInvestGoal]=useState(p.investGoal||0),[err,setErr]=useState('');
  const put=patch=>{try{commit([{kind:'settings',rec:{...s,moneyAdvisor:{...p,...patch}}}]);return true;}catch(e){setErr(e.message);return false;}};
+ const preview=moneyHints({...data,settings:{...data.settings,settings:{...s,moneyAdvisor:{...p,topics,primary,savingGoal,investGoal,reduced:{}}}}},date)[0],previewVisual=advisorVisual(preview);
  const act=a=>{if(a.target?.retry){retry();return;}if(a.target?.sheet){openSheet(...a.target.sheet);return;}onClose();go(a.target);};
  const save=()=>{if(!topics.length){setErr('관심 분야를 하나 이상 골라 주세요.');return;}if(put({topics,primary:topics.includes(primary)?primary:topics[0],savingGoal,investGoal,reduced:{}})){setEditing(false);toast('머니 비서 설정을 저장했어요');}};
  return h(Sheet,{title:editing?'머니 비서 설정':'오늘의 머니 비서',onClose,footer:editing?h('button',{className:'btn primary grow',onClick:save},'설정 저장'):null},
   h('p',{className:'small muted'},`${date} · 입력된 기록을 계산한 안내 · 외부 AI 연결 없음`),
   h('button',{className:'link',onClick:()=>setEditing(!editing)},editing?'안내 보기':'관심 분야·목표 설정'),
   editing?h('div',{className:'form'},h('p',null,'관심 분야를 고르고 가장 중요한 목표 하나를 정해 주세요.'),
+   h('div',{className:'money-preview note','aria-live':'polite'},h('span',{className:'small muted'},'홈 알림 미리보기 · 설정 저장 후 적용'),h('p',null,previewVisual.emoji+' '+preview.title)),
    h('div',{className:'chips'},Object.entries(ADVISOR_TOPICS).map(([key,label])=>h('button',{key,className:cx('chip',topics.includes(key)&&'on'),'aria-pressed':topics.includes(key),onClick:()=>setTopics(t=>t.includes(key)?t.filter(x=>x!==key):[...t,key])},({saving:'🐷 ',spend:'🛒 ',income:'💰 ',invest:'📈 '}[key]||'')+label))),
    h(Field,{label:'가장 중요한 목표'},h('select',{className:'input',value:topics.includes(primary)?primary:topics[0]||'',onChange:e=>setPrimary(e.target.value)},topics.map(k=>h('option',{key:k,value:k},ADVISOR_TOPICS[k])))),
    h(Field,{label:'월 저축 목표 (투자 제외)'},h(AmountInput,{value:savingGoal,onChange:setSavingGoal})),h(Field,{label:'월 투자 적립 목표'},h(AmountInput,{value:investGoal,onChange:setInvestGoal})),
