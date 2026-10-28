@@ -1230,6 +1230,32 @@ html,body,#root{height:100%;overflow:hidden}
 .entry-calculation{display:flex;align-items:center;gap:8px;justify-content:center;min-height:28px;margin:2px 0 6px}
 .calculation-expression{font-size:12px;color:var(--ink2);overflow-wrap:anywhere;min-width:0;font-variant-numeric:tabular-nums}
 .entry-calculation .btn{flex-shrink:0;min-width:40px;min-height:32px}
+/* 수입·근무 연결: 기존 테마 토큰만 사용 */
+.main,.content,.content>.stack{min-width:0}.content svg{max-width:100%}
+@media(min-width:960px){.app{grid-template-columns:224px minmax(0,1fr)}}
+.wi-box{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:16px;min-width:0}.wi-box>.stack{margin-top:14px}.wi-row{display:grid;gap:12px;padding:14px;border:1px solid var(--line);border-radius:12px;min-width:0}.wi-box .field,.wi-row .field{min-width:0}.wi-row input{max-width:100%;min-width:0}.wi-candidate{padding:10px 0;align-items:flex-start}.wi-result{display:grid;grid-template-columns:1.15fr 1fr 1.3fr 1.3fr;gap:14px;padding:18px 0;border-bottom:1px solid var(--line);min-width:0}.wi-result>div{display:flex;flex-direction:column;gap:6px;min-width:0}.wi-result b{font-size:15px;overflow-wrap:anywhere}.wi-result small{font-size:12px;color:var(--ink2);line-height:1.5}.wi-detail{grid-column:1/-1;font-size:13px}.wi-detail>summary{cursor:pointer;color:var(--ink2)}.wi-log{width:100%;font-size:13px;justify-content:space-between;gap:12px;white-space:normal}.wi-log span{overflow-wrap:anywhere}.wi-analysis{min-width:0}.wi-analysis summary{flex-wrap:wrap}.wi-analysis .seg{max-width:100%}.wi-analysis .seg button{white-space:normal}.wi-table{min-width:0}.wi-box .work-sum{display:block}.wi-box .work-sum>div{display:flex;justify-content:space-between;gap:12px}
+@media(max-width:650px){.wi-result{grid-template-columns:1fr 1fr;gap:16px}.wi-name{grid-column:1/-1}.wi-result>div:last-of-type{grid-column:1/-1}.wi-box{padding:12px}.wi-row{padding:12px}.wi-log{align-items:flex-start}.wi-log b{flex-shrink:0}}
+
+
+/* Final source: disclosure and narrow-width rhythm */
+.more-sec>summary,.balance-details>summary,.wi-detail>summary,details.more>summary{position:relative;list-style:none;padding-right:30px;cursor:pointer}
+.more-sec>summary::-webkit-details-marker,.balance-details>summary::-webkit-details-marker,.wi-detail>summary::-webkit-details-marker,details.more>summary::-webkit-details-marker{display:none}
+.more-sec>summary::after,.balance-details>summary::after,.wi-detail>summary::after,details.more>summary::after{content:"";position:absolute;right:5px;top:50%;width:7px;height:7px;border-right:1.7px solid var(--ink2);border-bottom:1.7px solid var(--ink2);transform:translateY(-70%) rotate(45deg);transition:transform .16s}
+.more-sec[open]>summary::after,.balance-details[open]>summary::after,.wi-detail[open]>summary::after,details.more[open]>summary::after{transform:translateY(-20%) rotate(225deg)}
+.recent-details>.hcard{padding:0!important;margin:12px 0 0!important;background:transparent;border:0}
+.recent-details>.hcard>.hcard-h{margin:0 0 6px;justify-content:flex-end}
+.recent-details>.hcard>.hcard-h h2{display:none}
+.recent-details .rows{margin:0!important}.recent-details{padding:18px 20px}
+.recent-details{position:relative}.recent-details>summary{padding-right:100px}.recent-details>.hcard>.hcard-h{position:absolute;right:46px;top:16px;margin:0}.recent-details>.hcard>.hcard-h .hpill{min-height:30px}
+.save-status{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:8px 0;font-size:12px}
+.income-trend .mini-rows>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;align-items:start}
+.income-trend .mini-rows span{word-break:keep-all;overflow-wrap:normal}
+.income-trend .mini-rows b{white-space:nowrap;overflow-wrap:normal;text-align:right}
+.income-trend .small{word-break:keep-all}.pay-basis{margin:8px 0}.pay-basis>summary{font-size:13px;padding-top:10px;padding-bottom:10px}
+.nav-btn svg{transition:transform .16s}.nav-btn.on svg{transform:translateY(-1px)}
+.wi-analysis{padding:0!important;background:transparent}.wi-analysis>.card{padding:0!important;background:transparent}.wi-analysis .small,.wi-analysis small{word-break:keep-all}
+@media(max-width:600px){.income-trend .mini-rows>div{grid-template-columns:minmax(0,1fr);gap:4px;padding:9px 0}.income-trend .mini-rows b{text-align:left;white-space:normal;word-break:keep-all;overflow-wrap:break-word}.more-sec .stack>.card{padding:14px}.recent-details{padding:16px}.wi-result b{word-break:keep-all;overflow-wrap:normal}}
+
 </style>
 </head>
 <body>
@@ -18465,7 +18491,7 @@ function sourceOf(t, data) {
     }
     return null;
 }
-const workSourceOf = (w, data) => (w.kind === 'job' ? 'job_' + w.jobId : w.sourceId || bizSourceId(data));
+const workSourceOf = (w, data) => (w.kind === 'job' ? 'job_' + w.jobId : w.sourceId || (w.kind==='salary'?'src_salary':w.kind==='freelance'?'src_freelance':bizSourceId(data)));
 const sourceName = (data, id) => { const x = sourcesOf(data, true).find((o) => o.id === id); return x ? x.name : '미지정'; };
 const vatSplit = (n, vatType) => (vatType === 'taxable' ? { supply: Math.round(n / 1.1), vat: n - Math.round(n / 1.1) } : { supply: n, vat: 0 });
 const INTERVALS = [[1, '매월'], [2, '2개월마다'], [3, '3개월마다'], [6, '6개월마다'], [12, '매년']];
@@ -18945,7 +18971,7 @@ function monthStats(data, m) {
     const sales = sum(by(biz, 'income'), amt), costs = sum(by(biz, 'expense').filter((t) => t.category !== LOAN_PRINCIPAL_CAT), amt);
     const income = persIncome + sales - costs;
     const worklogs = live(data.worklog).filter((w) => w.date && w.date.startsWith(m));
-    const bizLogs = worklogs.filter((w) => w.kind !== 'job' && w.kind !== 'poker');
+    const bizLogs = worklogs.filter(isBizWork);
     const pokerLogs = worklogs.filter((w) => w.kind === 'poker');
     const byType = {}, byJob = {};
     bizLogs.forEach((w) => { byType[w.type || '기타 업무'] = (byType[w.type || '기타 업무'] || 0) + (w.minutes || 0); });
@@ -18958,7 +18984,7 @@ function monthStats(data, m) {
     });
     Object.values(byJob).forEach((j) => { j.days = j.dates.size; });
     const work = { minutes: sum(bizLogs, (w) => w.minutes), days: new Set(bizLogs.map((w) => w.date)).size, byType, byJob, jobMinutes: sum(Object.values(byJob), (j) => j.minutes), jobPay: sum(Object.values(byJob), (j) => j.pay), jobNet: sum(Object.values(byJob), (j) => j.net),
-        pokerMinutes: sum(pokerLogs, (w) => w.minutes), poker: { count: pokerLogs.length, buyin: sum(pokerLogs, (w) => w.buyin), fee: sum(pokerLogs, (w) => w.fee), prize: sum(pokerLogs, (w) => w.prize), profit: sum(pokerLogs, pokerProfit) } };
+        salaryMinutes: sum(worklogs.filter(w=>w.kind==='salary'),w=>w.minutes), freelanceMinutes: sum(worklogs.filter(w=>w.kind==='freelance'),w=>w.minutes), pokerMinutes: sum(pokerLogs, (w) => w.minutes), poker: { count: pokerLogs.length, buyin: sum(pokerLogs, (w) => w.buyin), fee: sum(pokerLogs, (w) => w.fee), prize: sum(pokerLogs, (w) => w.prize), profit: sum(pokerLogs, pokerProfit) } };
     return {
         m, reviewed:reviewState(data,m)==='done', all, txs, worklogs, work, txCount: all.length, cf: cashFlowOf(data, all), income, persIncome, drawn, loanPaid, spendUnpaid, expense, saving, invest, savingOnly: saving - invest, tax, fixedPaid, fixedUnpaid, fixedTotal, variable, byCat, occs, allOccs, subscription,
         remaining: income - expense - saving - tax,
@@ -19699,7 +19725,7 @@ function App() {
             React.createElement("aside", { className: "sidebar" },
                 React.createElement("div", { className: "brand" }, "My Balance"),
                 React.createElement("nav", { className: "side-nav" }, PAGES.map((p) => (React.createElement("button", { key: p.id, className: page === p.id ? 'on' : '', onClick: () => setPage(p.id), "aria-current": page === p.id ? 'page' : undefined },
-                    React.createElement(Icon, { n: p.icon }),
+                    React.createElement(NavigationIcon, { name: p.icon }),
                     p.label)))),
                 React.createElement("button", { className: cx('side-set', page === 'settings' && 'on'), onClick: () => setPage('settings') },
                     React.createElement(Icon, { n: "gear" }),
@@ -19733,14 +19759,19 @@ function App() {
 }
 function StorageNotice() {
  const {localState,lastSaved,status,retry,page}=useApp();
- if(page==='home')return null;
+ if(!['retry','error'].includes(localState)&&!['error','quota'].includes(status))return null;
  return React.createElement('div',{className:'small muted save-status',role:'status'},
   localState==='retry'?'기기 저장 가능 · 실패한 입력은 입력창에서 다시 저장해 주세요':localState==='error'?'기기 저장 실패 · 입력 내용은 아직 저장되지 않았어요':`기기 저장 ${lastSaved?new Date(lastSaved).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul'}):'대기'}`,
   ' · 서버: ',{local:'로그인 전',synced:'동기화 완료',syncing:'동기화 중',error:'동기화 실패',quota:'용량 초과'}[status]||status,
-  React.createElement('button',{className:'link',onClick:retry},'다시 시도'));
+  ['error','quota'].includes(status)&&React.createElement('button',{className:'link',onClick:retry},'연결 재시도'));
+}
+
+function NavigationIcon({name,size=23}){
+ const h=React.createElement,paths={home:'M3 10.5 12 3l9 7.5V21h-6v-7H9v7H3Z',list:'M5 3h14v18H5Z',chart:'M4 13h4v8H4Zm6-6h4v14h-4Zm6-4h4v18h-4Z',wallet:'M3 6h18v15H3Zm0 0 14-3v3'};
+ return h('svg',{width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:1.65,strokeLinecap:'round',strokeLinejoin:'round','aria-hidden':true},h('path',{d:paths[name]||ICONS[name],fill:'currentColor',fillOpacity:.12}),name==='list'&&h('path',{d:'M9 8h6M9 12h6M9 16h4'}),name==='wallet'&&h('path',{d:'M17 12h4v5h-4a2.5 2.5 0 0 1 0-5Z'}));
 }
 const NavBtn = ({ p, on, onClick }) => (React.createElement("button", { className: cx('nav-btn', on && 'on'), onClick: onClick, "aria-current": on ? 'page' : undefined },
-    React.createElement(Icon, { n: p.icon, s: 22 }),
+    React.createElement(NavigationIcon, { name: p.icon }),
     React.createElement("span", null, p.label)));
 function MonthPicker() {
     const { month, setMonth, period, page, anaTab } = useApp();
@@ -20845,10 +20876,11 @@ function IncomeAnalysis() {
             h("p", { className: "ia-d" }, "회사·근무처에서 받은 급여 · 통장에 들어온 금액 기준"),
             R.gross > 0 && h(React.Fragment, null,
                 kv('근무 기록 기준 세전 급여', R.gross),
-                kv('예상 공제 (4대보험·소득세)', R.gross - R.net, { minus: true }),
-                kv('예상 세후 급여', R.net, { sum: true }),
+                kv('설정한 공제액', R.gross - R.net, { minus: true }),
+                kv('근무 기준 예상 급여', R.net, { sum: true }),
                 kv('실제 급여 입금', R.labor),
-                Math.abs(R.labor - R.net) >= 1000 && h("p", { className: "inc-note" }, "예상 세후 급여와 실제 입금이 ", h("b", { className: "num" }, won(Math.abs(R.labor - R.net)), "원"), " 달라요. 아직 안 들어온 급여가 있거나 공제율이 다를 수 있어요.")),
+                h('details',{className:'pay-basis more-sec'},h('summary',null,'계산 근거 보기'),h('p',{className:'small muted'},`입력한 근무시간 × 시급으로 계산한 급여 합계 ${won(R.gross)}원 − 설정한 공제액 ${won(R.gross-R.net)}원 = ${won(R.net)}원. 근무 기록에 저장된 값을 합산하며 세무기관이나 은행에서 조회한 금액은 아닙니다. 실제 수입에는 입금 기록만 반영합니다.`)),
+                Math.abs(R.labor - R.net) >= 1000 && h("p", { className: "inc-note" }, "근무 기준 예상 금액과 실제 입금이 ", h("b", { className: "num" }, won(Math.abs(R.labor - R.net)), "원"), " 차이가 있어요. 근무 기록과 입금의 대상 기간·근무처가 다를 수 있어 미지급 여부를 판단할 수는 없어요.")),
             !R.gross && kv('급여 입금', R.labor, { sum: true }),
             R.freeToLabor && R.freelance > 0 && kv('그중 프리랜서(3.3%) 입금', R.freelance)),
         h("section", { className: "hcard" },
@@ -20891,16 +20923,12 @@ function AnalysisPage() {
     const opts = g === 'flow' && !biz ? ANA_GROUPS.flow.filter((x) => x[0] !== 'sim') : ANA_GROUPS[g];
     const body = g === 'income' ? e(React.Fragment, null,
         e(IncomeAnalysis, null),
-        biz && e("details", { className: "more-sec", open: t === 'eff' },
-            e("summary", null, "사업·수입원 상세", e("span", null, "효율 · 수입원별 손익 · OAOC · 주문")),
+        e("details", { className: "more-sec", open: t === 'eff' },
+            e("summary", null, "사업·수입원 상세", e("span", null, "근무시간 · 시간당 수입 · 수입원별 손익")),
             e("div", { className: "stack" },
                 e(ProfitOverview, null),
                 e(EfficiencyCompare, null),
-                e(IncomePanel, null),
-                e("h3", { className: "sec-t" }, "OAOC 상세"),
-                e(WorkPanel, { mode: "eff" }),
-                e("h3", { className: "sec-t" }, "주문"),
-                e(OrdersPanel, null))))
+                e(IncomePanel, null))))
         : t === 'spend' ? e(SpendAnalysis, { part: "spend" }, e(RecurringCard, null))
             : t === 'budget' ? e(BudgetPanel, null)
                 : t === 'flow' ? e(React.Fragment, null, e(CashMovementPanel, null), e('details', {className:'more-sec'}, e('summary',null,'소비 추이 자세히'),e(SpendAnalysis,{part:'flow'})))
@@ -21100,7 +21128,7 @@ function deductOf(w, data) {
 }
 const netPay = (pay, rate) => Math.round((pay || 0) * (1 - (rate || 0) / 100));
 const pokerProfit = (w) => (Number(w.prize) || 0) - (Number(w.buyin) || 0) - (Number(w.fee) || 0);
-function WorkSheet({ log, prefill, onClose }) {
+function LegacyWorkSheet({ log, prefill, onClose }) {
     const { data, commit, toast } = useApp();
     const h = React.createElement;
     const b = log || prefill || {};
@@ -21292,7 +21320,7 @@ function WorkSheet({ log, prefill, onClose }) {
                     h("div", { className: "chips" }, bizSources.map((x) => h("button", { key: x.id, type: "button", className: cx('chip', (bizSrc || bizSourceId(data)) === x.id && 'on'), onClick: () => setBizSrc(x.id) }, x.name)))),
                 h(Field, { label: "업무" },
                     h("div", { className: "chips" }, types.map((t) => h("button", { key: t, type: "button", className: cx('chip', type === t && 'on'), onClick: () => setType(t) }, t)))),
-                orders.length > 0 && (h(Field, { label: "주문 연결" },
+                false && (h(Field, { label: "주문 연결" },
                     h("select", { className: "input", value: orderId, onChange: (e) => setOrderId(e.target.value) },
                         h("option", { value: "" }, "연결 안 함"),
                         orders.map((o) => h("option", { key: o.id, value: o.id }, o.name, o.customer ? ` · ${o.customer}` : ''))))))),
@@ -21305,7 +21333,7 @@ const ACT_COLORS = { biz: 'var(--sage)', job: 'var(--c-var)', poker: 'var(--c-fi
 function ActivityTime() {
     const { month, statsOf } = useApp();
     const W = statsOf(month).work;
-    const all = [['biz', '사업', W.minutes], ['job', '아르바이트', W.jobMinutes], ['poker', '포커', W.pokerMinutes]];
+    const all = [['biz', '사업', W.minutes], ['job', '아르바이트', W.jobMinutes], ['salary','급여',W.salaryMinutes||0], ['freelance','프리랜서',W.freelanceMinutes||0], ['poker', '포커', W.pokerMinutes]];
     const items = all.filter(([, , v]) => v > 0).map(([k, l, v]) => ({ label: l, value: v, color: ACT_COLORS[k] }));
     const total = sum(all, (x) => x[2]);
     return (React.createElement("section", { className: "card" },
@@ -21338,8 +21366,8 @@ function JobsCard() {
             const j = jobById(data, id) || { name: '삭제된 근무처', wage: 0 };
             const s = byJob[id] || { minutes: 0, pay: 0, net: 0, days: 0 };
             const net = s.net != null ? s.net : s.pay;
-            const got = st.txs.filter((t) => t.type === 'income' && t.jobPay && t.jobPay.jobId === id && t.jobPay.month === month);
-            const gotSum = sum(got, (t) => t.amount);
+            const got=live(data.tx).filter(t=>t.type==='income'&&sourceOf(t,data)==='job_'+id&&(t.workLink?(t.workLink.allocations||[]).some(a=>{const w=data.worklog[a.worklogId];return w&&!w.deleted&&workMonthOf(w)===month;}):t.jobPay&&t.jobPay.month===month));
+            const gotSum=sum(got,t=>t.workLink?sum(t.workLink.allocations.filter(a=>{const w=data.worklog[a.worklogId];return w&&!w.deleted&&workMonthOf(w)===month;}),a=>a.amount):t.amount);
             return (React.createElement("li", { key: id, className: "job" },
                 React.createElement("div", { className: "row-between" },
                     React.createElement("div", null,
@@ -22933,23 +22961,7 @@ function essentialAvg(statsOf, month, firstMonth) {
         return null;
     return sum(ms, (m) => { const s = statsOf(m); return sum(s.txs.filter((t) => t.type === 'expense' && (t.ruleId || isEssential(t.category))), (t) => t.amount) + s.fixedUnpaid; }) / ms.length;
 }
-function sourceEfficiency(data, statsOf, m) {
-    const tot = sourceTotals(data, statsOf, m);
-    const mins = {}, expected = {};
-    statsOf(m).worklogs.filter((w) => w.kind !== 'poker').forEach((w) => { const id = workSourceOf(w, data); mins[id] = (mins[id] || 0) + (w.minutes || 0); if (w.kind === 'job')
-        expected[id] = (expected[id] || 0) + (w.pay || 0); });
-    const ids = [...new Set([...Object.keys(tot).filter((id) => tot[id].earned || tot[id].sales), ...Object.keys(mins)])];
-    return ids.map((id) => {
-        const src = sourcesOf(data, true).find((x) => x.id === id) || {};
-        const t = tot[id] || { earned: 0, received: 0, costs: 0, sales: 0 };
-        let earned = t.earned, basis = src.kind === 'business' ? '순이익(세전)' : '받은 돈';
-        if (src.kind === 'job' && !t.received && expected[id]) {
-            earned = expected[id] - t.costs;
-            basis = '예상 급여';
-        }
-        return { id, name: src.name || sourceName(data, id), kind: src.kind, minutes: mins[id] || 0, earned, sales: t.sales, basis, hourly: perHour(earned, mins[id] || 0), hourlyGross: src.kind === 'business' ? perHour(t.sales, mins[id] || 0) : null };
-    }).sort((a, b) => (b.hourly || -1) - (a.hourly || -1));
-}
+function sourceEfficiency(data,statsOf,m){return workIncomeAnalysis(data,[m]);}
 // 고정비로 등록되지 않았는데 3개월 이상 비슷한 금액으로 나가는 지출
 function recurringCandidates(data, month) {
     const from = addM(month, -3);
@@ -23089,7 +23101,7 @@ function buildInsights(data, statsOf, firstMonth, P) {
         const e1 = sourceEfficiency(data, statsOf, pm), e0 = sourceEfficiency(data, statsOf, ppm);
         e1.forEach((r) => {
             const r0 = e0.find((x) => x.id === r.id);
-            if (!r0 || r.hourly == null || r0.hourly == null || r0.hourly <= 0)
+            if (!r0 || !r.complete || !r0.complete || r.hourly == null || r0.hourly == null || r0.hourly <= 0)
                 return;
             const ch = change(r.hourly, r0.hourly);
             if (ch <= -(P.hourlyDropPct || 15))
@@ -23171,63 +23183,22 @@ function IncomeTrend() {
     totals.forEach((t) => t && Object.entries(t).forEach(([id, v]) => { ids[id] = (ids[id] || 0) + Math.max(0, v.earned); }));
     const top = Object.entries(ids).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([id]) => id);
     const share = top.length ? ids[top[0]] / sum(Object.values(ids)) * 100 : null;
-    return (React.createElement("section", { className: "card" },
+    return (React.createElement("section", { className: "card income-trend" },
         React.createElement("div", { className: "card-h" },
             React.createElement("h3", null, "\uC6D4\uBCC4 \uC218\uC785\uC6D0 \uD750\uB984"),
             React.createElement("span", { className: "muted small" }, "\uCD5C\uADFC 6\uAC1C\uC6D4")),
         firstMonth ? React.createElement(BarChart, { labels: series.map(mShort), series: top.map((id, i) => ({ name: sourceName(data, id), color: PALETTE[i % PALETTE.length], values: totals.map((t) => (t ? Math.max(0, (t[id] || {}).earned || 0) : null)) })) }) : React.createElement("p", { className: "muted small" }, "\uAE30\uB85D\uC774 \uC313\uC774\uBA74 \uBCF4\uC5EC\uB4DC\uB824\uC694."),
         React.createElement("div", { className: "mini-rows" },
             React.createElement("div", null,
-                React.createElement("span", null, "\uC218\uC785 \uBCC0\uB3D9\uC131 (6\uAC1C\uC6D4, \uC18C\uB4DD)"),
+                React.createElement("span", null, "수입 변동성"),
                 React.createElement("b", { className: "num" }, ip.ok ? `${fmtPct(ip.cv * 100)} · 표준편차 ${won(ip.sd)}원` : `데이터 부족 (${ip.have}/3개월)`)),
             React.createElement("div", null,
-                React.createElement("span", null, "\uBCF4\uC218\uC801\uC73C\uB85C \uBCF8 \uC6D4 \uC218\uC785"),
+                React.createElement("span", null, "보수적 월 수입"),
                 React.createElement("b", { className: "num" }, ip.ok ? `${won(ip.conservative)}원` : '—')),
             React.createElement("div", null,
-                React.createElement("span", null, "\uC218\uC785\uC6D0 \uC9D1\uC911\uB3C4 (\uAC00\uC7A5 \uD070 \uC218\uC785\uC6D0 \uBE44\uC911)"),
+                React.createElement("span", null, "가장 큰 수입원 비중"),
                 React.createElement("b", { className: "num" }, share != null ? `${sourceName(data, top[0])} ${fmtPct(share)}` : '—'))),
         React.createElement("p", { className: "small muted" }, "\uBCC0\uB3D9\uC131 = \uC6D4\uBCC4 \uC18C\uB4DD\uC758 \uD45C\uC900\uD3B8\uCC28 \u00F7 \uD3C9\uADE0. \uBCF4\uC218\uC801 \uC218\uC785 = \uCD5C\uADFC 3\uAC1C\uC6D4 \uD3C9\uADE0\uACFC (6\uAC1C\uC6D4 \uD3C9\uADE0 \u2212 \uD45C\uC900\uD3B8\uCC28) \uC911 \uC791\uC740 \uAC12.")));
-}
-function EfficiencyCompare() {
-    const { data, month, statsOf, firstMonth } = useApp();
-    const rows = sourceEfficiency(data, statsOf, month);
-    const pv = sourceEfficiency(data, statsOf, addM(month, -1));
-    const series = [...Array(6)].map((_, i) => addM(month, i - 5));
-    const eff = series.map((m) => (firstMonth && m >= firstMonth ? sourceEfficiency(data, statsOf, m) : []));
-    const withHours = [...new Set(eff.flat().filter((r) => r.minutes > 0).map((r) => r.id))].slice(0, 4);
-    return (React.createElement("section", { className: "card" },
-        React.createElement("div", { className: "card-h" },
-            React.createElement("h3", null,
-                mShort(month),
-                " \uC218\uC785\uC6D0\uBCC4 \uD6A8\uC728")),
-        rows.length ? (React.createElement("div", { className: "table-wrap" },
-            React.createElement("table", { className: "tbl eff-tbl" },
-                React.createElement("thead", null,
-                    React.createElement("tr", null,
-                        React.createElement("th", null, "\uC218\uC785\uC6D0"),
-                        React.createElement("th", null, "\uADFC\uBB34\uC2DC\uAC04"),
-                        React.createElement("th", null, "\uBC88 \uB3C8"),
-                        React.createElement("th", null, "\uC2DC\uAC04\uB2F9"),
-                        React.createElement("th", null, "\uC9C0\uB09C\uB2EC"))),
-                React.createElement("tbody", null, rows.map((r) => {
-                    const p = pv.find((x) => x.id === r.id);
-                    return (React.createElement("tr", { key: r.id },
-                        React.createElement("td", null,
-                            r.name,
-                            React.createElement("span", { className: "row-s block" }, r.basis)),
-                        React.createElement("td", { className: "num" }, r.minutes ? fmtMin(r.minutes) : '기록 없음'),
-                        React.createElement("td", { className: "num" }, won(r.earned)),
-                        React.createElement("td", { className: "num" },
-                            React.createElement("b", null, r.hourly == null ? '계산 불가' : won(r.hourly)),
-                            r.hourlyGross != null && React.createElement("span", { className: "row-s block" },
-                                "\uCD1D\uC218\uC785 \uAE30\uC900 ",
-                                won(r.hourlyGross))),
-                        React.createElement("td", { className: "num" }, p && p.hourly != null && r.hourly != null ? React.createElement(Delta, { cur: r.hourly, prev: p.hourly, good: "up", hasPrev: true }) : '—')));
-                }))))) : React.createElement("p", { className: "muted small" }, "\uC774 \uB2EC \uC218\uC785\uC774\uB098 \uADFC\uBB34 \uAE30\uB85D\uC774 \uC5C6\uC5B4\uC694."),
-        withHours.length > 0 && (React.createElement(React.Fragment, null,
-            React.createElement("p", { className: "sec-t", style: { marginTop: 12 } }, "\uC6D4\uBCC4 \uC2DC\uAC04\uB2F9 \uC21C\uC774\uC775"),
-            React.createElement(LineChart, { labels: series.map(mShort), fmt: compact, series: withHours.map((id, i) => ({ name: sourceName(data, id), color: PALETTE[i % PALETTE.length], values: eff.map((l) => { const r = l.find((x) => x.id === id); return r && r.hourly != null ? Math.round(r.hourly) : null; }) })) }))),
-        React.createElement("p", { className: "small muted" }, "\uC2DC\uAC04\uB2F9 = \uBC88 \uB3C8 \u00F7 \uADFC\uBB34\uC2DC\uAC04 (\uADFC\uB85C\uACC4\uC57D\uC0C1 \uC2DC\uAE09\uC774 \uC544\uB2CC \uD6A8\uC728 \uC9C0\uD45C). \uC0AC\uC5C5\uC740 \uC138\uC804 \uC21C\uC774\uC775, \uAE09\uC5EC\u00B7\uD504\uB9AC\uB79C\uC11C\uB294 \uBC1B\uC740 \uB3C8 \u2212 \uAD00\uB828 \uBE44\uC6A9, \uC54C\uBC14\uB294 \uAE09\uC5EC \uC785\uAE08 \uC804\uC774\uBA74 \uC608\uC0C1 \uAE09\uC5EC \uAE30\uC900\uC774\uC5D0\uC694. \uADFC\uBB34 \uAE30\uB85D\uC774 \uC5C6\uB294 \uC218\uC785\uC6D0\uC740 \uC2DC\uAC04\uB2F9\uC744 \uACC4\uC0B0\uD558\uC9C0 \uC54A\uC544\uC694.")));
 }
 function RecurringCard() {
     const { data, month, openSheet } = useApp();
@@ -25577,6 +25548,14 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
     const bizSel = group === 'biz' ? (sourceId && bizSources.some((x) => x.id === sourceId) ? sourceId : sourceId || (bizSources[0] ? bizSourceId(data) : '')) : '';
     const jobSel = group === 'job' && jobById(data, jobId) ? jobId : '';
     const srcReady = group === 'biz' ? !!bizSel : group === 'job' ? !!jobSel : true;
+    const effectiveWorkSource=group==='job'?(jobSel?'job_'+jobSel:''):group==='biz'?bizSel:sourceId||sourceOf({type:'income',scope:sc,category:catVal},data);
+    const workEligible=tab==='income'&&['business','job','salary','freelance'].includes(sourcesOf(data,true).find(s=>s.id===effectiveWorkSource)?.kind);
+    const [workDraft,setWorkDraft]=useState(()=>createWorkDraft(data,tx||(b.jobPay?b:null),effectiveWorkSource,effectiveDate));
+    const [workMonth,setWorkMonth]=useState(b.workMonth||'');
+    const entryId=useRef(tx?.id||newId());
+    useEffect(()=>{if(workDraft.sid!==effectiveWorkSource)setWorkDraft(createWorkDraft(data,null,effectiveWorkSource,effectiveDate));},[effectiveWorkSource]);
+    const workOnly=workEligible&&workDraft.enabled&&workDraft.workOnly&&!tx;
+
     // 최상위 탭을 바꾸면 금액·분류를 처음 상태로 (다른 종류의 금액이 그대로 저장되는 실수 방지)
     const switchTab = (v) => {
         if (v === tab)
@@ -25646,8 +25625,8 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
     const check = () => {
         if(!calculation.ok)return calculation.error;
         if(calculation.fractional)return '소수점 결과예요. 원 단위 반올림을 확인해 주세요.';
-        if (!(n > 0))
-            return '금액을 입력해 주세요.';
+        if (!(n > 0) && !workOnly)
+            return '실제 받은 금액을 입력해 주세요.';
         if (tab === 'expense' || tab === 'income') {
             if (!group)
                 return tab === 'income' ? '수입 유형을 골라 주세요.' : '분류를 골라 주세요.';
@@ -25689,9 +25668,9 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
         }
         const recScope = isTax ? (catVal === '부가가치세' ? 'business' : 'personal') : tab === 'transfer' ? 'personal' : sc;
         const pm = tab === 'expense' ? (pmNew ? pmText.trim() : payMethod) : '';
-        const incSource = tab !== 'income' ? null : group === 'job' ? (jobId ? 'job_' + jobId : null) : sourceId || null;
+        const incSource = tab==='income'?effectiveWorkSource||null:null;
         const rec = {
-            ...(tx || {}), id: tx ? tx.id : newId(), type, scope: recScope, date, amount: useDutch ? myShare : n,
+            ...(tx || {}), id: entryId.current, type, scope: recScope, date, amount: useDutch ? myShare : n,
             statementId:type==='cardpay'?(b.statementId||null):null,
             category: tab === 'transfer' ? (type === 'draw' ? '사업 인출' : '') : catVal,
             sub: (tab === 'expense' || tab === 'income') && subName && subName !== catVal ? subName : null,
@@ -25701,7 +25680,7 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
             accountId: pm ? '' : accountId, payMethod: pm || null,
             toAccountId: tab === 'transfer' || tab === 'saving' ? toAccountId : '',
             goalId: tab === 'saving' ? goalId : '',
-            jobPay: tab === 'income' && group === 'job' ? b.jobPay || null : null,
+            jobPay: tab==='income'&&group==='job'&&b.jobPay?.jobId===jobId?b.jobPay:null,
             sourceId: tab === 'income' ? incSource : tab === 'expense' && !isTax ? sourceId || null : null,
             split: useDutch ? {
                 payer, total: n, people, myShare, settleAccountId: settleAcc,
@@ -25718,15 +25697,21 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
             if (tab === 'expense')
                 Object.assign(rec, { evidence, nonDeductible, vatDeductible: vatType === 'taxable' && QUALIFY.includes(evidence) && !nonDeductible });
         }
-        const changes = [{ kind: 'tx', rec }];
-        if (repeat && !onDraft && !isEdit && (tab === 'income' || tab === 'expense') && !isTax) {
+        if(workMonth&&!/^\d{4}-(0[1-9]|1[0-2])$/.test(workMonth))return setErr('분석 귀속 월을 확인해 주세요.');
+        rec.workMonth=isBiz?workMonth||null:null;
+        const preparedWork=prepareIncomeWork(data,rec,workDraft,workEligible);
+        if(preparedWork.error)return setErr(preparedWork.error);
+        rec.workLink=preparedWork.link;
+        const changes=[...(workOnly?[]:[{kind:'tx',rec}]),...preparedWork.changes];
+
+        if (repeat && !workOnly && !onDraft && !isEdit && (tab === 'income' || tab === 'expense') && !isTax) {
             const rid = newId(), m = date.slice(0, 7);
             rec.ruleId = rid;
             rec.occMonth = m;
             changes.push({ kind: 'rule', rec: { id: rid, kind: tab, scope: tab === 'expense' ? sc : 'personal', name: rec.memo || rec.source || subName || catVal, amount: n, day: +date.slice(8), category: catVal, accountId: rec.accountId, payMethod: pm || '', interval: 1, startMonth: m, endMonth: '', auto: true } });
             changes.push({ kind: 'occ', rec: { id: rid + '_' + m, ruleId: rid, month: m, payments: [{ id: rec.id, txId: rec.id }] } });
         }
-        const undoable = changes.slice();
+        const undoable = changes.map(c=>({kind:c.kind,rec:data[c.kind]?.[c.rec.id]?{...data[c.kind][c.rec.id]}:{...c.rec,deleted:true}}));
         if (pm && !payMethodsOf(data).includes(pm)) {
             const s0 = data.settings.settings || { id: 'settings' };
             changes.push({ kind: 'settings', rec: { ...s0, id: 'settings', payMethods: [...payMethodsOf(data), pm] } });
@@ -25737,10 +25722,11 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
         setMonth(date.slice(0,7));
         onClose();
         if (isEdit)
-            toast('수정했어요');
+            toast('수정했어요',{label:'되돌리기',run:()=>commit(undoable)});
+        else if(workOnly) toast('근무만 저장했어요',{label:'되돌리기',run:()=>commit(undoable)});
         else
             toast(repeat ? '저장하고 매월 반복으로 등록했어요' : `${isBiz ? '사업 ' : ''}${isBiz && tab === 'income' ? '매출' : isBiz ? '경비' : TYPE_LABEL[type]} ${won(n)}원 저장했어요`, {
-                label: '되돌리기', run: () => commit(undoable.map((c) => ({ kind: c.kind, rec: { ...c.rec, deleted: true } }))),
+                label: '되돌리기', run: () => commit(undoable),
             });
     };
     // 삭제는 확인창 대신 '되돌리기'로 복구 (삭제는 deleted 표시라 되돌리면 원래 거래 그대로 복원돼요)
@@ -25750,7 +25736,7 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
         onClose();
     };
     const copy = () => {
-        const { id, ruleId, occMonth, createdAt, updatedAt, _rev, paymentId, loanId, date: _d, ...rest } = tx;
+        const { id, ruleId, occMonth, createdAt, updatedAt, _rev, paymentId, loanId, workLink, jobPay, date: _d, ...rest } = tx;
         if (rest.split)
             rest.split = { ...rest.split, parts: (rest.split.parts || []).map((p) => ({ ...p, id: newId(), settled: 0, settledDate: '' })) };
         openSheet('entry', { prefill: rest });
@@ -25803,17 +25789,17 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
             setAccountId(v);
         }
     };
-    const formSnapshot=JSON.stringify({tab,moveType,group,jobId,sel,custom,customText,amt,dutch,payer,people,myShare,parts,settleAcc,date:dateTouched||isEdit?date:null,memo,source,accountId,payMethod,pmNew,pmText,toAccountId,goalId,vatType,evidence,nonDeductible,orderId,sourceId,repeat});
+    const formSnapshot=JSON.stringify({tab,moveType,group,jobId,sel,custom,customText,amt,dutch,payer,people,myShare,parts,settleAcc,date:dateTouched||isEdit?date:null,memo,source,accountId,payMethod,pmNew,pmText,toAccountId,goalId,vatType,evidence,nonDeductible,orderId,sourceId,repeat,workDraft,workMonth});
     const initialSnapshot=useRef(formSnapshot);
     const dirty=formSnapshot!==initialSnapshot.current;
     const Chip = (on, label, onClick, key, extra) => h("button", { key: key || label, type: "button", className: cx('chip', on && 'on', extra), onClick, "aria-pressed": !!on }, label);
-    const showOrder = isBiz && !!orderId && live(data.order).length > 0;
+    const showOrder = false;
     if(selectedLoan) return h(LoanPaymentSheet,{loanId:selectedLoan,onDraft,legacy:isEdit?tx:null,initialDate:dateTouched?date:undefined,initialFrom:accountId,initialPrincipal:catVal==='대출 이자'?0:!isEdit&&n?n:undefined,initialInterest:!isEdit&&n&&catVal==='대출 이자'?n:onDraft?0:undefined,onClose:()=>{setSelectedLoan('');onClose();}});
     return (h(Sheet, { title: onDraft?'가져올 거래 검토':isEdit ? '거래 수정' : '기록하기', onClose, dirty, footer: (h(React.Fragment, null,
             h("span",{className:"small entry-save-date"},"기록 날짜: "+effectiveDate.replace(/-/g,".")),
             isEdit && h("button", { className: "icon-btn", onClick: remove, "aria-label": "삭제" }, h(Icon, { n: "trash" })),
             isEdit && h("button", { className: "btn", onClick: copy }, h(Icon, { n: "copy", s: 16 }), "복사"),
-            h("button", { className: "btn primary grow", onClick: save }, onDraft?'수정하고 저장':isEdit ? '수정 저장' : '저장'))) },
+            h("button", { className: "btn primary grow", onClick: save }, onDraft?'수정하고 저장':isEdit?'수정 저장':workOnly?'근무만 저장':'저장'))) },
         h("div", { className: "entry" },
                 h(Field, { label: "날짜" },
                     h("input", { className: "input", type: "date", value: effectiveDate, onChange: (e) => {setDateTouched(true);setDate(e.target.value);} })),
@@ -25834,6 +25820,8 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
                     [10000, 50000, 100000].map((v) => h("button", { key: v, type: "button", onClick: () => addQuick(v) }, "+", v / 10000, "만")),
                     h("button", { type: "button", onClick: () => {setAmt('');setCalculationHistory(null);setErr('');} }, "지우기")),
             touch && keypadOpen && (h("div", { className: "keypad calculator-keypad" }, ['1', '2', '3', '/', '4', '5', '6', '*', '7', '8', '9', '-', '00', '0', 'del', '+'].map((k) => (h("button", { key: k, type: "button", className:['+','-','*','/'].includes(k)?'calc-op':'', onClick: () => press(k), "aria-label": ({del:'한 자리 지우기','+':'더하기','-':'빼기','*':'곱하기','/':'나누기'})[k]||k }, k === 'del' ? h(Icon, { n: "del" }) : ({'*':'×','/':'÷','-':'−'})[k]||k)))))),
+            workEligible&&h(IncomeWorkFields,{data,draft:workDraft,setDraft:setWorkDraft,sid:effectiveWorkSource,amount:n,tx,orderId,setAmount:setAmt}),
+            isBiz&&h('details',{className:'more-sec'},h('summary',null,'분석 귀속 월 (선택)'),h(Field,{label:'매출·경비 귀속 월',hint:'기본은 거래월입니다. 수입에 근무를 연결하면 연결 근무월을 우선합니다.'},h('input',{className:'input',type:'month',value:workMonth,onChange:e=>setWorkMonth(e.target.value)}))),
             tab === 'expense' && !isTax && !isBiz && h("label", { className: "check dutch-t" },
                 h("input", { type: "checkbox", checked: dutch, onChange: (e) => { setDutch(e.target.checked); setErr(''); } }),
                 "더치페이 · 공동 결제"),
@@ -26826,6 +26814,169 @@ function BizSheet({ item, onClose }) {
             React.createElement(Field, { label: "\uBA54\uBAA8" },
                 React.createElement("input", { className: "input", value: f.memo, onChange: (e) => setF({ ...f, memo: e.target.value }), placeholder: "\uC608: 10\uC6D4 3\uC8FC\uCC28 \uB9E4\uCD9C, \uC7AC\uB8CC\uBE44" })))));
 }
+/* 수입·근무 연결 v1: 현금 입금일과 근무 귀속을 분리하고 기존 기록을 보존한다. */
+const workPeriodOf = w => ({start:w.periodStart||w.date,end:w.periodEnd||w.date});
+const workMonthOf = w => (w.periodStart||w.date||'').slice(0,7);
+const isBizWork = w => w.kind === 'biz' || (!w.kind && !w.jobId);
+const workLinkedTxs = (data,id,exclude) => live(data.tx).filter(t=>t.id!==exclude&&t.type==='income'&&(t.workLink?.allocations||[]).some(a=>a.worklogId===id));
+const workValidDate = d => /^\d{4}-\d{2}-\d{2}$/.test(d||'') && ymd(new Date(d+'T12:00:00'))===d;
+function workOverlap(data, sid, row, exclude=[]) {
+ const p=workPeriodOf(row);
+ return live(data.worklog).filter(w=>w.kind!=='poker'&&!exclude.includes(w.id)&&workSourceOf(w,data)===sid).filter(w=>{const q=workPeriodOf(w);return p.start<=q.end&&q.start<=p.end;});
+}
+function newWorkRow(sid,data,date=today()) {
+ const src=sourcesOf(data,true).find(s=>s.id===sid),j=src?.jobId&&jobById(data,src.jobId);
+ return {id:newId(),sourceId:sid,date,periodStart:date,periodEnd:date,entryMode:'daily',hours:'',extraMinutes:'',wage:j?.wage||0,method:'manual',start:'',end:'',breakMin:0,coverage:'partial',overlapOK:false};
+}
+function workRowMinutes(r){return r.entryMode!=='period'&&r.method==='range'?rangeMinutes(r.start,r.end,r.breakMin):Number(r.hours||0)*60+Number(r.extraMinutes||0);}
+function workRecord(r,sid,data,orderId=''){
+ const src=sourcesOf(data,true).find(s=>s.id===sid),kind=src?.kind==='business'?'biz':src?.kind==='job'?'job':src?.kind==='salary'?'salary':'freelance';
+ const minutes=workRowMinutes(r),wage=Number(r.wage)||0,jid=kind==='job'?src.jobId:'';
+ const deduction=deductOf({jobId:jid},data);
+ return {...r,method:r.entryMode==='period'?'manual':r.method,id:r.id,kind,sourceId:sid,jobId:jid,date:r.periodStart,periodStart:r.periodStart,periodEnd:r.entryMode==='daily'?r.periodStart:r.periodEnd,minutes,wage:kind==='job'?wage:null,pay:kind==='job'?shiftPay(minutes,wage):null,netPay:kind==='job'?netPay(shiftPay(minutes,wage),deduction.rate):null,deduct:deduction.mode,deductRate:deduction.rate,orderId:kind==='biz'?orderId:'',type:kind==='biz'?'기타 업무':kind==='job'?'아르바이트':kind==='salary'?'급여 근무':'프리랜서 작업',origin:'entry',schemaVersion:1,createdAt:r.createdAt||Date.now(),deleted:false};
+}
+function validateWorkRow(r,sid,data,exclude=[]){
+ const end=r.entryMode==='daily'?r.periodStart:r.periodEnd;
+ if(!workValidDate(r.periodStart)||!workValidDate(end)||end<r.periodStart)return '근무 시작일과 종료일을 확인해 주세요.';
+ if(r.periodStart.slice(0,7)!==end.slice(0,7))return '월별로 나누어 입력해 주세요. ‘다른 근무·월 추가’로 이어서 입력할 수 있어요.';
+ const min=workRowMinutes(r),days=Math.round((new Date(end+'T12:00:00')-new Date(r.periodStart+'T12:00:00'))/86400000)+1;
+ if(!Number.isFinite(min)||min<=0||!Number.isInteger(min)||min>days*1440)return '근무시간은 0분보다 크고 해당 기간의 전체 시간 이하여야 해요.';
+ if((r.entryMode==='period'||r.method==='manual')&&(Number(r.hours)<0||Number(r.extraMinutes)<0||Number(r.extraMinutes)>=60))return '시간은 0 이상, 분은 0~59 사이로 입력해 주세요.';
+ if(r.entryMode!=='period'&&r.method==='range'&&(!r.start||!r.end||r.start===r.end||Number(r.breakMin)<0))return '시작·종료 시간과 휴식을 확인해 주세요. 24시간 근무는 총 시간으로 입력해 주세요.';
+ if(sid.startsWith('job_')&&!(Number(r.wage)>0))return '근무처 시급을 입력해 주세요.';
+ if(!r.overlapOK&&workOverlap(data,sid,{...r,date:r.periodStart,periodEnd:end},exclude).length)return '같은 기간의 근무가 있어요. 기존 근무를 연결하거나 별도 근무인지 확인해 주세요.';
+ return '';
+}
+function allocateWorkAmount(rows,total,custom={}){
+ const weights=rows.map(w=>Math.max(0,w.minutes||workRowMinutes(w)||0)),sumW=sum(weights);let remaining=total;
+ return rows.map((w,i)=>{const auto=i===rows.length-1?remaining:Math.floor(total*(sumW?weights[i]/sumW:1/rows.length));remaining-=auto;return {worklogId:w.id,amount:Object.prototype.hasOwnProperty.call(custom,w.id)?Number(custom[w.id]):auto};});
+}
+function createWorkDraft(data,tx,sid,date){
+ let link=tx?.workLink;
+ if(!link&&tx?.jobPay){const ws=live(data.worklog).filter(w=>w.kind==='job'&&w.jobId===tx.jobPay.jobId&&workMonthOf(w)===tx.jobPay.month);if(ws.length)link={periodStart:tx.jobPay.month+'-01',periodEnd:tx.jobPay.month+'-'+pad(dim(tx.jobPay.month)),allocations:allocateWorkAmount(ws,tx.amount||0),paymentComplete:false};}
+ const alloc=link?.allocations||[];
+ return {sid,enabled:!!link||(!tx&&!!(data.settings['workPref:'+sid]?.enabled&&!data.settings['workPref:'+sid]?.deleted)),mode:link?'existing':'new',rows:[newWorkRow(sid,data,date)],selected:alloc.map(a=>a.worklogId),amounts:Object.fromEntries(alloc.map(a=>[a.worklogId,a.amount])),from:link?.periodStart||date.slice(0,7)+'-01',to:link?.periodEnd||date.slice(0,7)+'-'+pad(dim(date.slice(0,7))),workOnly:false,paymentComplete:!!link?.paymentComplete,coverage:link?.coverage||'partial'};
+}
+function prepareIncomeWork(data,rec,draft,eligible){
+ if(!eligible||!draft.enabled)return {changes:[],link:null};
+ const sid=rec.sourceId;if(!sid||sid!==draft.sid)return {error:'수입원 변경 후 근무 연결을 다시 확인해 주세요.'};
+ let rows,changes=[];
+ if(draft.mode==='new'){
+  for(const r of draft.rows){const err=validateWorkRow(r,sid,data);if(err)return {error:err};}
+  for(let i=0;i<draft.rows.length;i++)for(let j=i+1;j<draft.rows.length;j++){
+   const a=draft.rows[i],b=draft.rows[j];if(a.periodStart<=(b.entryMode==='daily'?b.periodStart:b.periodEnd)&&b.periodStart<=(a.entryMode==='daily'?a.periodStart:a.periodEnd)&&!b.overlapOK)return {error:'입력한 근무 기간이 겹쳐요. 각 행의 별도 근무 확인을 해 주세요.'};
+  }
+  rows=draft.rows.map(r=>workRecord(r,sid,data,rec.orderId));changes=rows.map(r=>({kind:'worklog',rec:r}));
+ }else{
+  rows=[...new Set(draft.selected)].map(id=>data.worklog[id]);
+  if(!rows.length||rows.some(w=>!w||w.deleted||w.kind==='poker'||workSourceOf(w,data)!==sid))return {error:'연결할 근무를 선택해 주세요. 삭제되거나 다른 수입원의 근무는 연결할 수 없어요.'};
+ }
+ if(draft.workOnly&&draft.mode!=='new')return {error:'기존 근무는 이미 저장되어 있어요. 실제 입금 시 연결해 주세요.'};
+ const allocations=allocateWorkAmount(rows,rec.amount,draft.amounts);
+ if(!draft.workOnly&&(allocations.some(a=>!Number.isSafeInteger(a.amount)||a.amount<0)||sum(allocations,a=>a.amount)!==rec.amount))return {error:'근무별 입금 배분 합계를 위의 실제 수입금액과 맞춰 주세요.'};
+ if(draft.mode==='new'&&sid.startsWith('job_')){const j=jobById(data,sid.slice(4));if(j&&!j.wage&&rows[0]?.wage){const st=data.settings.settings||{id:'settings'},wk=st.work||{};changes.push({kind:'settings',rec:{...st,id:'settings',work:{...wk,jobs:(wk.jobs||[]).map(v=>v.id===j.id?{...v,wage:rows[0].wage}:v)}}});}}
+ changes.push({kind:'settings',rec:{id:'workPref:'+sid,enabled:true}});
+ const dates=rows.map(workPeriodOf);
+ return {changes,link:{version:1,periodStart:dates.map(p=>p.start).sort()[0],periodEnd:dates.map(p=>p.end).sort().at(-1),allocations,paymentComplete:draft.paymentComplete,coverage:draft.coverage}};
+}
+// 화면마다 예상/실제 기준이 달라지지 않도록 한 분석 함수에서 집계한다.
+function workIncomeAnalysis(data,months){
+ const has=m=>months.includes(m),out={},txs=live(data.tx),logs=live(data.worklog).filter(w=>w.kind!=='poker');
+ const srcs=sourcesOf(data,true);const get=id=>out[id]||(out[id]={id,name:sourceName(data,id),kind:srcs.find(s=>s.id===id)?.kind||'other',minutes:0,linkedMinutes:0,received:0,earned:null,sales:0,costs:0,costCount:0,expected:0,unlinked:0,broken:0,workCount:0,coverage:true,paymentComplete:true,linkedCash:0,transactionCount:0});
+ logs.filter(w=>has(workMonthOf(w))).forEach(w=>{const r=get(workSourceOf(w,data));r.minutes+=Number(w.minutes)||0;r.workCount++;r.expected+=w.kind==='job'?Number(w.pay)||0:0;r.coverage=r.coverage&&w.coverage==='confirmed';});
+ txs.forEach(t=>{
+  const sid=sourceOf(t,data);if(!sid)return;const r=get(sid),cashMonth=(t.date||'').slice(0,7);
+  if(t.type==='income'&&has(cashMonth)){r.received+=t.amount;r.transactionCount++;}
+  if(t.type==='expense'&&t.scope==='business'&&has(t.workMonth||cashMonth)){r.costs+=t.amount;r.costCount++;}
+  if(t.type!=='income')return;
+  const raw=t.workLink?.allocations||[],valid=raw.filter(a=>{const w=data.worklog[a.worklogId];return w&&!w.deleted&&w.kind!=='poker'&&workSourceOf(w,data)===sid&&Number.isFinite(a.amount)&&a.amount>=0;});
+  if(raw.length&&valid.length!==raw.length&&(has(cashMonth)||has((t.workLink?.periodStart||'').slice(0,7))))r.broken+=raw.length-valid.length;
+  if(r.kind==='business'){
+   if(raw.length){valid.forEach(a=>{if(has(workMonthOf(data.worklog[a.worklogId])))r.sales+=a.amount;});}
+   else if(has(t.workMonth||cashMonth))r.sales+=t.amount;
+  }else if(raw.length){valid.forEach(a=>{if(has(workMonthOf(data.worklog[a.worklogId])))r.linkedCash+=a.amount;});}
+  else if(has(cashMonth))r.unlinked+=t.amount;
+ });
+ logs.filter(w=>has(workMonthOf(w))).forEach(w=>{const r=get(workSourceOf(w,data)),links=workLinkedTxs(data,w.id);if(links.length)r.linkedMinutes+=w.minutes||0;else if(r.kind!=='business')r.paymentComplete=false;if(links.length&&!links.some(t=>t.workLink.paymentComplete))r.paymentComplete=false;});
+ const rows=Object.values(out).filter(r=>r.workCount||r.received||r.sales||r.costCount||r.broken);
+ rows.forEach(r=>{
+  const review=months.every(m=>{const c=data.settings['workReview:'+r.id+':'+m];return c&&!c.deleted&&c.costsConfirmed&&c.stamp===workCostStamp(data,r.id,m);});
+  r.costsConfirmed=review;
+  if(r.kind==='business'){
+   r.earned=(r.costCount||review)?r.sales-r.costs:null;r.basis='경비를 뺀 기록상 수익';r.hourlyGross=perHour(r.sales,r.minutes);r.hourly=r.earned==null?null:perHour(r.earned,r.minutes);
+  }else{r.earned=r.linkedMinutes>0?r.linkedCash:null;r.basis='근무에 연결한 실제 입금';r.hourly=r.earned==null?null:perHour(r.earned,r.linkedMinutes);r.hourlyGross=null;}
+  r.complete=r.coverage&&r.workCount>0&&!r.broken&&(r.kind==='business'?review:r.paymentComplete&&r.linkedMinutes===r.minutes);
+ });
+ const time=sum(rows,r=>r.minutes),cash=sum(rows,r=>Math.max(0,r.received)),positive=sum(rows,r=>Math.max(0,r.earned||0));
+ rows.forEach(r=>{r.timeShare=time?100*r.minutes/time:null;r.cashShare=cash?100*Math.max(0,r.received)/cash:null;r.earnShare=positive&&r.earned>0?100*r.earned/positive:null;});
+ return rows.sort((a,b)=>(b.hourly??-Infinity)-(a.hourly??-Infinity)||a.name.localeCompare(b.name));
+}
+function workCostStamp(data,sid,m){return JSON.stringify(live(data.tx).filter(t=>t.scope==='business'&&t.type==='expense'&&sourceOf(t,data)===sid&&(t.workMonth||(t.date||'').slice(0,7))===m).map(t=>[t.id,t.amount,t.workMonth,t.date,t.orderId]).sort((a,b)=>a[0].localeCompare(b[0])));}
+function WorkRowsEditor({rows,onChange,sid,data,exclude=[]}){
+ const h=React.createElement;const update=(i,k,v)=>onChange(rows.map((r,n)=>n===i?{...r,[k]:v,overlapOK:k==='overlapOK'?v:false}:r));
+ return h('div',{className:'stack'},rows.map((r,i)=>{
+ const conflicts=workOverlap(data,sid,{...r,date:r.periodStart,periodEnd:r.entryMode==='daily'?r.periodStart:r.periodEnd},exclude);
+ return h('section',{className:'wi-row',key:r.id},h('div',{className:'row-between'},h('b',null,rows.length>1?`근무 ${i+1}`:'근무시간'),rows.length>1&&h('button',{type:'button',className:'link',onClick:()=>onChange(rows.filter((_,n)=>n!==i))},'행 삭제')),
+ h(Seg,{small:true,value:r.entryMode,onChange:v=>update(i,'entryMode',v),options:[['daily','하루'],['period','기간 합계']]}),
+ h('div',{className:'form-2'},h(Field,{label:r.entryMode==='daily'?'근무일':'근무 시작일'},h('input',{className:'input',type:'date',value:r.periodStart,onChange:e=>update(i,'periodStart',e.target.value)})),r.entryMode==='period'&&h(Field,{label:'근무 종료일'},h('input',{className:'input',type:'date',value:r.periodEnd,onChange:e=>update(i,'periodEnd',e.target.value)}))),
+ r.entryMode==='daily'&&h(Seg,{small:true,value:r.method,onChange:v=>update(i,'method',v),options:[['manual','총 시간'],['range','시작·종료']]}),
+ r.entryMode==='daily'&&r.method==='range'?h('div',{className:'form-2'},h(Field,{label:'시작'},h('input',{className:'input',type:'time',value:r.start,onChange:e=>update(i,'start',e.target.value)})),h(Field,{label:'종료'},h('input',{className:'input',type:'time',value:r.end,onChange:e=>update(i,'end',e.target.value)})),h(Field,{label:'휴식 (분)'},h('input',{className:'input',type:'number',min:0,value:r.breakMin,onChange:e=>update(i,'breakMin',e.target.value)}))) :h('div',{className:'form-2'},h(Field,{label:'시간'},h('input',{className:'input',type:'number',min:0,step:1,value:r.hours,onChange:e=>update(i,'hours',e.target.value)})),h(Field,{label:'분'},h('input',{className:'input',type:'number',min:0,max:59,step:1,value:r.extraMinutes,onChange:e=>update(i,'extraMinutes',e.target.value)}))),
+ sid.startsWith('job_')&&h(Field,{label:'시급',hint:'이번 근무에만 적용돼요.'},h(AmountInput,{value:r.wage,onChange:v=>update(i,'wage',v)})),
+ h('p',{className:'small muted'},r.entryMode==='period'?'월을 넘으면 월별로 행을 나눠 주세요.':'자정을 넘긴 종료 시간은 다음 날로 계산해요.'),
+ h('label',{className:'check'},h('input',{type:'checkbox',checked:r.coverage==='confirmed',onChange:e=>update(i,'coverage',e.target.checked?'confirmed':'partial')}),'이 기간의 근무시간을 모두 기록했어요'),
+ (conflicts.length>0||rows.length>1)&&h('label',{className:'check'},h('input',{type:'checkbox',checked:!!r.overlapOK,onChange:e=>update(i,'overlapOK',e.target.checked)}),conflicts.length?`겹치는 근무 ${conflicts.length}건과 다른 근무예요`:'다른 행과 겹쳐도 별도 근무예요'));
+ }));
+}
+function IncomeWorkFields({data,draft,setDraft,sid,amount,tx,orderId,setAmount}){
+ const h=React.createElement,D=draft,patch=p=>setDraft(d=>({...d,...p}));
+ const candidates=live(data.worklog).filter(w=>w.kind!=='poker'&&workSourceOf(w,data)===sid&&(D.selected.includes(w.id)||(workPeriodOf(w).start<=D.to&&workPeriodOf(w).end>=D.from))).sort((a,b)=>a.date.localeCompare(b.date));
+ const chosen=D.mode==='new'?D.rows.map(r=>workRecord({...r,method:r.entryMode==='period'?'manual':r.method},sid,data,orderId)):D.selected.map(id=>data.worklog[id]).filter(w=>w&&!w.deleted);
+ const allocations=allocateWorkAmount(chosen,amount,D.amounts),pay=sum(chosen,w=>w.pay||0),isJob=sid.startsWith('job_'),isBiz=sourcesOf(data,true).find(s=>s.id===sid)?.kind==='business';
+ return h('div',{className:'wi-box'},h('label',{className:'check'},h('input',{type:'checkbox',checked:D.enabled,onChange:e=>patch({enabled:e.target.checked,workOnly:false})}),'근무시간도 함께 기록'),D.enabled&&h('div',{className:'stack'},
+ h('p',{className:'small muted'},sourceName(data,sid),' · 실제 입금일은 수입 날짜, 근무 효율은 아래 근무기간을 기준으로 계산해요.'),
+ h(Seg,{small:true,value:D.mode,onChange:v=>patch({mode:v,workOnly:false,amounts:{}}),options:[['new','새 근무 입력'],['existing','기존 근무 연결']]}),
+ D.mode==='new'?h(React.Fragment,null,h(WorkRowsEditor,{rows:D.rows,data,sid,onChange:rows=>patch({rows,amounts:{}})}),h('button',{type:'button',className:'btn small',onClick:()=>patch({rows:[...D.rows,newWorkRow(sid,data,D.rows.at(-1)?.periodStart||today())]})},'다른 근무·월 추가')):
+ h(React.Fragment,null,h('div',{className:'form-2'},h(Field,{label:'찾을 기간 시작'},h('input',{className:'input',type:'date',value:D.from,onChange:e=>patch({from:e.target.value})})),h(Field,{label:'찾을 기간 종료'},h('input',{className:'input',type:'date',value:D.to,onChange:e=>patch({to:e.target.value})}))),candidates.length?candidates.map(w=>{const n=workLinkedTxs(data,w.id,tx?.id).length;return h('label',{key:w.id,className:'check wi-candidate'},h('input',{type:'checkbox',checked:D.selected.includes(w.id),onChange:e=>patch({selected:e.target.checked?[...D.selected,w.id]:D.selected.filter(id=>id!==w.id),amounts:{}})}),`${workPeriodOf(w).start} ~ ${workPeriodOf(w).end} · ${fmtMin(w.minutes)}${n?' · 다른 입금 '+n+'건 연결':''}`);}):h('p',{className:'small muted'},'이 기간의 근무가 없어요. 새 근무를 입력해 주세요.'),D.selected.some(id=>!data.worklog[id]||data.worklog[id].deleted)&&h('p',{className:'err'},'삭제된 근무 연결이 있어요. 선택을 다시 정리해 주세요.',h('button',{type:'button',className:'link',onClick:()=>patch({selected:D.selected.filter(id=>data.worklog[id]&&!data.worklog[id].deleted),amounts:{}})},'삭제된 연결 해제'))),
+ isJob&&pay>0&&h('div',{className:'work-sum'},h('div',null,h('span',null,'예상 기본급'),h('b',{className:'num'},won(pay),'원')),h('p',{className:'small muted'},'수당·공제는 포함하지 않은 참고값이에요. 실제 받은 금액을 위에 입력해 주세요.'),!amount&&h('button',{type:'button',className:'btn small',onClick:()=>setAmount(String(pay))},'기본급을 입금액에 채우기')),
+ !tx&&D.mode==='new'&&!isBiz&&h('label',{className:'check'},h('input',{type:'checkbox',checked:D.workOnly,onChange:e=>patch({workOnly:e.target.checked})}),'아직 받지 않았어요 · 근무만 저장'),
+ !D.workOnly&&chosen.length>0&&h(React.Fragment,null,h('div',{className:'small muted'},'입금액을 근무시간 비율로 나눠 제안해요. 월별·근무별 금액을 확인해 주세요.'),allocations.map((a,i)=>h(Field,{key:a.worklogId,label:`${chosen[i].date} · ${fmtMin(chosen[i].minutes)} 배분액`},h(AmountInput,{value:a.amount,onChange:v=>patch({amounts:Object.fromEntries(allocations.map(x=>[x.worklogId,x.worklogId===a.worklogId?v:x.amount]))})}))),h('p',{className:sum(allocations,a=>a.amount)!==amount?'err':'small muted'},`배분 합계 ${won(sum(allocations,a=>a.amount))}원 / 실제 수입 ${won(amount)}원`),!isBiz&&h('label',{className:'check'},h('input',{type:'checkbox',checked:D.paymentComplete,onChange:e=>patch({paymentComplete:e.target.checked})}),'선택한 근무의 급여를 모두 받았어요')),
+ isBiz&&h('p',{className:'small muted'},'경비는 지출에 한 번만 기록해 주세요. 시간당 매출과 경비를 뺀 수익을 따로 보여드려요.')));
+}
+function WorkIncomeEditor({log,onClose}){
+ const {data,commit,toast}=useApp(),h=React.createElement,sid=workSourceOf(log,data),[row,setRow]=useState(()=>({...log,hours:Math.floor(log.minutes/60),extraMinutes:log.minutes%60,periodStart:log.periodStart||log.date,periodEnd:log.periodEnd||log.date,entryMode:log.entryMode||'daily',method:log.method==='range'?'range':'manual',overlapOK:true})),[err,setErr]=useState('');
+ const links=workLinkedTxs(data,log.id);
+ const save=()=>{const e=validateWorkRow(row,sid,data,[log.id]);if(e)return setErr(e);const rec={...workRecord(row,sid,data,log.orderId),origin:log.origin||'work'};commit([{kind:'worklog',rec}]);toast('근무시간을 수정했어요 · 실제 입금액은 유지돼요',{label:'되돌리기',run:()=>commit([{kind:'worklog',rec:log}])});onClose();};
+ const remove=async()=>{if(!await ask({title:'근무 기록을 삭제할까요?',body:'실제 입금은 남고 분석에 연결 누락이 표시돼요.',confirmLabel:'근무 삭제',danger:true}))return;commit([{kind:'worklog',rec:{...log,deleted:true}}]);toast('근무 기록을 삭제했어요',{label:'되돌리기',run:()=>commit([{kind:'worklog',rec:log}])});onClose();};
+ return h(Sheet,{title:'근무 기록 수정',onClose,dirty:JSON.stringify(row)!==JSON.stringify({...log,hours:Math.floor(log.minutes/60),extraMinutes:log.minutes%60,periodStart:log.periodStart||log.date,periodEnd:log.periodEnd||log.date,entryMode:log.entryMode||'daily',method:log.method==='range'?'range':'manual',overlapOK:true}),footer:h(React.Fragment,null,h('button',{className:'btn',onClick:remove},'근무 삭제'),h('button',{className:'btn primary grow',onClick:save},'근무 수정 저장'))},h('div',{className:'form'},h('p',null,sourceName(data,sid)),links.length>0&&h('p',{className:'small muted'},`입금 ${links.length}건에 연결돼 있어요. 시간·기간만 바꾸며 입금은 자동 변경하지 않아요.`),h(WorkRowsEditor,{rows:[row],onChange:rows=>setRow(rows[0]),sid,data,exclude:[log.id]}),err&&h('p',{className:'err'},err)));
+}
+function WorkSheet(props){const {data}=useApp();if(!props.log&&props.prefill?.entryMode==='period')return React.createElement(StandaloneWorkSheet,props);return React.createElement(props.log&&props.log.kind!=='poker'&&(props.log.schemaVersion||workLinkedTxs(data,props.log.id).length)?WorkIncomeEditor:LegacyWorkSheet,props);}
+function EfficiencyCompare(){
+ const {data,month,commit,toast,openSheet}=useApp(),h=React.createElement,[period,setPeriod]=useState('month'),[metric,setMetric]=useState('earn');
+ const y=month.slice(0,4),q=Math.floor((Number(month.slice(5))-1)/3)*3+1,start=period==='year'?y+'-01':period==='quarter'?y+'-'+pad(q):month;
+ const months=Array.from({length:period==='year'?12:period==='quarter'?3:1},(_,i)=>addM(start,i)),rows=workIncomeAnalysis(data,months),logs=live(data.worklog).filter(w=>w.kind!=='poker'&&months.includes(workMonthOf(w)));
+ const missing=sum(rows,r=>r.broken),amount=v=>v==null?'—':won(Math.round(v))+'원';
+ const confirmCosts=r=>{commit(months.map(m=>({kind:'settings',rec:{id:'workReview:'+r.id+':'+m,costsConfirmed:true,stamp:workCostStamp(data,r.id,m)}})));toast('선택 기간의 경비를 확인했어요');};
+ return h('details',{className:'more-sec wi-analysis',open:true},h('summary',null,'시간 대비 수익',h('span',null,'수입원별 시간·수익·비중')),h('section',{className:'card stack'},
+ h(Seg,{small:true,value:period,onChange:setPeriod,options:[['month','월'],['quarter','분기'],['year','연간']]}),h('p',{className:'small muted'},months.length===1?month:`${months[0]} ~ ${months.at(-1)}`),
+ h('div',{className:'work-sum'},h('div',null,h('span',null,'총 기록시간'),h('b',null,fmtMin(sum(rows,r=>r.minutes)))),h('div',null,h('span',null,'연결한 실제 입금'),h('b',{className:'num'},amount(sum(rows,r=>r.linkedCash))))),
+ h(Seg,{small:true,value:metric,onChange:setMetric,options:[['earn','근무 수익'],['cash','실제 입금 비중']]}),
+ missing>0&&h('p',{className:'err'},`근무 연결 누락 ${missing}건 · 해당 수입을 수정해 다시 연결해 주세요.`),
+ h('div',{className:'wi-table'},rows.length?rows.map(r=>h('article',{key:r.id,className:'wi-result'},h('div',{className:'wi-name'},h('b',null,r.name),h('span',{className:'small muted'},r.complete?'입력 기준 확인 완료':'일부 기록 · 참고값')),
+ h('div',null,h('span',{className:'small muted'},'투입시간'),h('b',null,r.minutes?fmtMin(r.minutes):'시간 기록 필요'),h('small',null,'기록시간 비중 ',r.timeShare==null?'—':Math.round(r.timeShare)+'%')),
+ h('div',null,h('span',{className:'small muted'},metric==='cash'?'실제 입금':r.basis),h('b',{className:r.earned<0?'neg':''},amount(metric==='cash'?r.received:r.earned)),h('small',null,metric==='cash'?`양수 입금 비중 ${r.cashShare==null?'—':Math.round(r.cashShare)+'%'}`:r.earned<0?'손실':`양수 수익 기여 ${r.earnShare==null?'—':Math.round(r.earnShare)+'%'}`)),
+ h('div',null,h('span',{className:'small muted'},r.kind==='business'?'시간당 기록상 수익':'시간당 연결 입금'),h('b',{className:r.hourly<0?'neg':''},amount(r.hourly)),h('small',null,r.kind==='business'?`시간당 매출 ${amount(r.hourlyGross)}`:r.linkedMinutes?`연결 시간 ${fmtMin(r.linkedMinutes)}`:'근무 연결 필요')),
+ h('details',{className:'wi-detail'},h('summary',null,'계산 기준·기록 보기'),h('p',{className:'small muted'},r.kind==='business'?`귀속기간 매출 ${amount(r.sales)} − 기록 경비 ${amount(r.costs)}. 부가세 포함 기록·개인 소득세 차감 전입니다. 공통 경비는 사업 전체에만 포함됩니다.`:`예상 기본급 ${amount(r.expected)} · 입금일 기준 미연결 수입 ${amount(r.unlinked)}. 계약 시급·공제 전 금액과 직접 비교하지 마세요. 일부 지급 중에는 최종 시급이 아니에요.`),r.kind==='business'&&!r.costsConfirmed&&h('button',{className:'btn small',onClick:()=>confirmCosts(r)},'경비 모두 확인 (0원 포함)'),logs.filter(w=>workSourceOf(w,data)===r.id).map(w=>h('button',{key:w.id,className:'row wi-log',onClick:()=>openSheet('work',{log:w})},h('span',null,`${workPeriodOf(w).start} ~ ${workPeriodOf(w).end}`),h('b',null,fmtMin(w.minutes)))),live(data.tx).filter(t=>t.type==='income'&&sourceOf(t,data)===r.id&&(months.includes((t.date||'').slice(0,7))||(t.workLink?.allocations||[]).some(a=>data.worklog[a.worklogId]&&months.includes(workMonthOf(data.worklog[a.worklogId]))))).map(t=>h('button',{key:t.id,className:'row wi-log',onClick:()=>openSheet('entry',{tx:t})},h('span',null,`${t.date} 입금 · 연결 수정`),h('b',null,amount(t.amount))))))) :h('p',{className:'muted'},'수입 입력에서 근무시간을 함께 기록해 보세요.')),
+ h('p',{className:'small muted'},'근무 수익은 근무기간 기준, 실제 입금 비중은 입금일 기준입니다. 시간당 금액은 기간 합계로 계산해요. 양수 금액의 비중과 손실은 따로 표시하며 전체 수입·잔액은 변경하지 않아요.')));
+}
+
+function StandaloneWorkSheet({prefill={},onClose}){
+ const {data,commit,toast}=useApp(),h=React.createElement,srcs=sourcesOf(data).filter(s=>['business','job','salary','freelance'].includes(s.kind));
+ const [sid,setSid]=useState(prefill.sourceId||srcs[0]?.id||''),[rows,setRows]=useState(()=>[{...newWorkRow(prefill.sourceId||srcs[0]?.id||'',data,prefill.date||today()),entryMode:'period'}]),[err,setErr]=useState(''),[orderId,setOrderId]=useState(''),lock=useRef(false);
+ const save=()=>{if(lock.current)return;if(!sid)return setErr('수입원을 선택해 주세요.');const result=prepareIncomeWork(data,{sourceId:sid,amount:0,orderId},{sid,enabled:true,mode:'new',rows,amounts:{},workOnly:true},true);if(result.error)return setErr(result.error);const changes=result.changes.map(c=>c.kind==='worklog'?{...c,rec:{...c.rec,origin:'work'}}:c),undo=changes.map(c=>({kind:c.kind,rec:data[c.kind]?.[c.rec.id]||{...c.rec,deleted:true}}));lock.current=true;commit(changes);toast('근무만 저장했어요 · 수입은 실제 입금 때 연결해 주세요',{label:'되돌리기',run:()=>commit(undo)});onClose();};
+ return h(Sheet,{title:'기간 근무 기록',onClose,dirty:rows.some(r=>workRowMinutes(r)>0),footer:h('button',{className:'btn primary grow',onClick:save},'근무만 저장')},h('div',{className:'form'},h(Field,{label:'사업·근무 수입원'},h('select',{className:'input',value:sid,onChange:e=>{const id=e.target.value;setSid(id);setRows([{...newWorkRow(id,data,prefill.date||today()),entryMode:'period'}]);setOrderId('');setErr('');}},srcs.map(s=>h('option',{key:s.id,value:s.id},s.name)))),h('p',{className:'small muted'},'매출이나 입금이 없는 상담·제작·관리 시간도 기록할 수 있어요. 여러 달이면 행을 나눠 주세요.'),h(WorkRowsEditor,{rows,onChange:setRows,sid,data}),h('button',{className:'btn small',onClick:()=>setRows(r=>[...r,{...newWorkRow(sid,data,r.at(-1)?.periodStart||today()),entryMode:'period'}])},'다른 근무·월 추가'),false&&h(Field,{label:'주문 연결 (선택)'},h('select',{className:'input',value:orderId,onChange:e=>setOrderId(e.target.value)},h('option',{value:''},'연결 안 함'),live(data.order).map(o=>h('option',{key:o.id,value:o.id},o.name)))),err&&h('p',{className:'err'},err)));
+}
+
+
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App, null));
 
 </script>
