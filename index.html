@@ -1256,6 +1256,24 @@ html,body,#root{height:100%;overflow:hidden}
 .wi-analysis{padding:0!important;background:transparent}.wi-analysis>.card{padding:0!important;background:transparent}.wi-analysis .small,.wi-analysis small{word-break:keep-all}
 @media(max-width:600px){.income-trend .mini-rows>div{grid-template-columns:minmax(0,1fr);gap:4px;padding:9px 0}.income-trend .mini-rows b{text-align:left;white-space:normal;word-break:keep-all;overflow-wrap:break-word}.more-sec .stack>.card{padding:14px}.recent-details{padding:16px}.wi-result b{word-break:keep-all;overflow-wrap:normal}}
 
+
+.salary-terms{margin:14px 0;padding:14px;border:1px solid var(--line);border-radius:14px;min-width:0}
+.salary-terms>summary{cursor:pointer;font-size:14px;font-weight:500;word-break:keep-all}
+.salary-terms .form{padding-top:14px}.salary-terms .note{word-break:keep-all}.salary-reference{display:flex;flex-direction:column;gap:5px;padding:12px 0;border-top:1px solid var(--line)}
+.salary-reference b{font-size:14px}.salary-reference small{color:var(--ink2);word-break:keep-all}
+
+/* Income plans: readable summaries on both compact and wide layouts. */
+.income-plan-overview,.income-plan-budget,.salary-reference{min-width:0}
+.salary-reference p{font-size:14px;line-height:1.65;margin:8px 0;word-break:keep-all;overflow-wrap:anywhere}
+.salary-reference small{display:block;line-height:1.6}
+.salary-terms summary{cursor:pointer;line-height:1.6;overflow-wrap:anywhere}
+.salary-terms .form{padding-top:14px}
+.salary-terms .note .row{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:5px 0}
+.salary-terms .note .row b{white-space:nowrap}
+.salary-terms .note a{font-size:12px}
+.salary-terms .note details{margin-top:10px}
+.income-plan-budget .card-h,.income-plan-overview .card-h{flex-wrap:wrap;gap:8px}
+@media(max-width:480px){.income-plan-budget h3,.income-plan-overview h3{font-size:16px}.salary-terms .row-gap{flex-wrap:wrap}.income-plan-budget .note b{font-size:16px;line-height:1.6}}
 </style>
 </head>
 <body>
@@ -19501,7 +19519,7 @@ function incomeSplit(data, statsOf, months) {
     const freeToLabor = settings.freelanceAs === 'labor';
     const srcs = sourcesOf(data, true);
     const kindOf = (t) => { const id = sourceOf(t, data); const x = id && srcs.find((o) => o.id === id); return x ? x.kind : id && id.startsWith('job_') ? 'job' : null; };
-    const R = { labor: 0, freelance: 0, bizSales: 0, bizCosts: 0, other: 0, draw: 0, gross: 0, net: 0, rows: [] };
+    const R = { labor: 0, freelance: 0, bizSales: 0, bizCosts: 0, other: 0, draw: 0, rows: [] };
     months.forEach((m) => {
         const st = statsOf(m);
         const row = { m, labor: 0, biz: 0, other: 0 };
@@ -19523,8 +19541,7 @@ function incomeSplit(data, statsOf, months) {
             else if (k === 'business') { R.draw += a; }
             else { R.other += a; row.other += a; }
         });
-        R.gross += st.work.jobPay || 0;
-        R.net += st.work.jobNet || 0;
+
         R.rows.push(row);
     });
     R.laborTotal = R.labor + (freeToLabor ? R.freelance : 0);
@@ -19960,7 +19977,7 @@ function SyncChoice() {
 }
 function SheetRouter({ sheet }) {
     const { closeSheet, finishSheet } = useApp();
-    const C = { messageImport: MessageImportSheet, moneyAdvisor: MoneyAdvisorSheet, profile: ProfileSheet, basis: BasisSheet, valuation: ValuationSheet, investFlow: InvestFlowSheet, emergency: EmergencySheet, categories: CategorySheet, sources: SourceSheet, cardImport: CardImportSheet, estimate: EstimateSheet, filing: FilingSheet, taxProfile: TaxProfileSheet, reserveRates: ReserveRatesSheet, work: WorkSheet, workPrefs: WorkPrefsSheet, jobs: JobsSheet, order: OrderSheet, alerts: AlertSheet, alertPrefs: AlertPrefsSheet, entry: EntrySheet, addPick: AddPickSheet, pay: PaySheet, bulk: BulkSheet, rule: RuleSheet, account: AccountSheet, loan: LoanSheet, loanPay: LoanPaymentSheet, budget: BudgetSheet, goal: GoalSheet, biz: BizSheet, target: TargetSheet, importer: ImportSheet }[sheet.type];
+    const C = { salary: SalarySheet, messageImport: MessageImportSheet, moneyAdvisor: MoneyAdvisorSheet, profile: ProfileSheet, basis: BasisSheet, valuation: ValuationSheet, investFlow: InvestFlowSheet, emergency: EmergencySheet, categories: CategorySheet, sources: SourceSheet, cardImport: CardImportSheet, estimate: EstimateSheet, filing: FilingSheet, taxProfile: TaxProfileSheet, reserveRates: ReserveRatesSheet, work: WorkSheet, workPrefs: WorkPrefsSheet, jobs: JobsSheet, alerts: AlertSheet, alertPrefs: AlertPrefsSheet, entry: EntrySheet, addPick: AddPickSheet, pay: PaySheet, bulk: BulkSheet, rule: RuleSheet, account: AccountSheet, loan: LoanSheet, loanPay: LoanPaymentSheet, budget: BudgetSheet, goal: GoalSheet, biz: BizSheet, target: TargetSheet, importer: ImportSheet }[sheet.type];
     const value = useMemo(() => ({ leaving: !!sheet.leaving, swap: !!sheet.swap, done: () => finishSheet(sheet.k) }), [sheet, finishSheet]);
     return React.createElement(SheetCtx.Provider, { value }, React.createElement(C, { key: sheet.k, ...sheet.props, onClose: closeSheet }));
 }
@@ -20548,10 +20565,13 @@ function HomePage() {
             : { label: '세금 적립', value: G.hasTaxProfile ? '적립 기준 미설정' : '사업자 설정 필요', sub: G.hasTaxProfile ? '적립률을 정하면 예상 세금 대비 준비금을 보여드려요' : '사업자 설정을 하면 세금 일정과 적립 목표를 계산해요', onClick: () => go({ page: 'assets', assetTab: 'tax' }) }),
         h(HomeProg, G.em ? { label: '비상자금', value: `${Math.round((G.em.covered || 0) * 10) / 10}개월치`, pct: ratio(G.em.have, G.em.target), warn: G.em.have < G.em.target, sub: `${man(G.em.have)} / ${man(G.em.target)}원 (목표 ${G.em.months}개월)`, onClick: () => go({ page: 'assets', assetTab: 'emergency' }) }
             : { label: '비상자금', value: G.E.hasAcc ? '계산 대기' : '계좌 필요', sub: G.E.hasAcc ? '필수 지출 기록이 쌓이면 필요한 비상자금을 계산해요' : '자산에서 계좌를 등록하면 비상자금을 계산해요', onClick: () => go({ page: 'assets', assetTab: 'emergency' }) }));
+    const plans = incomePlanRows(data,month), planBudget = data.settings['incomePlanBudget:'+month];
+    const planIncome = sum(plans,x=>Number(x.r.confirmedNet));
+    const planLeft = plans.length && planBudget && !planBudget.deleted ? planIncome-Number(planBudget.cost)-Number(planBudget.reserve) : null;
     const saving = h("section", {className:"hcard saving-focus"},
         h("div",{className:"hcard-h"}, h("h2",null,"월 저축 계획"),pill('계획 보기',()=>go({page:'assets',assetTab:'saving'}))),
-        h("p",{className:cx("saving-value num", !S.ok && "is-empty")}, S.ok ? `${won(S.low)} ~ ${won(S.base)}원` : '아직 계산할 기록이 부족해요'),
-        h("p",{className:"muted small"},S.ok ? '등록된 기록 기준의 월 저축 여력 추정치예요. 계산 기준에서 제외된 지출을 확인해 주세요.' : '내역의 월말 정리에서 지난 월 3개를 확인하면 계산해요.'),
+        h("p",{className:cx("saving-value num", !S.ok && "is-empty")}, planLeft!==null ? `${won(planLeft)}원` : plans.length ? '지출 계획을 확인해 주세요' : S.ok ? `${won(S.low)} ~ ${won(S.base)}원` : '아직 계산할 기록이 부족해요'),
+        h("p",{className:"muted small"},plans.length ? (planLeft===null ? `확인한 월 수입 ${won(planIncome)}원 · 계획 보기에서 생활비와 준비금을 정해 주세요.` : '확인한 월 실수령액에서 입력한 지출·준비금을 뺀 계획상 여력입니다. 실제 잔액과 달라요.') : S.ok ? '등록된 기록 기준의 월 저축 여력 추정치예요. 계산 기준에서 제외된 지출을 확인해 주세요.' : '내역의 월말 정리에서 지난 월 3개를 확인하면 계산해요.'),
         G.save && h(HomeProg,{label:`${+month.slice(5)}월 저축 목표`,value:`${won(G.save.have)} / ${won(G.save.target)}원`,pct:ratio(G.save.have,G.save.target),onClick:()=>go({page:'assets',assetTab:'saving'})}),
         h("details",{className:"balance-details"},h("summary",null,"계산 기준과 준비금"),
             h("p",{className:"small muted"},"월말 정리를 완료한 최근 3개 월의 수입·지출에서 세금·비상자금 적립, 대출 원금 이체, 사업 운영자금 추가 적립을 차감해요. 카드 사용은 소비 시점에 반영하므로 카드대금을 다시 차감하지 않습니다. 현재 인출 가능한 잔고와는 달라요."), goals));
@@ -20688,7 +20708,7 @@ function flowParts(data, statsOf, m) {
         income: s.cf.income, expense: s.cf.expense, tax, dutchAdj: s.cf.personal.dutchAdj + s.cf.business.dutchAdj, loanRepay: s.cf.sep.loan, moved: s.cf.sep.saving + s.cf.sep.transfer + s.cf.sep.cardpay + s.cf.sep.draw + s.cf.sep.reserve + s.cf.sep.loanIn, net: s.cf.net,
         dutchN: sp.length, dutchOwn, dutchCash, dutchRecv, dutchPay,
         sales: s.biz.sales, costs: s.biz.costs, bizProfit: s.biz.profit, bizMinutes: W.minutes,
-        labor, expected: W.jobNet, jobMinutes: W.jobMinutes,
+        labor, jobMinutes: W.jobMinutes,
         poker: W.poker.profit, pokerIn: W.poker.buyin + W.poker.fee, pokerPrize: W.poker.prize, pokerMinutes: W.pokerMinutes, pokerCount: W.poker.count,
     };
 }
@@ -20718,10 +20738,10 @@ function ProfitOverview() {
             extra: [['근무시간', cur.bizMinutes ? fmtMin(cur.bizMinutes) : '—'], ['시간당 순수익', perHour(cur.bizProfit, cur.bizMinutes) == null ? '계산 불가' : `${won(perHour(cur.bizProfit, cur.bizMinutes))}원`]],
             note: '매출·경비는 부가세 포함 금액 기준이에요. 사업 인출은 이미 순수익에 들어 있어 다시 더하지 않아요.' },
         labor: { label: '근로 수입 (실제 입금)', key: 'labor', sign: false,
-            chart: [{ name: '실제 입금', color: 'var(--sage)', values: pick((p) => p.labor) }, { name: '예상 실수령', color: 'var(--c-var)', values: pick((p) => p.expected) }],
+            chart: [{ name: '실제 입금', color: 'var(--sage)', values: pick((p) => p.labor) }],
             lines: [],
-            extra: [['예상 실수령 (근무 기록, 참고)', `${won(cur.expected)}원`], ['아르바이트 근무시간', cur.jobMinutes ? fmtMin(cur.jobMinutes) : '—'], ['입금 − 예상', cur.expected ? `${signed(cur.labor - cur.expected)}원` : '—']],
-            note: '급여·아르바이트·프리랜서로 실제 들어온 돈만 더해요. 근무 기록의 예상 금액은 비교용이라 수입에 중복으로 넣지 않아요.' },
+            extra: [],
+            note: '급여·아르바이트·프리랜서로 실제 들어온 돈만 더해요. 연봉·월급여 등록과 근무 기록만으로는 수입을 만들지 않아요.' },
         poker: { label: '포커 손익', key: 'poker', sign: true,
             chart: [{ name: '포커 손익', color: pm, values: pick((p) => p.poker) }],
             lines: [['시상금', '+', cur.pokerPrize], ['바이인·추가 참가비', '−', cur.pokerIn]],
@@ -20874,14 +20894,9 @@ function IncomeAnalysis() {
         h("section", { className: "hcard" },
             h("div", { className: "hcard-h" }, h("h2", null, h("i", { className: "dot inc-l" }), "근로소득"), h("b", { className: "num ia-head" }, won(R.laborTotal), "원")),
             h("p", { className: "ia-d" }, "회사·근무처에서 받은 급여 · 통장에 들어온 금액 기준"),
-            R.gross > 0 && h(React.Fragment, null,
-                kv('근무 기록 기준 세전 급여', R.gross),
-                kv('설정한 공제액', R.gross - R.net, { minus: true }),
-                kv('근무 기준 예상 급여', R.net, { sum: true }),
-                kv('실제 급여 입금', R.labor),
-                h('details',{className:'pay-basis more-sec'},h('summary',null,'계산 근거 보기'),h('p',{className:'small muted'},`입력한 근무시간 × 시급으로 계산한 급여 합계 ${won(R.gross)}원 − 설정한 공제액 ${won(R.gross-R.net)}원 = ${won(R.net)}원. 근무 기록에 저장된 값을 합산하며 세무기관이나 은행에서 조회한 금액은 아닙니다. 실제 수입에는 입금 기록만 반영합니다.`)),
-                Math.abs(R.labor - R.net) >= 1000 && h("p", { className: "inc-note" }, "근무 기준 예상 금액과 실제 입금이 ", h("b", { className: "num" }, won(Math.abs(R.labor - R.net)), "원"), " 차이가 있어요. 근무 기록과 입금의 대상 기간·근무처가 다를 수 있어 미지급 여부를 판단할 수는 없어요.")),
-            !R.gross && kv('급여 입금', R.labor, { sum: true }),
+            kv('실제 급여 입금', R.labor, { sum: true }),
+            h(SalaryOverview, {key:month}),
+            h(IncomePlanBudget, {key:'budget:'+month}),
             R.freeToLabor && R.freelance > 0 && kv('그중 프리랜서(3.3%) 입금', R.freelance)),
         h("section", { className: "hcard" },
             h("div", { className: "hcard-h" }, h("h2", null, h("i", { className: "dot inc-b" }), "사업소득"), h("b", { className: cx('num ia-head', R.bizTotal < 0 && 'neg') }, R.bizTotal < 0 ? '−' : '', won(Math.abs(R.bizTotal)), "원")),
@@ -20971,23 +20986,6 @@ const workTypesOf = (data) => {
     const w = (data.settings.settings || {}).work || {};
     return [...WORK_TYPES, ...(w.types || []).filter((t) => !WORK_TYPES.includes(t))];
 };
-function orderStats(data) {
-    const out = {};
-    live(data.order).forEach((o) => { out[o.id] = { order: o, sales: 0, costs: 0, minutes: 0 }; });
-    live(data.tx).forEach((t) => {
-        const s = t.orderId && out[t.orderId];
-        if (!s || t.scope !== 'business')
-            return;
-        if (t.type === 'income')
-            s.sales += t.amount;
-        else if (t.type === 'expense')
-            s.costs += t.amount;
-    });
-    live(data.worklog).forEach((w) => { const s = w.orderId && out[w.orderId]; if (s)
-        s.minutes += w.minutes || 0; });
-    Object.values(out).forEach((s) => { s.profit = s.sales - s.costs; s.hourly = perHour(s.profit, s.minutes); });
-    return out;
-}
 function WorkPanel({ mode = 'log' }) {
     const { data, month, statsOf, firstMonth, openSheet } = useApp();
     const st = statsOf(month), pv = statsOf(addM(month, -1));
@@ -21343,54 +21341,8 @@ function ActivityTime() {
         items.length ? React.createElement(Donut, { items, fmt: fmtMin, center: fmtMin(total).replace(/ ?\d+분$/, '') || fmtMin(total) })
             : React.createElement("p", { className: "muted small" }, "이 달 근무·포커 기록이 없어요.")));
 }
-function JobsCard() {
-    const { data, month, statsOf, openSheet } = useApp();
-    const st = statsOf(month);
-    const jobs = jobsOf(data);
-    const byJob = st.work.byJob;
-    const ids = [...new Set([...jobs.map((j) => j.id), ...Object.keys(byJob)])];
-    if (!ids.length) {
-        return (React.createElement("section", { className: "card" },
-            React.createElement("div", { className: "card-h" },
-                React.createElement("h3", null, "\uC544\uB974\uBC14\uC774\uD2B8"),
-                React.createElement("button", { className: "link", onClick: () => openSheet('work', { prefill: { kind: 'job' } }) }, "\uADFC\uBB34\uCC98 \uCD94\uAC00")),
-            React.createElement("p", { className: "small muted" }, "\uADFC\uBB34\uCC98\uC640 \uC2DC\uAE09\uC744 \uD55C \uBC88 \uB4F1\uB85D\uD574 \uB450\uBA74, \uADFC\uBB34\uC2DC\uAC04\uB9CC \uAE30\uB85D\uD574\uB3C4 \uAE09\uC5EC\uAC00 \uC790\uB3D9\uC73C\uB85C \uACC4\uC0B0\uB3FC\uC694.")));
-    }
-    return (React.createElement("section", { className: "card" },
-        React.createElement("div", { className: "card-h" },
-            React.createElement("h3", null,
-                mShort(month),
-                " \uC544\uB974\uBC14\uC774\uD2B8"),
-            React.createElement("button", { className: "link", onClick: () => openSheet('jobs') }, "\uADFC\uBB34\uCC98 \uAD00\uB9AC")),
-        React.createElement("ul", { className: "rows" }, ids.map((id) => {
-            const j = jobById(data, id) || { name: '삭제된 근무처', wage: 0 };
-            const s = byJob[id] || { minutes: 0, pay: 0, net: 0, days: 0 };
-            const net = s.net != null ? s.net : s.pay;
-            const got=live(data.tx).filter(t=>t.type==='income'&&sourceOf(t,data)==='job_'+id&&(t.workLink?(t.workLink.allocations||[]).some(a=>{const w=data.worklog[a.worklogId];return w&&!w.deleted&&workMonthOf(w)===month;}):t.jobPay&&t.jobPay.month===month));
-            const gotSum=sum(got,t=>t.workLink?sum(t.workLink.allocations.filter(a=>{const w=data.worklog[a.worklogId];return w&&!w.deleted&&workMonthOf(w)===month;}),a=>a.amount):t.amount);
-            return (React.createElement("li", { key: id, className: "job" },
-                React.createElement("div", { className: "row-between" },
-                    React.createElement("div", null,
-                        React.createElement("p", { className: "row-t" }, j.name),
-                        React.createElement("p", { className: "row-s num" },
-                            "\uC2DC\uAE09 ",
-                            won(j.wage),
-                            "\uC6D0 \u00B7 ",
-                            s.days,
-                            "\uC77C \u00B7 ",
-                            fmtMin(s.minutes))),
-                    React.createElement("div", { className: "right" },
-                        React.createElement("p", { className: "num big" },
-                            won(net),
-                            "\uC6D0"),
-                        React.createElement("p", { className: "row-s" }, s.pay !== net ? `예상 실수령 · 공제 전 ${won(s.pay)}` : '예상 급여'))),
-                s.minutes > 0 && (got.length ? (React.createElement("button", { className: "note job-got", onClick: () => openSheet('entry', { tx: got[0] }) },
-                    "\uAE09\uC5EC \uC785\uAE08 ",
-                    won(gotSum),
-                    "\uC6D0",
-                    gotSum !== net ? ` · 예상과 ${gotSum > net ? '+' : ''}${won(gotSum - net)}원 차이` : '')) : (React.createElement("button", { className: "btn small", onClick: () => openSheet('entry', { prefill: { type: 'income', category: j.payCat || '부업·프리랜서', amount: net, source: j.name, memo: `${j.name} ${mShort(month)} 급여`, jobPay: { jobId: id, month } } }) }, "\uAE09\uC5EC \uC785\uAE08 \uAE30\uB85D")))));
-        })),
-        React.createElement("p", { className: "small muted" }, "\uC608\uC0C1 \uAE09\uC5EC\uB294 \uADFC\uBB34\uC2DC\uAC04 \u00D7 \uC2DC\uAE09\uC774\uC5D0\uC694. \uC8FC\uD734\uC218\uB2F9\u00B7\uC57C\uAC04\uC218\uB2F9\u00B74\uB300\uBCF4\uD5D8\uC740 \uB123\uC9C0 \uC54A\uC740 \uB300\uB7B5\uC801\uC778 \uAE08\uC561\uC774\uACE0, \uC2E4\uC81C\uB85C \uBC1B\uC740 \uAE08\uC561\uC73C\uB85C \uAE30\uB85D\uD558\uBA74 \uC218\uC785\uC5D0 \uBC18\uC601\uB3FC\uC694.")));
+function JobsCard(){const {openSheet}=useApp(),h=React.createElement;
+ return h('section',{className:'card'},h('div',{className:'card-h'},h('h3',null,'급여·근무 설정'),h('button',{className:'link',onClick:()=>openSheet('jobs')},'근무처·시급 관리')),h('p',{className:'small muted'},'근무시간은 직접 기록한 만큼만 계산합니다. 수입은 실제 입금할 때 연결해 주세요.'),h('button',{className:'btn small',onClick:()=>openSheet('salary')},'직장 연봉·월급여 등록'));
 }
 function JobsSheet({ onClose }) {
     const { data, commit, toast } = useApp();
@@ -21457,126 +21409,6 @@ function WorkPrefsSheet({ onClose }) {
                     " ",
                     React.createElement(Icon, { n: "x", s: 13 })))),
             React.createElement("p", { className: "small muted" }, "\uC9C1\uC811 \uCD94\uAC00\uD55C \uC720\uD615\uC740 \uB20C\uB7EC\uC11C \uC9C0\uC6B8 \uC218 \uC788\uC5B4\uC694. \uC774\uBBF8 \uAE30\uB85D\uD55C \uADFC\uBB34\uC758 \uC720\uD615\uC740 \uADF8\uB300\uB85C \uB0A8\uC544\uC694."))));
-}
-function OrdersPanel() {
-    const { data, month, openSheet } = useApp();
-    const [showAll, setShowAll] = useState(false);
-    const stats = useMemo(() => orderStats(data), [data]);
-    const list = Object.values(stats).filter((s) => showAll || (s.order.date || '').startsWith(month)).sort((a, b) => (b.order.date || '').localeCompare(a.order.date || ''));
-    const complete = list.filter((s) => s.sales > 0 && s.minutes > 0 && s.order.status !== 'cancel');
-    const totH = perHour(sum(complete, (s) => s.profit), sum(complete, (s) => s.minutes));
-    return (React.createElement("div", { className: "stack" },
-        React.createElement("div", { className: "toolbar" },
-            React.createElement("label", { className: "check" },
-                React.createElement("input", { type: "checkbox", checked: showAll, onChange: (e) => setShowAll(e.target.checked) }),
-                "\uC804\uCCB4 \uAE30\uAC04"),
-            React.createElement("button", { className: "btn primary", onClick: () => openSheet('order') },
-                React.createElement(Icon, { n: "plus", s: 18 }),
-                "\uC8FC\uBB38 \uCD94\uAC00")),
-        React.createElement("section", { className: "card" },
-            React.createElement("div", { className: "mini-rows", style: { marginTop: 0 } },
-                React.createElement("div", null,
-                    React.createElement("span", null, "\uC8FC\uBB38"),
-                    React.createElement("b", { className: "num" },
-                        list.length,
-                        "\uAC74")),
-                React.createElement("div", null,
-                    React.createElement("span", null, "\uB9E4\uCD9C\u00B7\uC791\uC5C5\uC2DC\uAC04\uC774 \uBAA8\uB450 \uAE30\uB85D\uB41C \uC8FC\uBB38"),
-                    React.createElement("b", { className: "num" },
-                        complete.length,
-                        "\uAC74")),
-                React.createElement("div", null,
-                    React.createElement("span", null, "\uADF8 \uC8FC\uBB38\uB4E4\uC758 \uD3C9\uADE0 \uC2DC\uAC04\uB2F9 \uC21C\uC774\uC775"),
-                    React.createElement("b", { className: "num" }, totH == null ? '데이터 부족' : `${won(totH)}원`))),
-            React.createElement("p", { className: "small muted" }, "\uC0AC\uC5C5 \uB9E4\uCD9C\u00B7\uACBD\uBE44\uB97C \uAE30\uB85D\uD560 \uB54C\uB098 \uADFC\uBB34 \uAE30\uB85D\u00B7\uD0C0\uC774\uBA38\uC5D0\uC11C \uC8FC\uBB38\uC744 \uACE0\uB974\uBA74 \uC5EC\uAE30\uB85C \uBAA8\uC5EC\uC694.")),
-        list.length ? (React.createElement("ul", { className: "rows card" }, list.map((s) => (React.createElement("li", { key: s.order.id },
-            React.createElement("button", { className: "row", onClick: () => openSheet('order', { order: s.order }) },
-                React.createElement("span", { className: cx('dot', s.order.status === 'done' ? 't-income' : s.order.status === 'cancel' ? 't-transfer' : 't-saving') }),
-                React.createElement("span", { className: "row-main" },
-                    React.createElement("span", { className: "row-t" },
-                        s.order.name,
-                        s.order.status === 'cancel' ? ' (취소)' : ''),
-                    React.createElement("span", { className: "row-s" },
-                        s.order.date ? `${+s.order.date.slice(5, 7)}/${+s.order.date.slice(8)} · ` : '',
-                        s.order.customer ? `${s.order.customer} · ` : '',
-                        "\uB9E4\uCD9C ",
-                        won(s.sales),
-                        " \u00B7 \uC6D0\uAC00 ",
-                        won(s.costs),
-                        " \u00B7 ",
-                        s.minutes ? fmtMin(s.minutes) : '작업시간 없음')),
-                React.createElement("span", { className: "row-end" },
-                    React.createElement("span", { className: cx('row-amt num', s.profit < 0 && 'neg') }, won(s.profit)),
-                    React.createElement("span", { className: "row-s" }, s.hourly == null ? (s.minutes ? '' : '시간당 계산 불가') : `시간당 ${won(s.hourly)}`)))))))) : React.createElement(Empty, { title: showAll ? '주문이 없어요.' : '이 달 주문이 없어요.' }, "\uC8FC\uBB38\uC744 \uB9CC\uB4E4\uACE0 \uB9E4\uCD9C\u00B7\uC6D0\uAC00\u00B7\uC791\uC5C5\uC2DC\uAC04\uC744 \uC5F0\uACB0\uD558\uBA74 \uC8FC\uBB38\uBCC4 \uC218\uC775\uC131\uC744 \uBCFC \uC218 \uC788\uC5B4\uC694.")));
-}
-function OrderSheet({ order, onClose }) {
-    const { data, commit, toast, openSheet } = useApp();
-    const [f, setF] = useState(() => order ? { ...order } : { name: '', customer: '', date: today(), status: 'open', memo: '' });
-    const s = order ? orderStats(data)[order.id] : null;
-    const save = () => {
-        if (!f.name.trim())
-            return;
-        commit([{ kind: 'order', rec: { ...f, id: order ? order.id : newId(), name: f.name.trim(), customer: (f.customer || '').trim(), createdAt: order ? order.createdAt || Date.now() : Date.now(), deleted: false } }]);
-        toast(order ? '수정했어요' : '주문을 추가했어요');
-        onClose();
-    };
-    const remove = async () => {
-        if (!(await ask({ title: '주문을 삭제할까요?', body: '연결된 거래와 근무 기록은 남고 연결만 풀려요.', confirmLabel: '주문 삭제', danger: true })))
-            return;
-        commit([{ kind: 'order', rec: { ...order, deleted: true } }]);
-        onClose();
-    };
-    const linkedTx = order ? live(data.tx).filter((t) => t.orderId === order.id) : [];
-    const linkedW = order ? live(data.worklog).filter((w) => w.orderId === order.id) : [];
-    return (React.createElement(Sheet, { title: order ? '주문' : '주문 추가', onClose: onClose, footer: React.createElement(React.Fragment, null,
-            order && React.createElement("button", { className: "icon-btn", onClick: remove, "aria-label": "\uC0AD\uC81C" },
-                React.createElement(Icon, { n: "trash" })),
-            React.createElement("button", { className: "btn", onClick: onClose }, "\uB2EB\uAE30"),
-            React.createElement("button", { className: "btn primary grow", disabled: !f.name.trim(), onClick: save }, "\uC800\uC7A5")) },
-        React.createElement("div", { className: "form" },
-            React.createElement(Field, { label: "\uC8FC\uBB38 \uC774\uB984" },
-                React.createElement("input", { className: "input", value: f.name, onChange: (e) => setF({ ...f, name: e.target.value }), placeholder: "\uC608: \uAE40OO \uCCAD\uCCA9\uC7A5 200\uBD80" })),
-            React.createElement("div", { className: "form-2" },
-                React.createElement(Field, { label: "\uACE0\uAC1D (\uC120\uD0DD)" },
-                    React.createElement("input", { className: "input", value: f.customer || '', onChange: (e) => setF({ ...f, customer: e.target.value }) })),
-                React.createElement(Field, { label: "\uC8FC\uBB38\uC77C" },
-                    React.createElement("input", { className: "input", type: "date", value: f.date, onChange: (e) => setF({ ...f, date: e.target.value }) }))),
-            React.createElement(Seg, { small: true, value: f.status, onChange: (v) => setF({ ...f, status: v }), options: ORDER_STATUS }),
-            React.createElement(Field, { label: "\uBA54\uBAA8" },
-                React.createElement("input", { className: "input", value: f.memo || '', onChange: (e) => setF({ ...f, memo: e.target.value }) })),
-            s && (React.createElement("div", { className: "note" },
-                React.createElement("div", { className: "mini-rows", style: { marginTop: 0 } },
-                    React.createElement("div", null,
-                        React.createElement("span", null, "\uB9E4\uCD9C"),
-                        React.createElement("b", { className: "num" },
-                            won(s.sales),
-                            "\uC6D0")),
-                    React.createElement("div", null,
-                        React.createElement("span", null, "\uC6D0\uAC00\u00B7\uACBD\uBE44"),
-                        React.createElement("b", { className: "num" },
-                            won(s.costs),
-                            "\uC6D0")),
-                    React.createElement("div", null,
-                        React.createElement("span", null, "\uC21C\uC774\uC775 (\uC138\uC804)"),
-                        React.createElement("b", { className: cx('num', s.profit < 0 && 'neg') },
-                            won(s.profit),
-                            "\uC6D0")),
-                    React.createElement("div", null,
-                        React.createElement("span", null, "\uC791\uC5C5\uC2DC\uAC04"),
-                        React.createElement("b", { className: "num" }, s.minutes ? fmtMin(s.minutes) : '없음')),
-                    React.createElement("div", null,
-                        React.createElement("span", null, "\uC2DC\uAC04\uB2F9 \uC21C\uC774\uC775"),
-                        React.createElement("b", { className: "num" }, s.hourly == null ? '계산 불가' : `${won(s.hourly)}원`))),
-                React.createElement("p", { className: "small muted", style: { marginTop: 8 } },
-                    "\uC5F0\uACB0\uB41C \uAC70\uB798 ",
-                    linkedTx.length,
-                    "\uAC74 \u00B7 \uADFC\uBB34 \uAE30\uB85D ",
-                    linkedW.length,
-                    "\uAC74"),
-                React.createElement("div", { className: "row-gap wrap", style: { marginTop: 8 } },
-                    React.createElement("button", { className: "btn small", onClick: () => { openSheet('entry', { prefill: { type: 'income', scope: 'business', orderId: order.id, source: order.customer || '' } }); } }, "\uB9E4\uCD9C \uAE30\uB85D"),
-                    React.createElement("button", { className: "btn small", onClick: () => { openSheet('entry', { prefill: { type: 'expense', scope: 'business', orderId: order.id } }); } }, "\uC6D0\uAC00 \uAE30\uB85D"),
-                    React.createElement("button", { className: "btn small", onClick: () => { openSheet('work', { prefill: { orderId: order.id } }); } }, "\uC791\uC5C5\uC2DC\uAC04 \uAE30\uB85D")))))));
 }
 /* ───────── 세금 관리 ───────── */
 // 신고기한이 토·일·공휴일이면 다음 날 (국세기본법 제5조). 공휴일은 확인된 연도만 반영해요.
@@ -22906,6 +22738,7 @@ function SourceSheet({ onClose }) {
                 "\uC218\uC785\uC6D0 \uCD94\uAC00"),
             React.createElement("button", { className: "btn primary grow", onClick: save }, "\uC800\uC7A5")) },
         React.createElement("div", { className: "stack" },
+            React.createElement('button',{className:'btn',onClick:()=>openSheet('salary')},'급여·근무 계획 관리 (저장된 수입원)'),
             React.createElement("p", { className: "small muted" }, "\uC218\uC785\uC6D0\uBCC4\uB85C \uBC88 \uB3C8\uACFC \uD6A8\uC728\uC744 \uBE44\uAD50\uD574\uC694. \uC0AC\uC5C5\uC740 \uB9E4\uCD9C\uC5D0\uC11C \uACBD\uBE44\uB97C \uBE80 \uC21C\uC774\uC775, \uAE09\uC5EC\u00B7\uD504\uB9AC\uB79C\uC11C\u00B7\uADFC\uBB34\uCC98\uB294 \uC2E4\uC81C\uB85C \uBC1B\uC740 \uAE08\uC561 \uAE30\uC900\uC774\uC5D0\uC694. \uAE30\uC874 \uAE30\uB85D\uC740 \uCE74\uD14C\uACE0\uB9AC\uB85C \uC218\uC785\uC6D0\uC744 \uC790\uB3D9 \uD310\uB2E8\uD558\uACE0, \uC0C8 \uAE30\uB85D\uC740 \uC785\uB825\uD560 \uB54C \uACE0\uB97C \uC218 \uC788\uC5B4\uC694."),
             React.createElement("ul", { className: "cat-edit" }, list.map((x, i) => (React.createElement("li", { key: x.id, className: cx(x.active === false && 'off') },
                 React.createElement("input", { className: "input", value: x.name, onChange: (e) => upd(i, { name: e.target.value }), placeholder: "\uC608: \uD074\uB77C\uC774\uC5B8\uD2B8 A", "aria-label": "\uC218\uC785\uC6D0 \uC774\uB984" }),
@@ -23456,6 +23289,7 @@ function SavingPlanPanel() {
     const recentGoal = (gid) => { const ms = [0, 1, 2].map((k) => addM(thisMonth(), -k)); return sum(live(data.tx).filter((t) => t.type === 'saving' && t.goalId === gid && ms.includes(t.date.slice(0, 7))), (t) => t.amount) / 3; };
     const avgSave = R.b.saving;
     return (React.createElement("div", { className: "stack" },
+        React.createElement(IncomePlanBudget, {key:month}),
         React.createElement(OperatingReserve, null),
         React.createElement("details", { className: "more-sec sv-rec" }, React.createElement("summary", null, "\uAD8C\uC7A5 \uC800\uCD95 \uBC94\uC704", React.createElement("span", null, "\uC218\uC785\u00B7\uD544\uC218 \uC9C0\uCD9C\uB85C \uACC4\uC0B0\uD55C \uCD94\uC815\uCE58")), React.createElement("section", { className: "card" },
             React.createElement("div", { className: "card-h" },
@@ -25820,6 +25654,7 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
                     [10000, 50000, 100000].map((v) => h("button", { key: v, type: "button", onClick: () => addQuick(v) }, "+", v / 10000, "만")),
                     h("button", { type: "button", onClick: () => {setAmt('');setCalculationHistory(null);setErr('');} }, "지우기")),
             touch && keypadOpen && (h("div", { className: "keypad calculator-keypad" }, ['1', '2', '3', '/', '4', '5', '6', '*', '7', '8', '9', '-', '00', '0', 'del', '+'].map((k) => (h("button", { key: k, type: "button", className:['+','-','*','/'].includes(k)?'calc-op':'', onClick: () => press(k), "aria-label": ({del:'한 자리 지우기','+':'더하기','-':'빼기','*':'곱하기','/':'나누기'})[k]||k }, k === 'del' ? h(Icon, { n: "del" }) : ({'*':'×','/':'÷','-':'−'})[k]||k)))))),
+            workEligible&&['salary','job','freelance'].includes(sourcesOf(data,true).find(s=>s.id===effectiveWorkSource)?.kind)&&h(SalaryTerms,{key:effectiveWorkSource,sid:effectiveWorkSource,at:effectiveDate.slice(0,7)}),
             workEligible&&h(IncomeWorkFields,{data,draft:workDraft,setDraft:setWorkDraft,sid:effectiveWorkSource,amount:n,tx,orderId,setAmount:setAmt}),
             isBiz&&h('details',{className:'more-sec'},h('summary',null,'분석 귀속 월 (선택)'),h(Field,{label:'매출·경비 귀속 월',hint:'기본은 거래월입니다. 수입에 근무를 연결하면 연결 근무월을 우선합니다.'},h('input',{className:'input',type:'month',value:workMonth,onChange:e=>setWorkMonth(e.target.value)}))),
             tab === 'expense' && !isTax && !isBiz && h("label", { className: "check dutch-t" },
@@ -26853,7 +26688,7 @@ function allocateWorkAmount(rows,total,custom={}){
 }
 function createWorkDraft(data,tx,sid,date){
  let link=tx?.workLink;
- if(!link&&tx?.jobPay){const ws=live(data.worklog).filter(w=>w.kind==='job'&&w.jobId===tx.jobPay.jobId&&workMonthOf(w)===tx.jobPay.month);if(ws.length)link={periodStart:tx.jobPay.month+'-01',periodEnd:tx.jobPay.month+'-'+pad(dim(tx.jobPay.month)),allocations:allocateWorkAmount(ws,tx.amount||0),paymentComplete:false};}
+
  const alloc=link?.allocations||[];
  return {sid,enabled:!!link||(!tx&&!!(data.settings['workPref:'+sid]?.enabled&&!data.settings['workPref:'+sid]?.deleted)),mode:link?'existing':'new',rows:[newWorkRow(sid,data,date)],selected:alloc.map(a=>a.worklogId),amounts:Object.fromEntries(alloc.map(a=>[a.worklogId,a.amount])),from:link?.periodStart||date.slice(0,7)+'-01',to:link?.periodEnd||date.slice(0,7)+'-'+pad(dim(date.slice(0,7))),workOnly:false,paymentComplete:!!link?.paymentComplete,coverage:link?.coverage||'partial'};
 }
@@ -26881,7 +26716,7 @@ function prepareIncomeWork(data,rec,draft,eligible){
 }
 // 화면마다 예상/실제 기준이 달라지지 않도록 한 분석 함수에서 집계한다.
 function workIncomeAnalysis(data,months){
- const has=m=>months.includes(m),out={},txs=live(data.tx),logs=live(data.worklog).filter(w=>w.kind!=='poker');
+ const has=m=>months.includes(m),out={},txs=live(data.tx),logs=live(data.worklog).filter(w=>w.kind!=='poker'&&(w.schemaVersion===1||workLinkedTxs(data,w.id).length>0));
  const srcs=sourcesOf(data,true);const get=id=>out[id]||(out[id]={id,name:sourceName(data,id),kind:srcs.find(s=>s.id===id)?.kind||'other',minutes:0,linkedMinutes:0,received:0,earned:null,sales:0,costs:0,costCount:0,expected:0,unlinked:0,broken:0,workCount:0,coverage:true,paymentComplete:true,linkedCash:0,transactionCount:0});
  logs.filter(w=>has(workMonthOf(w))).forEach(w=>{const r=get(workSourceOf(w,data));r.minutes+=Number(w.minutes)||0;r.workCount++;r.expected+=w.kind==='job'?Number(w.pay)||0:0;r.coverage=r.coverage&&w.coverage==='confirmed';});
  txs.forEach(t=>{
@@ -26949,7 +26784,7 @@ function WorkIncomeEditor({log,onClose}){
  const remove=async()=>{if(!await ask({title:'근무 기록을 삭제할까요?',body:'실제 입금은 남고 분석에 연결 누락이 표시돼요.',confirmLabel:'근무 삭제',danger:true}))return;commit([{kind:'worklog',rec:{...log,deleted:true}}]);toast('근무 기록을 삭제했어요',{label:'되돌리기',run:()=>commit([{kind:'worklog',rec:log}])});onClose();};
  return h(Sheet,{title:'근무 기록 수정',onClose,dirty:JSON.stringify(row)!==JSON.stringify({...log,hours:Math.floor(log.minutes/60),extraMinutes:log.minutes%60,periodStart:log.periodStart||log.date,periodEnd:log.periodEnd||log.date,entryMode:log.entryMode||'daily',method:log.method==='range'?'range':'manual',overlapOK:true}),footer:h(React.Fragment,null,h('button',{className:'btn',onClick:remove},'근무 삭제'),h('button',{className:'btn primary grow',onClick:save},'근무 수정 저장'))},h('div',{className:'form'},h('p',null,sourceName(data,sid)),links.length>0&&h('p',{className:'small muted'},`입금 ${links.length}건에 연결돼 있어요. 시간·기간만 바꾸며 입금은 자동 변경하지 않아요.`),h(WorkRowsEditor,{rows:[row],onChange:rows=>setRow(rows[0]),sid,data,exclude:[log.id]}),err&&h('p',{className:'err'},err)));
 }
-function WorkSheet(props){const {data}=useApp();if(!props.log&&props.prefill?.entryMode==='period')return React.createElement(StandaloneWorkSheet,props);return React.createElement(props.log&&props.log.kind!=='poker'&&(props.log.schemaVersion||workLinkedTxs(data,props.log.id).length)?WorkIncomeEditor:LegacyWorkSheet,props);}
+function WorkSheet(props){const {data}=useApp();if(!props.log&&props.prefill?.kind!=='poker')return React.createElement(StandaloneWorkSheet,props);return React.createElement(props.log&&props.log.kind!=='poker'&&(props.log.schemaVersion||workLinkedTxs(data,props.log.id).length)?WorkIncomeEditor:LegacyWorkSheet,props);}
 function EfficiencyCompare(){
  const {data,month,commit,toast,openSheet}=useApp(),h=React.createElement,[period,setPeriod]=useState('month'),[metric,setMetric]=useState('earn');
  const y=month.slice(0,4),q=Math.floor((Number(month.slice(5))-1)/3)*3+1,start=period==='year'?y+'-01':period==='quarter'?y+'-'+pad(q):month;
@@ -26965,7 +26800,7 @@ function EfficiencyCompare(){
  h('div',null,h('span',{className:'small muted'},'투입시간'),h('b',null,r.minutes?fmtMin(r.minutes):'시간 기록 필요'),h('small',null,'기록시간 비중 ',r.timeShare==null?'—':Math.round(r.timeShare)+'%')),
  h('div',null,h('span',{className:'small muted'},metric==='cash'?'실제 입금':r.basis),h('b',{className:r.earned<0?'neg':''},amount(metric==='cash'?r.received:r.earned)),h('small',null,metric==='cash'?`양수 입금 비중 ${r.cashShare==null?'—':Math.round(r.cashShare)+'%'}`:r.earned<0?'손실':`양수 수익 기여 ${r.earnShare==null?'—':Math.round(r.earnShare)+'%'}`)),
  h('div',null,h('span',{className:'small muted'},r.kind==='business'?'시간당 기록상 수익':'시간당 연결 입금'),h('b',{className:r.hourly<0?'neg':''},amount(r.hourly)),h('small',null,r.kind==='business'?`시간당 매출 ${amount(r.hourlyGross)}`:r.linkedMinutes?`연결 시간 ${fmtMin(r.linkedMinutes)}`:'근무 연결 필요')),
- h('details',{className:'wi-detail'},h('summary',null,'계산 기준·기록 보기'),h('p',{className:'small muted'},r.kind==='business'?`귀속기간 매출 ${amount(r.sales)} − 기록 경비 ${amount(r.costs)}. 부가세 포함 기록·개인 소득세 차감 전입니다. 공통 경비는 사업 전체에만 포함됩니다.`:`예상 기본급 ${amount(r.expected)} · 입금일 기준 미연결 수입 ${amount(r.unlinked)}. 계약 시급·공제 전 금액과 직접 비교하지 마세요. 일부 지급 중에는 최종 시급이 아니에요.`),r.kind==='business'&&!r.costsConfirmed&&h('button',{className:'btn small',onClick:()=>confirmCosts(r)},'경비 모두 확인 (0원 포함)'),logs.filter(w=>workSourceOf(w,data)===r.id).map(w=>h('button',{key:w.id,className:'row wi-log',onClick:()=>openSheet('work',{log:w})},h('span',null,`${workPeriodOf(w).start} ~ ${workPeriodOf(w).end}`),h('b',null,fmtMin(w.minutes)))),live(data.tx).filter(t=>t.type==='income'&&sourceOf(t,data)===r.id&&(months.includes((t.date||'').slice(0,7))||(t.workLink?.allocations||[]).some(a=>data.worklog[a.worklogId]&&months.includes(workMonthOf(data.worklog[a.worklogId]))))).map(t=>h('button',{key:t.id,className:'row wi-log',onClick:()=>openSheet('entry',{tx:t})},h('span',null,`${t.date} 입금 · 연결 수정`),h('b',null,amount(t.amount))))))) :h('p',{className:'muted'},'수입 입력에서 근무시간을 함께 기록해 보세요.')),
+ h('details',{className:'wi-detail'},h('summary',null,'계산 기준·기록 보기'),h('p',{className:'small muted'},r.kind==='business'?`귀속기간 매출 ${amount(r.sales)} − 기록 경비 ${amount(r.costs)}. 부가세 포함 기록·개인 소득세 차감 전입니다. 공통 경비는 사업 전체에만 포함됩니다.`:`직접 기록한 근무의 기본급 ${amount(r.expected)} · 입금일 기준 미연결 수입 ${amount(r.unlinked)}. 계약 시급·공제 전 금액과 직접 비교하지 마세요. 일부 지급 중에는 최종 시급이 아니에요.`),r.kind==='business'&&!r.costsConfirmed&&h('button',{className:'btn small',onClick:()=>confirmCosts(r)},'경비 모두 확인 (0원 포함)'),logs.filter(w=>workSourceOf(w,data)===r.id).map(w=>h('button',{key:w.id,className:'row wi-log',onClick:()=>openSheet('work',{log:w})},h('span',null,`${workPeriodOf(w).start} ~ ${workPeriodOf(w).end}`),h('b',null,fmtMin(w.minutes)))),live(data.tx).filter(t=>t.type==='income'&&sourceOf(t,data)===r.id&&(months.includes((t.date||'').slice(0,7))||(t.workLink?.allocations||[]).some(a=>data.worklog[a.worklogId]&&months.includes(workMonthOf(data.worklog[a.worklogId]))))).map(t=>h('button',{key:t.id,className:'row wi-log',onClick:()=>openSheet('entry',{tx:t})},h('span',null,`${t.date} 입금 · 연결 수정`),h('b',null,amount(t.amount))))))) :h('p',{className:'muted'},'수입 입력에서 근무시간을 함께 기록해 보세요.')),
  h('p',{className:'small muted'},'근무 수익은 근무기간 기준, 실제 입금 비중은 입금일 기준입니다. 시간당 금액은 기간 합계로 계산해요. 양수 금액의 비중과 손실은 따로 표시하며 전체 수입·잔액은 변경하지 않아요.')));
 }
 
@@ -26976,6 +26811,79 @@ function StandaloneWorkSheet({prefill={},onClose}){
  return h(Sheet,{title:'기간 근무 기록',onClose,dirty:rows.some(r=>workRowMinutes(r)>0),footer:h('button',{className:'btn primary grow',onClick:save},'근무만 저장')},h('div',{className:'form'},h(Field,{label:'사업·근무 수입원'},h('select',{className:'input',value:sid,onChange:e=>{const id=e.target.value;setSid(id);setRows([{...newWorkRow(id,data,prefill.date||today()),entryMode:'period'}]);setOrderId('');setErr('');}},srcs.map(s=>h('option',{key:s.id,value:s.id},s.name)))),h('p',{className:'small muted'},'매출이나 입금이 없는 상담·제작·관리 시간도 기록할 수 있어요. 여러 달이면 행을 나눠 주세요.'),h(WorkRowsEditor,{rows,onChange:setRows,sid,data}),h('button',{className:'btn small',onClick:()=>setRows(r=>[...r,{...newWorkRow(sid,data,r.at(-1)?.periodStart||today()),entryMode:'period'}])},'다른 근무·월 추가'),false&&h(Field,{label:'주문 연결 (선택)'},h('select',{className:'input',value:orderId,onChange:e=>setOrderId(e.target.value)},h('option',{value:''},'연결 안 함'),live(data.order).map(o=>h('option',{key:o.id,value:o.id},o.name)))),err&&h('p',{className:'err'},err)));
 }
 
+
+// Versioned income plans never create ledger transactions or work logs.
+function salaryTermsOf(data,sid,m){return live(data.settings).filter(r=>r.type==='salaryTerms'&&r.sourceId===sid&&r.confirmed===true&&r.effectiveMonth<=m&&Number(r.amount)>0).sort((a,b)=>b.effectiveMonth.localeCompare(a.effectiveMonth))[0]||null;}
+function salaryMonthly(r){return !r?null:r.period==='annual'?Number(r.amount)/12:Number(r.amount);}
+function validateSalaryTerms(r){if(!r.employer.trim())return '근무처를 입력해 주세요.';if(!Number.isSafeInteger(Number(r.amount))||Number(r.amount)<=0||Number(r.amount)>999999999999)return '급여 금액은 1원 이상 정수로 입력해 주세요.';if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(r.effectiveMonth))return '적용 시작 월을 확인해 주세요.';if(!['annual','monthly','hourly'].includes(r.period)||!['gross','net'].includes(r.basis))return '급여 기준을 선택해 주세요.';return '';}
+function plannedHours(r){return Number(r.hours||0)*(r.hoursMode==='week'?365.2425/12/7:1);}
+function incomeEstimate(r){
+ const hours=plannedHours(r),gross=r.period==='hourly'?Number(r.amount)*hours+Number(r.allowance||0):salaryMonthly(r);
+ if(!Number.isFinite(gross)||gross<=0)return {gross:0,net:null,items:[]};
+ if(r.basis==='net'||r.deduction==='none')return {gross,net:Math.round(gross),items:[]};
+ if(r.deduction==='unknown')return {gross,net:null,items:[]};
+ if(r.deduction==='33')return {gross,net:Math.round(gross*.967),items:[['원천징수 3.3%',Math.round(gross*.033)]]};
+ if(r.deduction==='manual')return {gross,net:Math.max(0,Math.round(gross-Number(r.manualDeduction||0))),items:[['직접 입력한 공제',Number(r.manualDeduction||0)]]};
+ // Annual-tax approximation, NOT the statutory monthly withholding table.
+ // Supported period is explicitly bounded; unsupported years require manual confirmation.
+ if(r.effectiveMonth<'2026-07'||r.effectiveMonth>'2026-12')return {gross,net:null,items:[],unsupported:true};
+ const taxable=Math.max(0,gross-Number(r.nonTaxable||0)),round10=v=>Math.floor(v/10)*10;
+ const pension=round10(Math.min(6590000,Math.max(410000,Math.floor(taxable/1000)*1000))*.0475),health=round10(taxable*.03595),care=round10(health*.009448/.0719),employment=round10(taxable*.009);
+ const annual=taxable*12,earnedDeduction=Math.min(20000000,annual<=5000000?annual*.7:annual<=15000000?3500000+(annual-5000000)*.4:annual<=45000000?7500000+(annual-15000000)*.15:annual<=100000000?12000000+(annual-45000000)*.05:14750000+(annual-100000000)*.02);
+ const base=Math.max(0,annual-earnedDeduction-1500000-(pension+health+care+employment)*12);
+ const bands=[[14000000,.06],[50000000,.15],[88000000,.24],[150000000,.35],[300000000,.38],[500000000,.4],[1000000000,.42],[Infinity,.45]];
+ let tax=0,last=0;for(const [limit,rate] of bands){tax+=Math.max(0,Math.min(base,limit)-last)*rate;if(base<=limit)break;last=limit;}
+ const cap=annual<=33000000?740000:annual<=70000000?Math.max(660000,740000-(annual-33000000)*.008):annual<=120000000?Math.max(500000,660000-(annual-70000000)*.5):Math.max(200000,500000-(annual-120000000)*.5);
+ const credit=Math.min(cap,tax<=1300000?tax*.55:715000+(tax-1300000)*.3),incomeTax=round10(Math.max(0,tax-credit)/12),local=round10(incomeTax*.1);
+ const items=[['국민연금 (본인)',pension],['건강보험 (본인)',health],['장기요양 (본인)',care],['고용보험 (본인)',employment],['소득세 월 환산 추정',incomeTax],['지방소득세 추정',local]];
+ return {gross,net:Math.max(0,Math.round(gross-sum(items,x=>x[1]))),items};
+}
+function incomePlanRows(data,m){return sourcesOf(data).filter(s=>['salary','job','freelance'].includes(s.kind)).map(s=>({s,r:salaryTermsOf(data,s.id,m)})).filter(({r})=>r?.planConfirmed&&r.planVersion===1&&(!r.endMonth||m<=r.endMonth));}
+function laborReceipts(data,sid,m){return live(data.tx).filter(t=>t.type==='income'&&sourceOf(t,data)===sid&&(t.date||'').slice(0,7)===m);}
+function laborReceiptStamp(data,sid,m){return JSON.stringify(laborReceipts(data,sid,m).map(t=>[t.id,Number(t.amount)]).sort((a,b)=>a[0].localeCompare(b[0])));}
+function SalaryTerms({sid,at}){
+ const {data,commit,toast}=useApp(),h=React.createElement,current=salaryTermsOf(data,sid,at),src=sourcesOf(data,true).find(s=>s.id===sid),job=src?.kind==='job';
+ const initial=()=>({employer:current?.employer||src?.name||'',period:current?.period||(job?'hourly':'monthly'),basis:current?.basis||'gross',amount:current?.amount||0,effectiveMonth:current?.effectiveMonth||at,endMonth:current?.endMonth||'',deduction:current?.deduction||(job?'unknown':'payroll'),hoursMode:current?.hoursMode||'week',hours:current?.hours??(job?0:40),extraHours:current?.extraHours||0,nonTaxable:current?.nonTaxable||0,allowance:current?.allowance||0,manualDeduction:current?.manualDeduction||0,confirmedNet:current?.planConfirmed?current.confirmedNet:'',planConfirmed:false});
+ const [f,setF]=useState(initial),[err,setErr]=useState(''),[expanded,setExpanded]=useState(false),lock=useRef(false),estimate=incomeEstimate(f);
+ const set=(key,value)=>{setF(v=>({...v,[key]:value,planConfirmed:false,...(key==='confirmedNet'?{}:{confirmedNet:''})}));setErr('');};
+ const save=()=>{if(lock.current)return;let error=validateSalaryTerms(f);if(!error&&(!Number.isFinite(+f.hours)||+f.hours<=0||plannedHours(f)>744||+f.extraHours<0||plannedHours(f)+Number(f.extraHours)>744))error='근무시간과 추가 투입시간을 확인해 주세요.';if(!error&&(!f.planConfirmed||f.confirmedNet===''||!Number.isSafeInteger(+f.confirmedNet)||+f.confirmedNet<0||+f.confirmedNet>999999999999))error='월 실수령액을 확인하고 체크해 주세요.';if(!error&&f.endMonth&&f.endMonth<f.effectiveMonth)error='종료 월은 시작 월 이후로 정해 주세요.';if(!error&&(+f.nonTaxable<0||+f.nonTaxable>estimate.gross||+f.allowance<0||+f.manualDeduction<0))error='비과세·수당·공제 금액을 확인해 주세요.';if(error)return setErr(error);
+ const id='salaryTerms:'+sid+':'+f.effectiveMonth,old=data.settings[id],rec={...f,employer:f.employer.trim(),amount:Number(f.amount),confirmedNet:Number(f.confirmedNet),id,type:'salaryTerms',sourceId:sid,confirmed:true,planVersion:1,estimateSnapshot:estimate,estimateMethod:'2026H2-annual-basic-v1',deleted:false};lock.current=true;
+ try{commit([{kind:'settings',rec}]);toast('확인한 월 수입을 계획 기준으로 저장했어요',{label:'되돌리기',run:()=>commit([{kind:'settings',rec:old||{...rec,deleted:true}}])});setExpanded(false);}catch(e){setErr(e.message||'저장하지 못했어요.');}finally{lock.current=false;}};
+ const number=(key,label,hint)=>h(Field,{label,hint},h('input',{className:'input',type:'number',min:0,step:'any',value:f[key],onChange:e=>set(key,e.target.value)}));
+ return h('details',{className:'salary-terms',open:expanded,onToggle:e=>setExpanded(e.currentTarget.open)},h('summary',{onClick:()=>{if(!expanded){setF(initial());setErr('');}}},current?`${current.employer} · ${current.planConfirmed?'확인한 월 수입 '+won(current.confirmedNet)+'원':'급여 기준 확인 필요'}`:'급여·근무 계획 등록 (선택)'),h('div',{className:'form'},
+ h(Field,{label:'근무처'},h('input',{className:'input',value:f.employer,onChange:e=>set('employer',e.target.value)})),
+ h(Seg,{small:true,value:f.period,onChange:v=>set('period',v),options:[['monthly','월급여'],['annual','연봉'],['hourly','시급']]}),h(Seg,{small:true,value:f.basis,onChange:v=>set('basis',v),options:[['gross','세전'],['net','실수령 직접 입력']]}),
+ h(Field,{label:f.period==='annual'?'연봉 (퇴직금·별도 성과급 제외)':f.period==='hourly'?'계약 시급':'월 급여'},h(AmountInput,{value:f.amount,onChange:v=>set('amount',v)})),
+ h(Seg,{small:true,value:f.hoursMode,onChange:v=>set('hoursMode',v),options:[['week','주 근무시간'],['month','월 근무시간']]}),number('hours',f.hoursMode==='week'?'주 근무시간 (휴게시간 제외)':'월 근무시간 (휴게시간 제외)'),
+ h('p',{className:'small muted'},`월평균 약 ${plannedHours(f).toFixed(1)}시간 · 주 기준은 연평균 4.35주로 환산해요. 실제 근무는 월별로 확인합니다.`),
+ h('details',null,h('summary',null,'수당·비과세·추가 시간 설정'),number('extraHours','월 출퇴근·준비 시간 (선택)','급여 계산에는 넣지 않고 시간 투자 분석에만 포함해요.'),f.period==='hourly'&&number('allowance','월 주휴·기타 수당 (직접 확인한 금액)','시급 × 실제 근무시간 외 수당입니다. 자동으로 자격을 판단하지 않아요.'),number('nonTaxable','월 비과세 급여 (세전 금액에 포함된 금액)')),
+ f.basis==='gross'&&h(Field,{label:'공제 방식'},h('select',{className:'input','aria-label':'공제 방식',value:f.deduction,onChange:e=>set('deduction',e.target.value)},[['payroll','직장 보험·세금 추정'],['33','3.3% 원천징수'],['none','공제 없음'],['manual','공제액 직접 입력'],['unknown','아직 모름']].map(([v,l])=>h('option',{key:v,value:v},l)))),
+ f.deduction==='manual'&&f.basis==='gross'&&number('manualDeduction','월 공제액'),
+ h('div',{className:'note'},h('b',null,estimate.net==null?'실수령액을 직접 확인해 주세요':`제안하는 월 실수령 약 ${won(estimate.net)}원`),estimate.net!=null&&h('button',{type:'button',className:'link',onClick:()=>set('confirmedNet',estimate.net)},'이 금액 사용'),
+ h('details',null,h('summary',null,'계산 근거·공제 내역'),h('p',{className:'small'},`월 급여 기준 ${won(Math.round(estimate.gross))}원`),estimate.items.map(([k,v])=>h('div',{className:'row',key:k},h('span',null,k),h('b',null,won(v)+'원'))),h('p',{className:'small muted'},f.deduction==='33'?'3.3%는 계약에 실제 적용되는 경우에만 선택하세요. 최종 세금이 아닌 원천징수 금액입니다.':f.deduction==='payroll'?'2026년 7~12월 일반 직장가입자·본인 공제만 가정합니다. 소득세는 기본 공제를 적용한 연간 세액의 월 환산 추정으로, 급여 간이세액표와 다릅니다. 부양가족·추가 공제·보험료 상하한 특례·가입 제외는 반영하지 않으므로 명세서 금액으로 수정할 수 있어요.':'입력한 공제 방식으로 계산합니다.'),estimate.unsupported&&h('p',{className:'err'},'이 적용 월의 세율은 지원하지 않아요. 명세서의 실수령액을 직접 입력해 주세요.'),h('a',{href:'https://www.nps.or.kr/pnsinfo/ntpsklg/getOHAF0038M0.do?menuId=MN24001113',target:'_blank',rel:'noopener'},'국민연금 기준'),h('span',null,' · '),h('a',{href:'https://edi.nhis.or.kr/portal/images/popup/20251204_pop01longdesc.html',target:'_blank',rel:'noopener'},'건강·장기요양 기준'),h('span',null,' · '),h('a',{href:'https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7873&mi=6595',target:'_blank',rel:'noopener'},'소득세 기준'))),
+ h(Field,{label:'계획에 사용할 월 실수령액',hint:'제안 금액을 사용하거나 실제 급여에 맞게 수정하세요.'},h(AmountInput,{value:f.confirmedNet,onChange:v=>set('confirmedNet',v)})),
+ h('label',{className:'check'},h('input',{type:'checkbox',checked:f.planConfirmed,onChange:e=>setF(v=>({...v,planConfirmed:e.target.checked}))}),'이 금액을 월 수입 계획 기준으로 확인했어요'),
+ h(Field,{label:'적용 시작 월'},h('input',{className:'input',type:'month',value:f.effectiveMonth,onChange:e=>set('effectiveMonth',e.target.value)})),h(Field,{label:'마지막 적용 월 (퇴사·종료 시 선택)'},h('input',{className:'input',type:'month',value:f.endMonth,onChange:e=>set('endMonth',e.target.value)})),
+ h('p',{className:'small muted'},'계획 저장으로 입금이나 근무 기록을 만들지 않아요. 급여 변경은 새 시작 월로 저장하면 이전 기준이 유지됩니다.'),
+ h('div',{className:'row-gap'},h('button',{type:'button',className:'btn primary',onClick:save},'확인한 수입 기준 저장'),current&&h('button',{type:'button',className:'btn',onClick:()=>{commit([{kind:'settings',rec:{...current,deleted:true}}]);toast('기준을 삭제했어요',{label:'되돌리기',run:()=>commit([{kind:'settings',rec:current}])});setExpanded(false);}},'이 기준 삭제')),err&&h('p',{className:'err',role:'alert'},err)));
+}
+function SalarySheet({onClose}){const {data,month,openSheet}=useApp(),h=React.createElement,srcs=sourcesOf(data).filter(s=>['salary','job','freelance'].includes(s.kind)),[sid,setSid]=useState(srcs[0]?.id||'');return h(Sheet,{title:'수입·근무 계획',onClose},h('div',{className:'form'},h(Field,{label:'수입원'},h('select',{className:'input',value:sid,onChange:e=>setSid(e.target.value)},srcs.map(s=>h('option',{key:s.id,value:s.id},s.name)))),sid?h(SalaryTerms,{key:sid,sid,at:month}):h('p',null,'수입원을 먼저 등록해 주세요.'),h('button',{className:'link',onClick:()=>openSheet('sources')},'수입원 관리')));}
+function LaborMonthReview({s,r,month}){
+ const {data,commit,toast}=useApp(),h=React.createElement,id='laborMonth:'+s.id+':'+month,saved=data.settings[id],valid=saved&&!saved.deleted&&saved.stamp===laborReceiptStamp(data,s.id,month),cash=sum(laborReceipts(data,s.id,month),t=>Number(t.amount)),[hours,setHours]=useState(saved?.hours??Number(plannedHours(r).toFixed(1))),[extra,setExtra]=useState(saved?.extraHours??Number(r.extraHours||0)),[err,setErr]=useState('');
+ const save=()=>{if(!Number.isFinite(+hours)||!Number.isFinite(+extra)||+hours<0||+extra<0||+hours+ +extra>744)return setErr('월 근무시간을 확인해 주세요.');const rec={id,type:'laborMonth',sourceId:s.id,month,hours:+hours,extraHours:+extra,stamp:laborReceiptStamp(data,s.id,month),deleted:false};try{commit([{kind:'settings',rec}]);toast('월 근무시간과 현재 입금 내역을 확인했어요',{label:'되돌리기',run:()=>commit([{kind:'settings',rec:saved||{...rec,deleted:true}}])});setErr('');}catch(e){setErr(e.message);}};
+ return h('details',{className:'salary-terms'},h('summary',null,`${s.name} · ${valid?'월 확인 완료':'월 근무·입금 확인'}`),h('div',{className:'form'},h('p',null,`확인한 월 수입 기준 ${won(r.confirmedNet)}원 · 이번 달 실제 입금 ${won(cash)}원`),h('p',{className:'small muted'},'현재 월의 입금일 기준입니다. 지난달 근무 급여가 이번 달에 입금될 수 있어요. 시간과 입금을 같은 기간의 성과로 단정하지 않습니다.'),h(Field,{label:'이번 달 실제 근무시간'},h('input',{className:'input',type:'number',min:0,value:hours,onChange:e=>setHours(e.target.value)})),h(Field,{label:'이번 달 출퇴근·준비 시간'},h('input',{className:'input',type:'number',min:0,value:extra,onChange:e=>setExtra(e.target.value)})),h('p',{className:'small muted'},'일별 기록 없이 월 합계만 확인해도 됩니다. 기존 개별 근무 기록에 더하지 않고 월 요약으로 별도 사용해요.'),h('button',{className:'btn',onClick:save},'이 시간·입금 내역 확인'),err&&h('p',{className:'err'},err)));
+}
+function SalaryOverview(){
+ const {data,month,openSheet}=useApp(),h=React.createElement,rows=incomePlanRows(data,month),total=sum(rows,x=>Number(x.r.confirmedNet)),time=sum(rows,x=>plannedHours(x.r)+Number(x.r.extraHours||0));
+ const confirmedHours=sum(rows,({s})=>{const v=data.settings['laborMonth:'+s.id+':'+month];return v&&!v.deleted&&v.stamp===laborReceiptStamp(data,s.id,month)?+v.hours+ +v.extraHours:0}),receivedTotal=sum(live(data.tx).filter(t=>t.type==='income'&&(t.date||'').slice(0,7)===month),t=>Number(t.amount));
+ return h('div',{className:'stack income-plan-overview'},h('div',{className:'card-h'},h('h3',null,'노동·시간과 수입'),h('button',{className:'link',type:'button',onClick:()=>openSheet('salary')},'수입·근무 계획')),
+ rows.length?h(React.Fragment,null,h('p',{className:'small muted'},`확인한 계획 · 월 ${won(total)}원 / 투입 약 ${time.toFixed(1)}시간. 아래 실제 입금과 시간은 별도로 확인해요.`),rows.map(({s,r})=>{const review=data.settings['laborMonth:'+s.id+':'+month],valid=review&&!review.deleted&&review.stamp===laborReceiptStamp(data,s.id,month),cash=sum(laborReceipts(data,s.id,month),t=>Number(t.amount));return h('article',{className:'salary-reference',key:s.id},h('b',null,s.name),h('p',null,`계획: 월 ${won(r.confirmedNet)}원 · 근무 ${plannedHours(r).toFixed(1)}시간 + 준비·이동 ${Number(r.extraHours||0)}시간`),h('small',null,`계획 수입 비중 ${total?Math.round(r.confirmedNet/total*100):0}% · 시간 비중 ${time?Math.round((plannedHours(r)+Number(r.extraHours||0))/time*100):0}%`),h('p',null,`실제: 입금 ${won(cash)}원 · ${valid?'확인한 투입 '+(+review.hours+ +review.extraHours).toFixed(1)+'시간':'근무시간 확인 전'}`),h('small',null,`전체 입금 중 ${receivedTotal?Math.round(cash/receivedTotal*100):0}% · 확인된 시간 중 ${valid&&confirmedHours?Math.round((+review.hours+ +review.extraHours)/confirmedHours*100)+'%':'확인 필요'}`),(()=>{const prev=addM(month,-1),v=data.settings['laborMonth:'+s.id+':'+prev];if(!valid||!v||v.deleted||v.stamp!==laborReceiptStamp(data,s.id,prev))return null;const oldCash=sum(laborReceipts(data,s.id,prev),t=>Number(t.amount)),delta=(+review.hours+ +review.extraHours)-(+v.hours+ +v.extraHours);return h('p',{className:'small muted'},`지난달 대비 투입 ${delta>=0?'+':''}${delta.toFixed(1)}시간 · 입금 ${cash-oldCash>=0?'+':''}${won(cash-oldCash)}원`);})(),h(LaborMonthReview,{key:s.id+':'+month,s,r,month}));})):h('p',{className:'small muted'},'연봉·월급여 또는 시급과 근무시간을 등록하고 월 실수령액을 확인해 주세요.'),h('p',{className:'small muted'},'계획 금액은 실제 수입·계좌 잔액에 더하지 않습니다. 실제 입금은 + → 수입에서 기록하세요.'));
+}
+function IncomePlanBudget(){
+ const {data,month,commit,toast,openSheet}=useApp(),h=React.createElement,rows=incomePlanRows(data,month),id='incomePlanBudget:'+month,old=data.settings[id],total=sum(rows,x=>Number(x.r.confirmedNet)),[cost,setCost]=useState(old?.cost??''),[reserve,setReserve]=useState(old?.reserve??''),[err,setErr]=useState('');
+ const saved=old&&!old.deleted,remaining=saved?total-Number(old.cost)-Number(old.reserve):null;
+ return h('section',{className:'card stack income-plan-budget'},h('div',{className:'card-h'},h('h3',null,'확인한 수입으로 세우는 계획'),h('button',{className:'link',onClick:()=>openSheet('salary')},'수입 설정')),h('p',null,`등록한 월 수입 ${won(total)}원 · ${rows.length}개 수입원`),h('p',{className:'small muted'},'확인한 실수령액만 사용합니다. 사업·기타 수입과 아직 확인하지 않은 급여는 제외하며, 과거 평균 수입을 중복해서 더하지 않아요.'),rows.length>0&&h(React.Fragment,null,saved&&h('div',{className:'note'},h('b',null,remaining>=0?`이 계획에서 저축에 배정할 수 있는 금액 ${won(remaining)}원`:`이 계획에서 부족한 금액 ${won(-remaining)}원`),h('p',{className:'small muted'},`월 수입 − 생활·고정비 ${won(old.cost)}원 − 따로 남겨둘 돈 ${won(old.reserve)}원. 통장 잔액이나 확정 저축 추천액은 아닙니다.`)),h('details',null,h('summary',null,saved?'월 지출 계획 수정':'월 지출 계획 입력'),h('div',{className:'form'},h(Field,{label:'월 생활비·고정비·대출 상환 합계'},h(AmountInput,{value:cost,onChange:setCost})),h(Field,{label:'별도로 남겨둘 세금·비상금 등'},h(AmountInput,{value:reserve,onChange:setReserve})),h('p',{className:'small muted'},'카드값·생활비를 중복 입력하지 않도록 월 전체 예정 지출을 한 번만 합산해 주세요. 0원도 직접 확인해 주세요.'),h('button',{className:'btn',onClick:()=>{if(cost===''||reserve===''||![cost,reserve].every(v=>Number.isSafeInteger(+v)&&+v>=0&&+v<=999999999999))return setErr('월 지출과 남겨둘 금액을 확인해 주세요.');commit([{kind:'settings',rec:{id,type:'incomePlanBudget',month,cost:+cost,reserve:+reserve,deleted:false}}]);setErr('');toast('이 달의 지출 계획을 저장했어요',{label:'되돌리기',run:()=>commit([{kind:'settings',rec:old||{id,deleted:true}}])});}},'지출 계획 확인'),err&&h('p',{className:'err'},err)))));
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App, null));
 
