@@ -18446,7 +18446,36 @@ const FIXED_CATS = ['주거비', '관리비', '통신비', '보험료', '대출 
 const VAR_CATS = ['식비', '카페', '쇼핑', '생활용품', '미용', '의료', '교통', '반려동물', '여행', '취미', '경조사', '기타'];
 const ALL_EXP_CATS = [...VAR_CATS, ...FIXED_CATS];
 const SAVING_CATS = ['저축', '투자'];
-const ACC_KINDS = { cash: '현금·입출금', deposit: '예금·적금', reserve: '세금 준비금', invest: '투자', loan: '대출·부채', card: '신용카드' };
+const ACC_KINDS = { cash: '현금·입출금', deposit: '예금·적금', reserve: '세금 준비금', invest: '투자', loan: '대출·부채', card: '신용카드', debit: '체크카드' };
+const isPaymentCard = a => a && ['card','debit'].includes(a.kind);
+function debitBank(data, a) {
+    const bank = a && data.account[a.linkedAccountId];
+    return bank && !bank.deleted && bank.kind === 'cash' ? bank : null;
+}
+function debitChanges(data, changes) {
+    const next = {...data, account:{...data.account}};
+    changes.filter(c=>c.kind==='account').forEach(c=>{ next.account[c.rec.id]=c.rec; });
+    for (const c of changes.filter(c=>c.kind==='account')) {
+        if ((c.rec.deleted || c.rec.kind!=='cash') && live(data.tx).some(t=>t.debitBankId===c.rec.id))
+            throw new Error('체크카드의 과거 출금 기록에 연결된 계좌는 유지해 주세요.');
+        const oldAccount=data.account[c.rec.id];
+        if(oldAccount?.kind==='debit' && (c.rec.deleted||c.rec.kind!=='debit') && live(data.tx).some(t=>t.accountId===c.rec.id))
+            throw new Error('사용 기록이 있는 체크카드는 삭제하거나 종류를 바꿀 수 없어요.');
+        if (live(next.account).some(a=>a.kind==='debit' && a.linkedAccountId===c.rec.id) && (c.rec.deleted || c.rec.kind!=='cash'))
+            throw new Error('연결된 체크카드의 출금 계좌를 먼저 변경해 주세요.');
+        if (!c.rec.deleted && c.rec.kind==='debit' && !debitBank(next,c.rec))
+            throw new Error('체크카드에 연결할 입출금 계좌를 선택해 주세요.');
+    }
+    return changes.map(c=>{
+        if(c.kind!=='tx' || c.rec.deleted) return c;
+        const a=next.account[c.rec.accountId];
+        if(a?.kind!=='debit') return c;
+        const bank=debitBank(next,a);
+        if(!bank) throw new Error('체크카드의 연결 계좌를 확인해 주세요.');
+        const old=data.tx[c.rec.id];
+        return {...c,rec:{...c.rec,debitBankId:old?.accountId===c.rec.accountId ? (old.debitBankId||c.rec.debitBankId||bank.id) : bank.id}};
+    });
+}
 const TYPE_LABEL = { income: '수입', expense: '지출', saving: '저축·투자', transfer: '계좌 이체', cardpay: '카드대금', draw: '사업 인출', tax: '세금 납부' };
 const BIZ_INCOME_CATS = ['매출', '기타 사업수입'];
 const BIZ_EXP_CATS = ['재료·원가', '포장·배송', '광고·마케팅', '플랫폼 수수료', '임차료', '통신비', '소모품', '외주·용역', '교통·차량', '기타 경비'];
@@ -18777,7 +18806,7 @@ function useStore() {
   if(!changes.length)return true;
   const R=ref.current;
   const base=mergeData(R.data,loadLocal(R.key)||emptyData());
-  const stamped=stampChanges(base,changes),next=mergeData(base,emptyData());
+  const stamped=stampChanges(base,debitChanges(base,changes)),next=mergeData(base,emptyData());
   stamped.forEach(({kind,rec})=>{if(!KINDS.includes(kind)||!rec.id)throw new Error('잘못된 저장 항목');next[kind][rec.id]=rec;});
   // Durable commit before state/success UI. Failed operations stay in the form and must be saved again.
   if(!saveDisk(next)) {R.pending=next;throw new Error('기기 저장 실패: 공간과 브라우저 저장 권한을 확인한 후 다시 저장해 주세요.');}
@@ -20636,7 +20665,7 @@ function cashMovement(data,m){
  if(t.type==='income')add(t.accountId,t.amount,t.date);else if(t.type==='expense')add(t.accountId,-t.amount,t.date);else if(!(liquid(t.accountId)&&liquid(t.toAccountId))){add(t.accountId,-t.amount,t.date);add(t.toAccountId,t.amount,t.date);}});
  return {inflow,outflow,net:inflow-outflow,unlinked,hasAccounts:live(ac).some(a=>liquid(a.id))};
 }
-function billPlans(data){return live(data.settings).filter(r=>r.id.startsWith('importBatch:')&&r.billDate&&r.billAmount>0&&!r.billPaid).map(r=>{const paid=sum(live(data.tx).filter(t=>t.type==='cardpay'&&t.statementId===r.id&&t.toAccountId===r.accountId&&t.date<=today()),t=>t.amount);return {...r,billAmount:Math.max(0,r.billAmount-paid),statementTotal:r.billAmount,paid};}).filter(r=>r.billAmount>0).sort((a,b)=>a.billDate.localeCompare(b.billDate));}
+function billPlans(data){return live(data.settings).filter(r=>r.id.startsWith('importBatch:')&&r.billDate&&r.billAmount>0&&!r.billPaid&&data.account[r.accountId]?.kind!=='debit').map(r=>{const paid=sum(live(data.tx).filter(t=>t.type==='cardpay'&&t.statementId===r.id&&t.toAccountId===r.accountId&&t.date<=today()),t=>t.amount);return {...r,billAmount:Math.max(0,r.billAmount-paid),statementTotal:r.billAmount,paid};}).filter(r=>r.billAmount>0).sort((a,b)=>a.billDate.localeCompare(b.billDate));}
 function undoImportChanges(data,batch){const ids=new Set(batch.txIds||[]),changes=live(data.tx).filter(t=>ids.has(t.id)).map(t=>({kind:'tx',rec:{...t,deleted:true}}));live(data.occ).forEach(o=>{const ps=o.payments||(o.txId?[{id:o.txId,txId:o.txId}]:[]);if(ps.some(p=>ids.has(p.txId)))changes.push({kind:'occ',rec:{...o,txId:null,payments:ps.filter(p=>!ids.has(p.txId))}});});changes.push({kind:'settings',rec:{...batch,deleted:true}});return changes;}
 function ReviewPanel(){
  const {data,month,commit,statsOf,toast}=useApp(),h=React.createElement;
@@ -22395,7 +22424,7 @@ async function readCardFile(file) {
 }
 function CardImportSheet({ onClose }) {
     const { data, commit, toast, accounts } = useApp();
-    const cards = accounts.filter((a) => a.kind === 'card');
+    const cards = accounts.filter(isPaymentCard);
     const [stage, setStage] = useState('pick');
     const [sheet, setSheetRows] = useState(null);
     const [det, setDet] = useState(null);
@@ -22403,6 +22432,9 @@ function CardImportSheet({ onClose }) {
     const [fileName, setFileName] = useState('');
     const [cardAcc, setCardAcc] = useState(cards[0] ? cards[0].id : '');
     const [newCard, setNewCard] = useState('');
+    const [newCardKind,setNewCardKind]=useState('card');
+    const [newCardBank,setNewCardBank]=useState('');
+    const importingDebit=cardAcc==='new'?newCardKind==='debit':data.account[cardAcc]?.kind==='debit';
     const [onlyCheck, setOnlyCheck] = useState(false);
     const [err, setErr] = useState('');
     const [busy, setBusy] = useState(false);
@@ -22472,6 +22504,7 @@ function CardImportSheet({ onClose }) {
     const shown = onlyCheck ? needCheck : items;
     const doImport = () => {
         if (!inc.length || (needCheck.length && !reviewOK)) return;
+        if (importingDebit && (billDate || Number(billAmount)>0)){setErr('체크카드는 결제 예정액을 등록하지 않아요. 입력한 결제일과 청구 총액을 비워 주세요.');return;}
         if ((billDate && !(Number(billAmount)>0)) || (!billDate && Number(billAmount)>0)){setErr('결제 예정액과 결제일을 함께 입력해 주세요.');return;}
         if(billDate&&cardAcc&&billPlans(data).some(b=>b.accountId===cardAcc&&b.billDate===billDate)){setErr('이 카드·결제일의 예정액이 이미 있어요. 중복 등록하지 않도록 결제 예정액 입력을 비워 주세요.');return;}
         if(billDate&&!cardAcc){setErr('결제 예정액을 입력하려면 카드를 선택하거나 새 카드를 추가해 주세요.');return;}
@@ -22483,8 +22516,9 @@ function CardImportSheet({ onClose }) {
                 setErr('새 카드 이름을 입력해 주세요.');
                 return;
             }
+            if(newCardKind==='debit'&&!debitBank(data,{linkedAccountId:newCardBank})){setErr('체크카드에 연결할 입출금 계좌를 선택해 주세요.');return;}
             acc = newId();
-            ch.push({ kind: 'account', rec: { id: acc, name: newCard.trim(), kind: 'card', scope: 'personal', initial: 0 } });
+            ch.push({ kind: 'account', rec: { id: acc, name: newCard.trim(), kind: newCardKind, linkedAccountId:newCardKind==='debit'?newCardBank:null, scope: 'personal', initial: 0 } });
         }
         const now = Date.now();
         const occPays = {};
@@ -22583,9 +22617,9 @@ function CardImportSheet({ onClose }) {
                     fileName)),
             React.createElement("div", { className: "form-2" },
                 React.createElement(Field, { label: "\uC5B4\uB290 \uCE74\uB4DC\uC778\uAC00\uC694" },
-                    React.createElement("select", { className: "input", value: cardAcc, onChange: (e) => setCardAcc(e.target.value) },
+                    React.createElement("select", { className: "input", value: cardAcc, onChange: (e) => {setCardAcc(e.target.value);if(data.account[e.target.value]?.kind==='debit'||(e.target.value==='new'&&newCardKind==='debit')){setBillDate('');setBillAmount('');}} },
                         React.createElement("option", { value: "" }, "\uACC4\uC88C \uC5F0\uACB0 \uC548 \uD568"),
-                        cards.map((a) => React.createElement("option", { key: a.id, value: a.id }, a.name)),
+                        cards.map((a) => React.createElement("option", { key: a.id, value: a.id }, a.name+' · '+ACC_KINDS[a.kind])),
                         React.createElement("option", { value: "new" }, "+ \uC0C8 \uCE74\uB4DC \uCD94\uAC00"))),
                 cardAcc === 'new' ? React.createElement(Field, { label: "\uCE74\uB4DC \uC774\uB984" },
                     React.createElement("input", { className: "input", value: newCard, onChange: (e) => setNewCard(e.target.value), placeholder: "\uC608: \uD604\uB300\uCE74\uB4DC" }))
@@ -22593,6 +22627,9 @@ function CardImportSheet({ onClose }) {
                         React.createElement("div", { className: "row-gap" },
                             React.createElement("button", { className: "btn small", onClick: () => setItems((l) => l.map((x) => (x.link ? x : { ...x, scope: 'business', touched: true, category: bizExpCats().includes(x.category) ? x.category : '기타 경비' }))) }, "\uC804\uBD80 \uC0AC\uC5C5 \uACBD\uBE44"),
                             React.createElement("button", { className: "btn small", onClick: () => setItems((l) => l.map((x) => (x.link ? x : { ...x, scope: 'personal', category: expCats().includes(x.category) ? x.category : '기타' }))) }, "\uC804\uBD80 \uAC1C\uC778")))),
+            cardAcc==='new' && React.createElement(Field,{label:'카드 종류'},React.createElement(Seg,{value:newCardKind,onChange:v=>{setNewCardKind(v);if(v==='debit'){setBillDate('');setBillAmount('');}},options:[['card','신용카드'],['debit','체크카드']]})),
+            cardAcc==='new' && newCardKind==='debit' && React.createElement(Field,{label:'연결 은행 계좌'},React.createElement('select',{className:'input',value:newCardBank,onChange:e=>setNewCardBank(e.target.value)},React.createElement('option',{value:''},'입출금 계좌 선택'),accounts.filter(a=>a.kind==='cash').map(a=>React.createElement('option',{key:a.id,value:a.id},a.name)))),
+            importingDebit && React.createElement('p',{className:'note'},'체크카드 사용 내역은 연결 은행 잔액에서 차감돼요. 은행 출금 내역과 같은 거래를 중복 등록하지 마세요.'),
             needCheck.length > 0 && React.createElement("label", { className: "check" },
                 React.createElement("input", { type: "checkbox", checked: onlyCheck, onChange: (e) => setOnlyCheck(e.target.checked) }),
                 "\uCE74\uD14C\uACE0\uB9AC \uD655\uC778\uC774 \uD544\uC694\uD55C ",
@@ -22600,7 +22637,7 @@ function CardImportSheet({ onClose }) {
                 "\uAC74\uB9CC \uBCF4\uAE30"),
             err && React.createElement("p", { className: "err" }, err),
             needCheck.length>0 && React.createElement('label',{className:'check'},React.createElement('input',{type:'checkbox',checked:reviewOK,onChange:e=>setReviewOK(e.target.checked)}),'중복 후보·취소·할부 및 미분류 거래를 확인했어요'),
-            React.createElement('details',{className:'more-sec'},React.createElement('summary',null,'결제 예정액 입력 (선택)'),React.createElement('div',{className:'form-2'},React.createElement(Field,{label:'명세서 결제일'},React.createElement('input',{className:'input',type:'date',value:billDate,onChange:e=>setBillDate(e.target.value)})),React.createElement(Field,{label:'이번 달 실제 청구 총액'},React.createElement(AmountInput,{value:billAmount,onChange:setBillAmount}))),React.createElement('p',{className:'small muted'},'할부·수수료를 포함한 명세서 청구 총액을 입력하세요. 사용 총액에서 임의로 나누지 않으며 실제 출금은 납부 기록 시 반영됩니다. 같은 카드·결제일은 한 파일에만 입력하세요.')),
+            !importingDebit && React.createElement('details',{className:'more-sec'},React.createElement('summary',null,'결제 예정액 입력 (선택)'),React.createElement('div',{className:'form-2'},React.createElement(Field,{label:'명세서 결제일'},React.createElement('input',{className:'input',type:'date',value:billDate,onChange:e=>setBillDate(e.target.value)})),React.createElement(Field,{label:'이번 달 실제 청구 총액'},React.createElement(AmountInput,{value:billAmount,onChange:setBillAmount}))),React.createElement('p',{className:'small muted'},'할부·수수료를 포함한 명세서 청구 총액을 입력하세요. 사용 총액에서 임의로 나누지 않으며 실제 출금은 납부 기록 시 반영됩니다. 같은 카드·결제일은 한 파일에만 입력하세요.')),
             React.createElement("ul", { className: "ci-list" }, shown.map((x) => {
                 const cats = x.scope === 'business' ? bizExpCats() : expCats();
                 return (React.createElement("li", { key: x.key, className: cx('ci-row', !x.include && 'off') },
@@ -23459,7 +23496,7 @@ function EmergencySheet({ onClose }) {
                     m,
                     "\uAC1C\uC6D4")))),
             React.createElement(Field, { label: "\uBE44\uC0C1\uC790\uAE08\uC73C\uB85C \uBCFC \uACC4\uC88C" },
-                React.createElement("div", { className: "toggles" }, accounts.filter((a) => a.kind !== 'card' && a.kind !== 'loan').map((a) => (React.createElement("label", { key: a.id, className: "check" },
+                React.createElement("div", { className: "toggles" }, accounts.filter((a) => !isPaymentCard(a) && a.kind !== 'loan').map((a) => (React.createElement("label", { key: a.id, className: "check" },
                     React.createElement("input", { type: "checkbox", checked: ids.includes(a.id), onChange: (e) => setIds(e.target.checked ? [...ids, a.id] : ids.filter((x) => x !== a.id)) }),
                     a.name,
                     " ",
@@ -23587,8 +23624,11 @@ const ASSET_CLASSES = ['국내주식', '해외주식', 'ETF·펀드', '채권', 
 function accountValuesAt(data, date) {
     const bal = {}, flows = {};
     const accs = live(data.account);
-    accs.forEach((a) => { bal[a.id] = a.initial || 0; });
-    const add = (id, v, d, ts) => { if (id && bal[id] != null) {
+    accs.forEach((a) => { bal[a.id] = a.kind==='debit' ? 0 : a.initial || 0; });
+    const add = (id, v, d, ts, bankId) => {
+        const a=data.account[id];
+        if(a?.kind==='debit') id=bankId || a.linkedAccountId;
+        if (id && bal[id] != null) {
         bal[id] += v;
         (flows[id] = flows[id] || []).push({ d, v, ts });
     } };
@@ -23598,22 +23638,22 @@ function accountValuesAt(data, date) {
         if (t.type === 'expense' && t.split) {
             const sp = t.split, sAcc = sp.settleAccountId || t.accountId;
             if (sp.payer !== 'other' && t.date <= date)
-                add(t.accountId, -(sp.total || t.amount), t.date, ts);
+                add(t.accountId, -(sp.total || t.amount), t.date, ts, t.debitBankId);
             (sp.parts || []).forEach((p) => {
                 const d = p.settledDate || t.date;
                 if (p.settled > 0 && d <= date)
-                    add(sAcc, sp.payer === 'other' ? -p.settled : p.settled, d, ts);
+                    add(sAcc, sp.payer === 'other' ? -p.settled : p.settled, d, ts, sAcc===t.accountId?t.debitBankId:null);
             });
             return;
         }
         if (t.date > date)
             return;
         if (t.type === 'income')
-            add(t.accountId, t.amount, t.date, ts);
+            add(t.accountId, t.amount, t.date, ts, t.debitBankId);
         else if (t.type === 'expense')
-            add(t.accountId, -t.amount, t.date, ts);
+            add(t.accountId, -t.amount, t.date, ts, t.debitBankId);
         else {
-            add(t.accountId, -t.amount, t.date, ts);
+            add(t.accountId, -t.amount, t.date, ts, t.debitBankId);
             add(t.toAccountId, t.amount, t.date, ts);
         }
     });
@@ -23684,7 +23724,7 @@ function AccountRows({ list, values, onOpen, extra }) {
                     a.assetClass ? ` · ${a.assetClass}` : '',
                     a.memo ? ` · ${a.memo}` : '',
                     extra ? extra(a) : '')),
-            React.createElement("span", { className: cx('row-amt num', values[a.id] < 0 && 'neg') }, a.kind === 'card' ? (values[a.id] < 0 ? `결제 예정 ${won(-values[a.id])}` : won(values[a.id])) : won(values[a.id]))))))));
+            React.createElement("span", { className: cx('row-amt num', values[a.id] < 0 && 'neg') }, a.kind==='debit' ? '즉시 출금' : a.kind === 'card' ? (values[a.id] < 0 ? `결제 예정 ${won(-values[a.id])}` : won(values[a.id])) : won(values[a.id]))))))));
 }
 // 자산: 요약 / 계좌(예금·현금·투자·부채·대출) / 관리(저축·비상자금·세금 적립 목표)
 const ASSET_GROUPS = {
@@ -23732,7 +23772,7 @@ function AssetOverview() {
         return (React.createElement("section", { className: "as-grp" },
             React.createElement("div", { className: "hm-sh" },
                 React.createElement("h2", null, title),
-                React.createElement("span", { className: "num as-tot" }, won(sum(l, (a) => W.v[a.id])))),
+                React.createElement("span", { className: "num as-tot" }, kinds.includes('debit') ? '연결 계좌에서 출금' : won(sum(l, (a) => W.v[a.id])))),
             React.createElement("ul", { className: "rows" }, l.map((a) => {
                 const s = a.kind === 'invest' ? investStats(data, a) : null;
                 return (React.createElement("li", { key: a.id },
@@ -23743,11 +23783,12 @@ function AssetOverview() {
                                 a.scope === 'business' && React.createElement("span", { className: "tx-tag" }, "\uC0AC\uC5C5")),
                             React.createElement("span", { className: "row-s" },
                                 ACC_KINDS[a.kind],
+                                a.kind==='debit' ? ' · '+(debitBank(data,a)?.name||'연결 계좌 확인 필요') : '',
                                 a.assetClass ? ` · ${a.assetClass}` : '',
                                 s && s.lastVal ? ` · ${+s.lastVal.date.slice(5, 7)}/${+s.lastVal.date.slice(8)} 평가액` : '',
                                 a.memo ? ` · ${a.memo}` : '')),
                         React.createElement("span", { className: "row-end" },
-                            React.createElement("span", { className: "row-amt num" }, a.kind === 'card' && W.v[a.id] < 0 ? `결제 예정 ${won(-W.v[a.id])}` : won(W.v[a.id])),
+                            React.createElement("span", { className: "row-amt num" }, a.kind==='debit' ? '즉시 출금' : a.kind === 'card' && W.v[a.id] < 0 ? `결제 예정 ${won(-W.v[a.id])}` : won(W.v[a.id])),
                             s && s.ret != null && React.createElement("span", { className: "as-ret num" },
                                 s.ret >= 0 ? '↑ +' : '↓ −',
                                 Math.abs(Math.round(s.ret * 10) / 10),
@@ -23799,6 +23840,7 @@ function AssetOverview() {
         grp('현금·예적금', ['cash', 'deposit', 'reserve']),
         grp('투자', ['invest']),
         grp('부채', ['loan', 'card']),
+        grp('체크카드', ['debit']),
         React.createElement("div", { className: "hm-sh" },
             React.createElement("h2", null, "\uC7AC\uD14C\uD06C \uC9C0\uD45C"),
             React.createElement("button", { className: "link", onClick: () => openSheet('account') },
@@ -23977,7 +24019,7 @@ function ValuationSheet({ accId, onClose }) {
 function InvestFlowSheet({ accId, mode, onClose }) {
     const { data, commit, toast, accounts } = useApp();
     const a = data.account[accId];
-    const others = accounts.filter((x) => x.id !== accId && x.kind !== 'card' && x.kind !== 'loan');
+    const others = accounts.filter((x) => x.id !== accId && !isPaymentCard(x) && x.kind !== 'loan');
     const [other, setOther] = useState(others[0] ? others[0].id : '');
     const [amount, setAmount] = useState(0);
     const [gain, setGain] = useState(0);
@@ -24168,13 +24210,15 @@ function LoanSheet({ acc, onClose }) {
         onClose();
     };
     const del = async () => {
+        if(live(data.account).some(a=>a.kind==='debit'&&a.linkedAccountId===acc.id)){setErr('연결된 체크카드의 출금 계좌를 먼저 변경해 주세요.');return;}
+        if(acc.kind==='debit'&&live(data.tx).some(t=>t.accountId===acc.id)){setErr('사용 기록이 있는 체크카드는 삭제할 수 없어요. 기록을 먼저 정리해 주세요.');return;}
         const used = live(data.tx).some((t) => t.accountId === acc.id || t.toAccountId === acc.id || t.loanId === acc.id);
         if (!(await ask({ title: '이 대출을 삭제할까요?', body: used ? '이 대출로 기록한 상환이 있어요. 삭제해도 거래는 남지만 대출 연결은 사라져요.' : undefined, confirmLabel: '대출 삭제', danger: true })))
             return;
         commit([{ kind: 'account', rec: { ...acc, deleted: true } }]);
         onClose();
     };
-    const fromAccs = accounts.filter((a) => a.kind !== 'loan' && a.kind !== 'card');
+    const fromAccs = accounts.filter((a) => a.kind !== 'loan' && !isPaymentCard(a));
     const openPay = () => openSheet('loanPay',{loanId:acc.id});
     const savePay = () => {};
     const kv = (l, v, cls) => h("div", { className: cls }, h("span", null, l), h("b", { className: "num" }, v));
@@ -25593,11 +25637,11 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
         setAccountId(f.accountId || '');
         setErr('');
     };
-    const nonCard = accounts.filter((a) => a.kind !== 'card' && a.kind !== 'loan');
+    const nonCard = accounts.filter((a) => !isPaymentCard(a) && a.kind !== 'loan');
     const payAccs = accounts.filter((a) => a.kind !== 'loan');
     const fromOpts = type === 'draw' ? nonCard.filter(isBizAcc) : nonCard;
     const toOpts = tab === 'saving' ? accounts.filter((a) => a.kind === 'deposit' || a.kind === 'invest')
-        : type === 'cardpay' ? accounts.filter((a) => a.kind === 'card') : type === 'draw' ? nonCard.filter((a) => !isBizAcc(a)) : accounts.filter((a) => a.kind !== 'card');
+        : type === 'cardpay' ? accounts.filter((a) => a.kind === 'card') : type === 'draw' ? nonCard.filter((a) => !isBizAcc(a)) : accounts.filter((a) => !isPaymentCard(a));
     const moveNote = {
         transfer: '일반 계좌 이체는 수입·지출에서 제외해요. 대출 계좌로 보내면 원금이 줄고 홈 지출에도 포함돼요.',
         cardpay: '카드 사용액은 쓴 날 지출로 이미 잡혀 있어요. 카드대금 납부는 지출로 다시 세지 않고 카드 빚을 갚는 이동으로만 기록해요.',
@@ -25751,7 +25795,7 @@ function EntrySheetBase({ tx, prefill, importedDate, onDraft, onClose }) {
                 tab !== 'transfer' && (h(Field, { label: tab === 'income' ? '입금 계좌' : tab === 'saving' ? '출금 계좌' : isTax ? '납부한 계좌·카드 (선택)' : '결제수단' },
                     h("select", { className: "input", value: payVal, onChange: (e) => onPay(e.target.value) },
                         h("option", { value: "" }, "선택 안 함"),
-                        (tab === 'expense' ? payAccs : nonCard).map((a) => h("option", { key: a.id, value: a.id }, a.name, a.kind === 'card' ? ' (카드)' : '', a.scope === 'business' ? ' · 사업' : '')),
+                        (tab === 'expense' ? payAccs : nonCard).map((a) => h("option", { key: a.id, value: a.id }, a.name, isPaymentCard(a) ? ' ('+ACC_KINDS[a.kind]+')' : '', a.scope === 'business' ? ' · 사업' : '')),
                         tab === 'expense' && methods.map((m) => h("option", { key: 'pm:' + m, value: 'pm:' + m }, m)),
                         tab === 'expense' && payMethod && !methods.includes(payMethod) && h("option", { value: 'pm:' + payMethod }, payMethod),
                         tab === 'expense' && h("option", { value: "__new" }, "+ 직접 입력 (예: 카카오페이)")))),
@@ -26216,7 +26260,7 @@ function validateBackup(j) {
  const obj=v=>!!v&&typeof v==='object'&&!Array.isArray(v);
  const fail=m=>{throw new Error('백업 검증 실패: '+m);};
  if(!obj(j)||j.app!=='MyBalance'||j.version!==1||!obj(j.data))fail('지원하는 MyBalance 버전 1 파일이 아니에요');
- const D=j.data,refs={accountId:'account',toAccountId:'account',loanId:'account',defaultFrom:'account',goalId:'goal',ruleId:'rule',txId:'tx',orderId:'order',pokerLogId:'worklog',settleAccountId:'account'};
+ const D=j.data,refs={accountId:'account',toAccountId:'account',loanId:'account',defaultFrom:'account',goalId:'goal',ruleId:'rule',txId:'tx',orderId:'order',pokerLogId:'worklog',settleAccountId:'account',linkedAccountId:'account',debitBankId:'account'};
  const numbers=new Set(['amount','initial','principal','remaining','interest','supply','vat','target','value','total','share','myShare','settled','defaultPrincipal','defaultInterest']);
  const dates=new Set(['date','startDate','repayStart','settledDate','endDate']);
  const walk=(v,path)=>{
@@ -26472,7 +26516,7 @@ function MessageImportSheet({onClose}){
    update(c.id,{saved:true,records});setAux([]);setErr('');setMonth(records[0].date.slice(0,7));toast('기기에 기록했어요');
   }catch(e){locks.current.delete(c.id);throw e;}
  };
- const quickRecord=c=>({...c.draft,scope:'personal',payMethod:temp.account[c.draft.accountId]?.kind==='card'?'카드':'',id:newId()});
+ const quickRecord=c=>({...c.draft,scope:'personal',payMethod:isPaymentCard(temp.account[c.draft.accountId])?'카드':'',id:newId()});
  const quickError=c=>{if(c.errors.length)return c.errors.join(' · ');if(temp.account[c.draft.accountId]?.scope==='business')return '사업 거래의 분류를 확인해 주세요.';try{validateMessageRecord(quickRecord(c),temp);return '';}catch(e){return e.message;}};
  const edit=c=>{setAux([]);setErr('');setEditing(c);};
  const finish=changes=>{const records=changes.filter(c=>c.kind==='tx'&&!c.rec.deleted).map(c=>c.rec);if(!records.length)throw new Error('거래 내용이 없어요.');store(editing,records,changes.filter(c=>c.kind!=='tx'));};
@@ -26519,18 +26563,32 @@ function AccountSheetBase({ acc, prefill, onClose }) {
     const signOf = (k) => (k === 'loan' || k === 'card' ? -1 : 1);
     const [f, setF] = useState(() => acc ? { ...acc, initialAbs: Math.abs(acc.initial || 0), neg: (acc.initial || 0) < 0 } : { name: '', kind: 'cash', initialAbs: 0, memo: '', scope: 'personal', ...(prefill || {}) });
     const [err, setErr] = useState('');
+    const [confirmed,setConfirmed]=useState(false);
+    const history=acc?live(data.tx).filter(t=>t.accountId===acc.id||t.toAccountId===acc.id):[];
+    const converting=f.kind==='debit'&&acc&&acc.kind!=='debit';
     const save = () => {
+        try {
         if (!f.name.trim()) {
             setErr('계좌 이름을 입력해 주세요.');
             return;
         }
+        if(f.kind==='debit'&&!debitBank(data,f)){setErr('연결할 입출금 계좌를 선택해 주세요.');return;}
+        if(converting && history.some(t=>t.type==='cardpay'||t.toAccountId===acc.id)){setErr('기존 카드대금 납부·이체 내역을 먼저 확인해 주세요. 새 체크카드로 등록하면 기존 기록을 유지할 수 있어요.');return;}
+        if(converting && (history.length||acc.initial) && !confirmed){setErr('기존 사용액의 계좌 반영을 확인해 주세요.');return;}
+        if(acc?.kind==='debit'&&f.kind!=='debit'&&history.length){setErr('사용 기록이 있는 체크카드는 종류를 바꿀 수 없어요. 새 카드를 추가해 주세요.');return;}
         const sign = f.kind === 'loan' || f.kind === 'card' ? -1 : f.neg ? -1 : 1;
         const { initialAbs, neg, ...rest } = f;
-        commit([{ kind: 'account', rec: { ...rest, reserveFor: f.kind === 'reserve' ? f.reserveFor || 'income' : null, id: acc ? acc.id : newId(), name: f.name.trim(), initial: sign * (initialAbs || 0) } }]);
+        const changes=[];
+        if(acc?.kind==='debit' && f.linkedAccountId!==acc.linkedAccountId) history.filter(t=>t.accountId===acc.id&&!t.debitBankId).forEach(t=>changes.push({kind:'tx',rec:{...t,debitBankId:acc.linkedAccountId}}));
+        changes.push({ kind: 'account', rec: { ...rest, linkedAccountId:f.kind==='debit'?f.linkedAccountId:null, reserveFor: f.kind === 'reserve' ? f.reserveFor || 'income' : null, id: acc ? acc.id : newId(), name: f.name.trim(), initial: f.kind==='debit'?0:sign * (initialAbs || 0) } });
+        commit(changes);
         toast(acc ? '수정했어요' : '계좌를 추가했어요');
         onClose();
+        } catch(e) { setErr(e.message||'저장하지 못했어요.'); }
     };
     const del = async () => {
+        if(live(data.account).some(a=>a.kind==='debit'&&a.linkedAccountId===acc.id)){setErr('연결된 체크카드의 출금 계좌를 먼저 변경해 주세요.');return;}
+        if(acc.kind==='debit'&&live(data.tx).some(t=>t.accountId===acc.id)){setErr('사용 기록이 있는 체크카드는 삭제할 수 없어요. 기록을 먼저 정리해 주세요.');return;}
         const used = live(data.tx).some((t) => t.accountId === acc.id || t.toAccountId === acc.id);
         if (!(await ask({ title: '이 계좌를 삭제할까요?', body: used ? '이 계좌를 쓴 거래가 있어요. 삭제해도 거래는 남지만 계좌 연결은 사라져요.' : undefined, confirmLabel: '계좌 삭제', danger: true })))
             return;
@@ -26553,7 +26611,10 @@ function AccountSheetBase({ acc, prefill, onClose }) {
                 React.createElement("div", { className: "chips" }, ASSET_CLASSES.map((c) => React.createElement("button", { key: c, type: "button", className: cx('chip', (f.assetClass || '기타') === c && 'on'), onClick: () => setF({ ...f, assetClass: c }) }, c)))),
             f.kind === 'reserve' && React.createElement(Field, { label: "\uBB34\uC5C7\uC744 \uC704\uD55C \uC900\uBE44\uAE08" },
                 React.createElement(Seg, { small: true, value: f.reserveFor || 'income', onChange: (v) => setF({ ...f, reserveFor: v }), options: [['vat', '부가세'], ['income', '종합소득세']] })),
-            React.createElement(Field, { label: label, hint: f.kind === 'reserve' ? '세금으로 낼 돈을 모아두는 통장이에요. 적립은 이체로 기록돼 지출로 잡히지 않아요.' : f.kind === 'card' ? '이후 이 카드로 쓴 지출은 결제 예정액에 더해지고, 카드대금 납부 이체로 줄어들어요.' : f.kind === 'loan' ? '부채로 계산돼 순자산에서 빠져요.' : '이후 거래가 쌓이며 잔액이 자동으로 바뀌어요.' },
+            f.kind==='debit' && React.createElement(Field,{label:'연결 은행 계좌',hint:'사용액은 이 계좌의 앱 잔액에서 자동 차감돼요. 실제 은행에서 이체하는 기능은 아니에요.'},React.createElement('select',{className:'input',value:f.linkedAccountId||'',onChange:e=>setF({...f,linkedAccountId:e.target.value})},React.createElement('option',{value:''},'입출금 계좌 선택'),live(data.account).filter(a=>a.kind==='cash'&&a.id!==acc?.id).map(a=>React.createElement('option',{key:a.id,value:a.id},a.name)))),
+            f.kind==='debit' && React.createElement('p',{className:'small muted'},'카드에는 별도 잔액이나 결제 예정액을 만들지 않아요. 은행 잔액에는 등록 시점 이후 사용액만 반영하도록 거래 날짜와 시작 잔액을 확인해 주세요.'),
+            converting && !!(history.length||acc.initial) && React.createElement('label',{className:'check'},React.createElement('input',{type:'checkbox',checked:confirmed,onChange:e=>setConfirmed(e.target.checked)}),'기존 사용 기록 '+history.length+'건을 연결 계좌에 반영하고, 카드의 초기 미결제 금액 '+won(Math.abs(acc.initial||0))+'원을 제거하는 것을 확인했어요. 은행 출금 내역과 중복되지 않아야 해요.'),
+            f.kind!=='debit' && React.createElement(Field, { label: label, hint: f.kind === 'reserve' ? '세금으로 낼 돈을 모아두는 통장이에요. 적립은 이체로 기록돼 지출로 잡히지 않아요.' : f.kind === 'card' ? '이후 이 카드로 쓴 지출은 결제 예정액에 더해지고, 카드대금 납부 이체로 줄어들어요.' : f.kind === 'loan' ? '부채로 계산돼 순자산에서 빠져요.' : '이후 거래가 쌓이며 잔액이 자동으로 바뀌어요.' },
                 React.createElement(AmountInput, { value: f.initialAbs, onChange: (v) => setF({ ...f, initialAbs: v }) })),
             (f.kind === 'cash') && React.createElement("label", { className: "check" },
                 React.createElement("input", { type: "checkbox", checked: !!f.neg, onChange: (e) => setF({ ...f, neg: e.target.checked }) }),
